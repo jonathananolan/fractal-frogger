@@ -1,7 +1,7 @@
 // Movement System - handles frog and obstacle movement
 // Owner: Engine Developer
 
-import type { GameData, Point } from '../entities/types.js';
+import type { GameData, Lane, Point } from '../entities/types.js';
 
 export class MovementSystem {
   /**
@@ -60,6 +60,24 @@ export class MovementSystem {
           obstacle.position.x = gridSize;
         }
       }
+    }
+
+    // if frog on log, move frog
+    if (gameData.frog.isOnLog) {
+      // get frog's Y position
+      const frogY = gameData.frog.position.y
+
+      // match frog's Y position with lane
+      let frogLane: Lane = gameData.lanes[0] // HACKY, should always correctly assign lane in bottom loop
+      for (const lane of gameData.lanes) {
+        if (frogY == lane.y) {
+          frogLane = lane
+        }
+      }
+
+      // update frog's position
+      const frogVelocity = -1 * frogLane.direction * frogLane.speed
+      gameData.frog.position.x += frogVelocity * dt
     }
   }
 }
