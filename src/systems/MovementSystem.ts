@@ -9,18 +9,33 @@ export class MovementSystem {
    * Returns true if move was valid, false if blocked (edge of grid).
    */
   moveFrog(gameData: GameData, direction: 'up' | 'down' | 'left' | 'right', gridSize: number): boolean {
-    if (direction == 'left' && gameData.frog.position.x > 0) {
-      gameData.frog.position.x -= 1
+    const { position } = gameData.frog;
+    let newX = position.x;
+    let newY = position.y;
 
-    } else if (direction == 'right' && gameData.frog.position.x < gridSize - 1) {
-      gameData.frog.position.x += 1
-
-    } else if (direction == 'up' && gameData.frog.position.y > 0) {
-      gameData.frog.position.y -= 1
-
-    } else if (direction == 'down' && gameData.frog.position.y < gridSize - 1) {
-      gameData.frog.position.y += 1
+    switch (direction) {
+      case 'up':
+        newY -= 1;
+        break;
+      case 'down':
+        newY += 1;
+        break;
+      case 'left':
+        newX -= 1;
+        break;
+      case 'right':
+        newX += 1;
+        break;
     }
+
+    // Check grid boundaries
+    if (newX < 0 || newX >= gridSize || newY < 0 || newY >= gridSize) {
+      return false;
+    }
+
+    // Update position
+    position.x = newX;
+    position.y = newY;
     return true;
   }
 
@@ -29,9 +44,18 @@ export class MovementSystem {
    * Also moves frog if riding a log.
    */
   update(gameData: GameData, dt: number, gridSize: number): void {
-    // TODO: Implement obstacle movement
-    // - Loop through all lanes
-    // - Move each obstacle by velocity * dt
-    // - If frog is on a log, move frog with log
+    // Move all obstacles
+    for (const lane of gameData.lanes) {
+      for (const obstacle of lane.obstacles) {
+        obstacle.position.x += obstacle.velocity * dt;
+
+        // Wrap around when obstacle goes off screen
+        if (obstacle.velocity > 0 && obstacle.position.x > gridSize) {
+          obstacle.position.x = -obstacle.width;
+        } else if (obstacle.velocity < 0 && obstacle.position.x + obstacle.width < 0) {
+          obstacle.position.x = gridSize;
+        }
+      }
+    }
   }
 }
