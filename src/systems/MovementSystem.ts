@@ -9,12 +9,19 @@ export class MovementSystem {
    * Returns true if move was valid, false if blocked (edge of grid).
    */
   moveFrog(gameData: GameData, direction: 'up' | 'down' | 'left' | 'right', gridSize: number): boolean {
-    // TODO: Implement frog movement
-    // - Calculate new position based on direction
-    // - Check grid boundaries
-    // - Update frog.position if valid
-    // - Return success/failure
-    return false;
+    if (direction == 'left' && gameData.frog.position.x > 0) {
+      gameData.frog.position.x -= 1
+
+    } else if (direction == 'right' && gameData.frog.position.x < gridSize - 1) {
+      gameData.frog.position.x += 1
+
+    } else if (direction == 'up' && gameData.frog.position.y > 0) {
+      gameData.frog.position.y -= 1
+
+    } else if (direction == 'down' && gameData.frog.position.y < gridSize - 1) {
+      gameData.frog.position.y += 1
+    }
+    return true;
   }
 
   /**
