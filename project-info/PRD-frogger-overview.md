@@ -83,6 +83,18 @@ Content Architect: Lives/score displays, visual distinction between zones
 
 # Milestone 3
 
+What success looks like: multiple people on different devices play the same game simultaneously.
+
+## EOD experience -
+
+1. One person starts a game
+2. Another person scans a QR code to join
+3. Both frogs appear on the same map
+4. Race to see who crosses first
+5. See rankings at the end
+
+# Milestone 4
+
 What success looks like: Developers can debug easily, players can learn the controls.
 
 ## EOD experience -
@@ -96,18 +108,6 @@ What success looks like: Developers can debug easily, players can learn the cont
 Systems Integrator: Wire up keyboard shortcuts, integrate timer
 Engine Developer: God mode, provide debug information
 Content Architect: Help overlay design, debug panel layout, polish screens
-
-# Milestone 4
-
-What success looks like: Two people on different devices play the same game simultaneously.
-
-## EOD experience -
-
-1. One person starts a game
-2. Another person scans a QR code to join
-3. Both frogs appear on the same map
-4. Race to see who crosses first
-5. See rankings at the end
 
 ## Who Does What
 
@@ -156,4 +156,27 @@ If we finish everything else, we can revisit these:
 - music and sound effects
 - combat
 - persistent online leaderboards
-- mobile play
+- mobile play (transparent overlay) - put it in the html chrome outside of the rendered game canvas
+- replay mode - save the game/specifc moves and then play it back
+
+game pad support - game pad api - built into web browser
+
+# Meeting Notes - with david
+
+get a backend figured out to make sure itll work down the line for multiplayer
+
+only have to pass position of frog - every tick - cock running on the server - the board will change - occasionally have to broadcast player xyz is at x position
+
+figure out levels, how they are generated
+
+writing tests for the collision logic -
+
+movement system
+
+testing what ui elements are showing up,
+
+level configuration
+
+win state
+
+'think about optimization as a nice to have'
