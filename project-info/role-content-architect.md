@@ -3,6 +3,7 @@
 **Role:** Define entities, design UI, create visual identity, build all screens.
 
 **Your files:**
+
 - `src/entities/types.ts` (shared with SI)
 - `src/ui/StartScreen.ts`
 - `src/ui/GameOverScreen.ts`
@@ -18,6 +19,7 @@
 **Goal:** Define what exists in the game, create the essential screens.
 
 ### Morning
+
 - [ ] Work with SI to define entity types in `src/entities/types.ts`:
   ```typescript
   Point { x, y }
@@ -33,6 +35,7 @@
   - [ ] Goal zone color
 
 ### Afternoon
+
 - [ ] Create `src/ui/StartScreen.ts`
   - [ ] Game title "FROGGER"
   - [ ] "Press SPACE to start"
@@ -47,6 +50,7 @@
   - [ ] "Press SPACE to play again"
 
 ### End of Day
+
 - [ ] All three screens render correctly
 - [ ] Colors look good together
 - [ ] Hand off to SI for integration
@@ -59,6 +63,7 @@
 **Goal:** In-game displays for lives, score, and lane visuals.
 
 ### Morning
+
 - [ ] Create `src/ui/HUD.ts` with:
   - [ ] Lives display (top left? hearts or number?)
   - [ ] Score display (top right?)
@@ -70,12 +75,14 @@
   - [ ] Goal zone: distinct target areas?
 
 ### Afternoon
+
 - [ ] Define log visuals (brown rectangles, different from cars)
 - [ ] Define car visuals (vary colors by lane for variety)
 - [ ] Consider: should frog look different when on log?
 - [ ] Polish start/game over/victory screens if time
 
 ### End of Day
+
 - [ ] HUD displays lives and score
 - [ ] Lanes are visually distinct
 - [ ] Logs look different from cars
@@ -88,6 +95,7 @@
 **Goal:** Create overlay screens for help and debugging.
 
 ### Morning
+
 - [ ] Create `src/ui/HelpOverlay.ts`
   - [ ] Semi-transparent background
   - [ ] Title: "CONTROLS"
@@ -101,6 +109,7 @@
   - [ ] "Press H to close"
 
 ### Afternoon
+
 - [ ] Create `src/ui/DebugPanel.ts`
   - [ ] Small panel (corner of screen, doesn't block play)
   - [ ] Show frog position: "Pos: (x, y)"
@@ -112,6 +121,7 @@
   - [ ] Visual warning when low (red? flashing?)
 
 ### End of Day
+
 - [ ] Help overlay shows all controls
 - [ ] Debug panel shows useful info
 - [ ] Timer displays and updates
@@ -124,6 +134,7 @@
 **Goal:** Support multiple players visually.
 
 ### Morning
+
 - [ ] Design player identification:
   - [ ] Player 1 = green frog
   - [ ] Player 2 = blue frog? (or different shade)
@@ -134,6 +145,7 @@
   - [ ] QR code display area
 
 ### Afternoon
+
 - [ ] Update victory screen for multiplayer:
   - [ ] Show rankings: 1st, 2nd, 3rd...
   - [ ] Show each player's score
@@ -142,6 +154,7 @@
 - [ ] Test all UI with SI's multiplayer integration
 
 ### End of Day
+
 - [ ] Players are visually distinct
 - [ ] Multiplayer victory screen works
 - [ ] All UI scales if map is larger
@@ -154,6 +167,7 @@
 **Goal:** Everything looks cohesive and polished.
 
 ### All Day
+
 - [ ] Review all screens — consistent style?
 - [ ] Check text readability (size, contrast)
 - [ ] Check color consistency across all UI
@@ -167,19 +181,19 @@
 
 Define your palette here as you decide:
 
-| Element | Color (hex) | Notes |
-|---------|-------------|-------|
-| Frog | | |
-| Frog (Player 2) | | |
-| Car (lane 1) | | |
-| Car (lane 2) | | |
-| Log | | |
-| Road | | |
-| Water | | |
-| Grass | | |
-| Goal | | |
-| UI text | | |
-| UI background | | |
+| Element         | Color (hex) | Notes |
+| --------------- | ----------- | ----- |
+| Frog            |             |       |
+| Frog (Player 2) |             |       |
+| Car (lane 1)    |             |       |
+| Car (lane 2)    |             |       |
+| Log             |             |       |
+| Road            |             |       |
+| Water           |             |       |
+| Grass           |             |       |
+| Goal            |             |       |
+| UI text         |             |       |
+| UI background   |             |       |
 
 ---
 
@@ -209,12 +223,7 @@ Each UI component should export a render function:
 
 ```typescript
 // Example: HUD.ts
-export function renderHUD(
-  renderer: Renderer,
-  lives: number,
-  score: number,
-  time: number
-): void {
+export function renderHUD(renderer: Renderer, lives: number, score: number, time: number): void {
   // Draw lives
   // Draw score
   // Draw timer
@@ -228,6 +237,7 @@ SI will call your render functions from FroggerScene.
 ## Testing Your UI
 
 Before handing off:
+
 1. [ ] Does it render without errors?
 2. [ ] Is text readable at game resolution?
 3. [ ] Do colors work well together?

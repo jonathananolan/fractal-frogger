@@ -17,6 +17,7 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 **What success looks like:** You can play a complete round of Frogger from start to finish.
 
 ### The Player Experience
+
 1. See a start screen with the game title
 2. Press SPACE to begin
 3. Control a frog with arrow keys (or WASD)
@@ -26,6 +27,7 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 7. Press SPACE to play again
 
 ### Checklist
+
 - [ ] Start screen appears
 - [ ] Frog moves when you press keys
 - [ ] Cars move across the screen
@@ -37,11 +39,11 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 
 ### Who Does What
 
-| Person | Focus |
-|--------|-------|
+| Person                 | Focus                                                                                   |
+| ---------------------- | --------------------------------------------------------------------------------------- |
 | **Systems Integrator** | Create the main game file, connect everyone's pieces, handle start/play/win/lose states |
-| **Engine Developer** | Make the frog move, make cars move, detect when frog hits car or reaches goal |
-| **Content Architect** | Design the start screen, win screen, lose screen, pick colors for frog/cars/lanes |
+| **Engine Developer**   | Make the frog move, make cars move, detect when frog hits car or reaches goal           |
+| **Content Architect**  | Design the start screen, win screen, lose screen, pick colors for frog/cars/lanes       |
 
 ---
 
@@ -50,6 +52,7 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 **What success looks like:** The game has water, logs, and multiple lives—feels like real Frogger.
 
 ### The Player Experience
+
 1. Cross the road (avoid cars)
 2. Cross the river by hopping on logs
 3. Fall in water = lose a life (not instant game over)
@@ -58,6 +61,7 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 6. Time pressure adds tension
 
 ### New Features
+
 - [ ] Water zone between road and goal
 - [ ] Logs float across the water
 - [ ] Frog rides on logs automatically
@@ -69,11 +73,11 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 
 ### Who Does What
 
-| Person | Focus |
-|--------|-------|
-| **Systems Integrator** | Add water zone, wire up lives system, add scoring |
-| **Engine Developer** | Make frog ride on logs, detect water deaths, spawn logs continuously |
-| **Content Architect** | Lives display, score display, visual distinction between road/water/grass |
+| Person                 | Focus                                                                     |
+| ---------------------- | ------------------------------------------------------------------------- |
+| **Systems Integrator** | Add water zone, wire up lives system, add scoring                         |
+| **Engine Developer**   | Make frog ride on logs, detect water deaths, spawn logs continuously      |
+| **Content Architect**  | Lives display, score display, visual distinction between road/water/grass |
 
 ---
 
@@ -82,11 +86,13 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 **What success looks like:** Developers can debug easily, players can learn the controls.
 
 ### The Player Experience
+
 1. Press H to see controls help
 2. Press D to see debug info (for testing)
 3. Game feels tighter and more polished
 
 ### New Features
+
 - [ ] Help overlay (press H) - shows all controls
 - [ ] Debug panel (press D) - shows frog position, useful for testing
 - [ ] God mode (press G in debug) - can't die, for testing
@@ -95,11 +101,11 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 
 ### Who Does What
 
-| Person | Focus |
-|--------|-------|
+| Person                 | Focus                                                       |
+| ---------------------- | ----------------------------------------------------------- |
 | **Systems Integrator** | Wire up keyboard shortcuts (H, D, G), integrate timer fully |
-| **Engine Developer** | God mode toggle, provide debug data (positions, states) |
-| **Content Architect** | Help overlay design, debug panel layout, polish all screens |
+| **Engine Developer**   | God mode toggle, provide debug data (positions, states)     |
+| **Content Architect**  | Help overlay design, debug panel layout, polish all screens |
 
 ---
 
@@ -108,6 +114,7 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 **What success looks like:** Two people on different devices play the same game simultaneously.
 
 ### The Player Experience
+
 1. One person starts a game
 2. Another person scans a QR code to join
 3. Both frogs appear on the same map
@@ -115,6 +122,7 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 5. See rankings at the end
 
 ### New Features
+
 - [ ] WebSocket connection between players
 - [ ] Multiple frogs on screen
 - [ ] QR code to join a game
@@ -124,11 +132,11 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 
 ### Who Does What
 
-| Person | Focus |
-|--------|-------|
+| Person                 | Focus                                                 |
+| ---------------------- | ----------------------------------------------------- |
 | **Systems Integrator** | WebSocket server, QR code generation, sync game state |
-| **Engine Developer** | Multiple frog movement, frog-frog collision handling |
-| **Content Architect** | Player colors/numbers, lobby UI, leaderboard display |
+| **Engine Developer**   | Multiple frog movement, frog-frog collision handling  |
+| **Content Architect**  | Player colors/numbers, lobby UI, leaderboard display  |
 
 ---
 
@@ -137,6 +145,7 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 **What success looks like:** You're proud to show this to people.
 
 ### Focus Areas
+
 - [ ] Fix any remaining bugs
 - [ ] Smooth out visual rough edges
 - [ ] Playtest and tune difficulty
@@ -151,10 +160,10 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 
 ## Daily Rhythm
 
-| Time | Activity |
-|------|----------|
-| **Morning** | Quick standup: What did you do? What are you doing? Any blockers? |
-| **Midday** | Check-in: Are we on track for today's milestone? |
+| Time           | Activity                                                           |
+| -------------- | ------------------------------------------------------------------ |
+| **Morning**    | Quick standup: What did you do? What are you doing? Any blockers?  |
+| **Midday**     | Check-in: Are we on track for today's milestone?                   |
 | **End of Day** | Demo current state to each other, celebrate wins, note what's next |
 
 ---
@@ -172,6 +181,7 @@ A polished Frogger game that feels good to play. Start simple, get it working, t
 ## Out of Scope This Week
 
 We're NOT doing these (no matter how cool they sound):
+
 - Music and sound effects
 - Roguelike mechanics
 - Combat
@@ -185,16 +195,16 @@ If we finish everything else, we can revisit. But these are traps.
 
 ## Quick Reference: Who Owns What
 
-| Area | Owner |
-|------|-------|
-| Overall PRD & integration | Systems Integrator |
-| Frog movement & collision | Engine Developer |
-| Car/log spawning & physics | Engine Developer |
-| All UI screens | Content Architect |
-| Entity definitions | Content Architect (with SI) |
-| Game state (start/play/win/lose) | Systems Integrator |
-| WebSocket server | Systems Integrator |
-| Debug tools | Everyone (ED provides data, CA designs UI, SI wires it) |
+| Area                             | Owner                                                   |
+| -------------------------------- | ------------------------------------------------------- |
+| Overall PRD & integration        | Systems Integrator                                      |
+| Frog movement & collision        | Engine Developer                                        |
+| Car/log spawning & physics       | Engine Developer                                        |
+| All UI screens                   | Content Architect                                       |
+| Entity definitions               | Content Architect (with SI)                             |
+| Game state (start/play/win/lose) | Systems Integrator                                      |
+| WebSocket server                 | Systems Integrator                                      |
+| Debug tools                      | Everyone (ED provides data, CA designs UI, SI wires it) |
 
 ---
 
@@ -203,10 +213,10 @@ If we finish everything else, we can revisit. But these are traps.
 Track key decisions here as you make them:
 
 | Date | Decision | Why |
-|------|----------|-----|
-| | | |
-| | | |
-| | | |
+| ---- | -------- | --- |
+|      |          |     |
+|      |          |     |
+|      |          |     |
 
 ---
 

@@ -3,6 +3,7 @@
 **Role:** Own the PRD, wire everything together, manage game state, unblock the team.
 
 **Your files:**
+
 - `src/scenes/FroggerScene.ts` (main game file)
 - `src/entities/types.ts` (shared with CA)
 - `src/main.ts` (entry point)
@@ -15,12 +16,14 @@
 **Goal:** Get the basic game structure running so ED and CA can plug in their pieces.
 
 ### Morning
+
 - [ ] Review PRD with team, answer questions
 - [ ] Create folder structure (`systems/`, `entities/`, `ui/`)
 - [ ] Create `src/entities/types.ts` with CA — define Frog, Obstacle, Lane types
 - [ ] Create `FroggerScene.ts` scaffold with stubbed methods
 
 ### Afternoon
+
 - [ ] Implement game state machine: `START → PLAYING → VICTORY | GAME_OVER`
 - [ ] Wire up SPACE key to transition states
 - [ ] Create hardcoded lane configuration (3 safe rows, 4 road rows, goal row)
@@ -29,6 +32,7 @@
 - [ ] Integrate CA's screens when ready
 
 ### End of Day
+
 - [ ] Full game loop works: start → play → win/lose → restart
 - [ ] Commit and push working MVP
 - [ ] Quick demo to team
@@ -40,12 +44,14 @@
 **Goal:** Add water zone, lives system, and scoring.
 
 ### Morning
+
 - [ ] Add water zone to lane configuration (between road and goal)
 - [ ] Add log lanes to configuration
 - [ ] Implement lives system (start with 3, lose 1 on death)
 - [ ] Implement respawn logic (frog returns to start on death)
 
 ### Afternoon
+
 - [ ] Integrate ED's log-riding mechanic
 - [ ] Integrate ED's water death detection
 - [ ] Add score tracking (points for crossing)
@@ -53,6 +59,7 @@
 - [ ] Wire CA's score display to game state
 
 ### End of Day
+
 - [ ] Water/logs working
 - [ ] Lives decrement correctly
 - [ ] Score displays and updates
@@ -65,11 +72,13 @@
 **Goal:** Add timer pressure and developer tools.
 
 ### Morning
+
 - [ ] Implement timer system (countdown per attempt)
 - [ ] Timer runs out = lose a life
 - [ ] Wire timer to CA's timer display
 
 ### Afternoon
+
 - [ ] Add H key → toggle help overlay
 - [ ] Add D key → toggle debug panel
 - [ ] Add G key → toggle god mode (only when debug is on)
@@ -77,6 +86,7 @@
 - [ ] Wire ED's god mode flag
 
 ### End of Day
+
 - [ ] Timer works and feels right (tune duration)
 - [ ] Help overlay shows controls
 - [ ] Debug panel shows useful info
@@ -89,12 +99,14 @@
 **Goal:** Two players can play on different devices.
 
 ### Morning
+
 - [ ] Set up WebSocket server (Express + ws or Socket.io)
 - [ ] Define message protocol: `join`, `move`, `state_sync`, `game_over`
 - [ ] Generate game room IDs
 - [ ] Implement QR code generation for join URL
 
 ### Afternoon
+
 - [ ] Sync game state across clients
 - [ ] Handle multiple frogs in FroggerScene
 - [ ] Scale up map if needed (more rows/columns)
@@ -102,6 +114,7 @@
 - [ ] Handle player disconnect gracefully
 
 ### End of Day
+
 - [ ] Two players can join same game
 - [ ] Both see each other's frogs
 - [ ] Game ends correctly for all players
@@ -114,6 +127,7 @@
 **Goal:** Make it demo-ready.
 
 ### All Day
+
 - [ ] Fix any remaining bugs
 - [ ] Playtest with team — note rough edges
 - [ ] Tune difficulty (timer, car speeds, spawn rates)
@@ -142,6 +156,7 @@ Use this when wiring new systems:
 ## Unblocking the Team
 
 If someone is stuck:
+
 1. **Understand the blocker** — What specifically isn't working?
 2. **Check interfaces** — Are they getting the data they expect?
 3. **Stub if needed** — Give them fake data so they can keep working

@@ -19,8 +19,8 @@ export type ObstacleType = 'car' | 'log' | 'turtle';
 export interface Obstacle {
   id: string;
   position: Point;
-  width: number;           // in grid cells
-  velocity: number;        // cells per tick (positive = right, negative = left)
+  width: number; // in grid cells
+  velocity: number; // cells per tick (positive = right, negative = left)
   type: ObstacleType;
 }
 
@@ -30,9 +30,9 @@ export interface Lane {
   y: number;
   type: LaneType;
   obstacles: Obstacle[];
-  spawnRate: number;       // ticks between spawns
-  direction: 1 | -1;       // 1 = right, -1 = left
-  speed: number;           // base obstacle speed (cells per tick)
+  spawnRate: number; // ticks between spawns
+  direction: 1 | -1; // 1 = right, -1 = left
+  speed: number; // base obstacle speed (cells per tick)
 }
 
 export interface GameData {
