@@ -1,5 +1,0 @@
-For the ECS-based team structure:
-Content Architect — the person building the narrative, data, UI, and content systems (the non-game person)
-Engine Developer — the person building the core game systems, ECS, game loop, rendering, mechanics (the game-excited person)
-Systems Integrator — you, owning the PRD, wiring everything together, managing state, and filling gaps
-These map cleanly to ECS too: the Content Architect defines the Entities and Components (what exists and what data they carry), the Engine Developer builds the Systems (the logic that acts on them), and the Systems Integrator makes sure everything talks to each other and the game actually holds together as a whole.
