@@ -29,14 +29,43 @@ export class CollisionSystem {
    * Returns the collision result.
    */
   update(gameData: GameData): CollisionResult {
-    // TODO: Implement collision detection
-    // - Find which lane the frog is in
-    // - Check lane type (safe, road, water, goal)
-    // - If road: check collision with cars
-    // - If water: check if on log, otherwise water death
-    // - If goal: return goal reached
-    // - Respect godMode flag
-    return { type: 'none' };
+    const frogX = gameData.frog.position.x;
+    const frogY = gameData.frog.position.y;
+
+    // Find which lane the frog is in
+    const currentLane = gameData.lanes.find((l) => l.y === frogY);
+    if (!currentLane) {
+      return { type: 'none' };
+    }
+
+    // Check lane type
+    switch (currentLane.type) {
+      case 'goal':
+        return { type: 'goal' };
+
+      case 'safe':
+        return { type: 'none' };
+
+      case 'road':
+        // Check collision with cars
+        for (const obstacle of currentLane.obstacles) {
+          if (this.pointInObstacle(frogX, frogY, obstacle)) {
+            return { type: 'car' };
+          }
+        }
+        return { type: 'none' };
+
+      case 'water':
+        // Check if on a log
+        for (const obstacle of currentLane.obstacles) {
+          if (this.pointInObstacle(frogX, frogY, obstacle)) {
+            return { type: 'log', logId: obstacle.id };
+          }
+        }
+        // TODO: Re-enable water death when logs are properly spawning
+        // return { type: 'water' };
+        return { type: 'none' };
+    }
   }
 
   /**
