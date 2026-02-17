@@ -31,6 +31,14 @@ export interface Renderer {
     pixelY: number,
     options?: { fontSize?: number; color?: number; anchor?: number },
   ): void;
+  drawKeyCap(
+    label: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ): void;
+
   clear(): void;
   readonly stage: import('pixi.js').Container;
 }
@@ -43,3 +51,5 @@ export interface Scene {
   onKeyUp(key: string): void;
   destroy(): void;
 }
+
+export type VehicleSize = "s" | "m" | "l" | "xl";

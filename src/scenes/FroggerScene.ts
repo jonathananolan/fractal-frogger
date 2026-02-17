@@ -24,6 +24,10 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 // Server URL
 const SERVER_URL = 'http://localhost:3001';
 
+import { loadVehicleSprites } from "../sprites.js";
+
+loadVehicleSprites();
+
 // Direction mapping
 const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
   ArrowUp: 'up',

@@ -1,7 +1,15 @@
-import { Application, Container, Graphics, Text, TextStyle } from 'pixi.js';
-import type { Renderer as IRenderer } from './types.js';
-import { CELL_SIZE } from './types.js';
-
+import {
+  Application,
+  Assets,
+  Container,
+  Graphics,
+  Sprite,
+  Text,
+  TextStyle,
+} from "pixi.js";
+import type { Renderer as IRenderer } from "./types.js";
+import { CELL_SIZE, VehicleSize } from "./types.js";
+import { SPRITE_PATH, VEHICLES_BY_SIZE } from "../sprites.js";
 export class Renderer implements IRenderer {
   private app: Application;
   private drawContainer: Container;
@@ -24,7 +32,12 @@ export class Renderer implements IRenderer {
     color: number,
   ): void {
     const g = new Graphics();
-    g.rect(gridX * CELL_SIZE, gridY * CELL_SIZE, widthCells * CELL_SIZE, heightCells * CELL_SIZE);
+    g.rect(
+      gridX * CELL_SIZE,
+      gridY * CELL_SIZE,
+      widthCells * CELL_SIZE,
+      heightCells * CELL_SIZE,
+    );
     g.fill(color);
     this.drawContainer.addChild(g);
   }
@@ -45,6 +58,44 @@ export class Renderer implements IRenderer {
     t.x = pixelX;
     t.y = pixelY;
     this.drawContainer.addChild(t);
+  }
+
+  drawKeyCap(
+    label: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ): void {
+    // Draw the rounded rectangle background
+    const bg = new Graphics();
+    bg.roundRect(x - width / 2, y - height / 2, width, height, 6);
+    bg.fill(0x333333);
+    bg.stroke({ color: 0x666666, width: 2 });
+    this.drawContainer.addChild(bg);
+
+    // Draw the label text centered on the keycap
+    const style = new TextStyle({ fontSize: 14, fill: 0xffffff });
+    const text = new Text({ text: label, style });
+    text.anchor.set(0.5);
+    text.x = x;
+    text.y = y;
+    this.drawContainer.addChild(text);
+  }
+
+  drawVehicle(gridX: number, gridY: number, size: VehicleSize): void {
+    const vehiclesToChooseFrom = VEHICLES_BY_SIZE[size];
+    const index = Math.floor(Math.random() * vehiclesToChooseFrom.length);
+
+    const picked = vehiclesToChooseFrom[index];
+
+    const texture = Assets.get(SPRITE_PATH + picked.file);
+    const sprite = new Sprite(texture);
+    sprite.x = gridX * CELL_SIZE;
+    sprite.y = gridY * CELL_SIZE;
+    sprite.height = CELL_SIZE;
+    sprite.width = (picked.length / 48) * CELL_SIZE; // scale length relative to 48px base width
+    this.drawContainer.addChild(sprite);
   }
 
   clear(): void {
