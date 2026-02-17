@@ -3,7 +3,7 @@
 
 import type { Scene, GameContext, Renderer } from '../engine/types.js';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE } from '../engine/types.js';
-import type { GameData, GameState, DebugData, Lane } from '../entities/types.js';
+import type { GameData, GameState, DebugData, Lane, Obstacle } from '../entities/types.js';
 
 // Systems
 import { MovementSystem } from '../systems/MovementSystem.js';
@@ -78,48 +78,18 @@ export class FroggerScene implements Scene {
       });
     }
 
-    // TEST: Add a log to see it render (remove later)
-    const waterLane = this.gameData.lanes.find((l) => l.y === 11);
-    if (waterLane) {
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 11 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
+    // TEST: Add logs to water lanes for testing
+    const testLogs: Obstacle[] = [
+      { id: 'test-log-1', position: { x: 8, y: 11 }, width: 3, velocity: 0.3, type: 'log' },
+      { id: 'test-log-2', position: { x: 8, y: 10 }, width: 3, velocity: 0.3, type: 'log' },
+      { id: 'test-log-3', position: { x: 8, y: 9 }, width: 3, velocity: 0.3, type: 'log' },
+      { id: 'test-log-4', position: { x: 8, y: 8 }, width: 3, velocity: 0.3, type: 'log' },
+      { id: 'test-log-5', position: { x: 8, y: 7 }, width: 3, velocity: 0.3, type: 'log' }
+    ]
 
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 9 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 10 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 8 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 7 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
+    for (const log of testLogs) {
+      const lane = this.gameData.lanes.find(l => l.y === log.position.y)
+      if (lane) lane.obstacles.push(log)
     }
   }
 
