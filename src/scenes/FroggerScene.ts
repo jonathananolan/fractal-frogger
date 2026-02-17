@@ -383,7 +383,7 @@ export class FroggerScene implements Scene {
       for (const obstacle of lane.obstacles) {
         const color = obstacle.type === "car" ? 0xcc4444 : 0x8b4513; // red for cars, brown for logs
         renderer.drawRect(
-          Math.floor(obstacle.position.x),
+          obstacle.position.x,
           obstacle.position.y,
           obstacle.width,
           1,
