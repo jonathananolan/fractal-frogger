@@ -4,7 +4,7 @@ export const GRID_SIZE = 20;
 export const CELL_SIZE = 30;
 export const CANVAS_WIDTH = GRID_SIZE * CELL_SIZE; // 600px
 export const CANVAS_HEIGHT = GRID_SIZE * CELL_SIZE; // 600px
-export const TICK_RATE_MS = 150; // ~6.67 ticks/sec
+export const TICK_RATE_MS = 30; // ~6.67 ticks/sec
 export const TICK_RATE_S = TICK_RATE_MS / 1000; // 0.15s per tick
 export const MAX_ACCUMULATOR_MS = 1000;
 
@@ -23,16 +23,16 @@ export interface Renderer {
     gridY: number,
     widthCells: number,
     heightCells: number,
-    color: number
+    color: number,
   ): void;
   drawText(
     text: string,
     pixelX: number,
     pixelY: number,
-    options?: { fontSize?: number; color?: number; anchor?: number }
+    options?: { fontSize?: number; color?: number; anchor?: number },
   ): void;
   clear(): void;
-  readonly stage: import("pixi.js").Container;
+  readonly stage: import('pixi.js').Container;
 }
 
 export interface Scene {

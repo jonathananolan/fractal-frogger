@@ -1,43 +1,38 @@
 // Frogger Scene - main game scene
 // Owner: Systems Integrator
 
-import type { Scene, GameContext, Renderer } from "../engine/types.js";
-import { CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE } from "../engine/types.js";
-import type {
-  GameData,
-  GameState,
-  DebugData,
-  Lane,
-} from "../entities/types.js";
+import type { Scene, GameContext, Renderer } from '../engine/types.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE } from '../engine/types.js';
+import type { GameData, GameState, DebugData, Lane } from '../entities/types.js';
 
 // Systems
-import { MovementSystem } from "../systems/MovementSystem.js";
-import { CollisionSystem } from "../systems/CollisionSystem.js";
-import { SpawnSystem } from "../systems/SpawnSystem.js";
+import { MovementSystem } from '../systems/MovementSystem.js';
+import { CollisionSystem } from '../systems/CollisionSystem.js';
+import { SpawnSystem } from '../systems/SpawnSystem.js';
 
 // UI
-import { renderStartScreen } from "../ui/StartScreen.js";
-import { renderGameOverScreen } from "../ui/GameOverScreen.js";
-import { renderVictoryScreen } from "../ui/VictoryScreen.js";
-import { renderHUD } from "../ui/HUD.js";
-import { renderHelpOverlay } from "../ui/HelpOverlay.js";
-import { renderDebugPanel } from "../ui/DebugPanel.js";
+import { renderStartScreen } from '../ui/StartScreen.js';
+import { renderGameOverScreen } from '../ui/GameOverScreen.js';
+import { renderVictoryScreen } from '../ui/VictoryScreen.js';
+import { renderHUD } from '../ui/HUD.js';
+import { renderHelpOverlay } from '../ui/HelpOverlay.js';
+import { renderDebugPanel } from '../ui/DebugPanel.js';
 
 // Direction mapping
-const KEY_DIRECTION: Record<string, "up" | "down" | "left" | "right"> = {
-  ArrowUp: "up",
-  ArrowDown: "down",
-  ArrowLeft: "left",
-  ArrowRight: "right",
-  KeyW: "up",
-  KeyS: "down",
-  KeyA: "left",
-  KeyD: "right",
+const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  KeyW: 'up',
+  KeyS: 'down',
+  KeyA: 'left',
+  KeyD: 'right',
 };
 
 export class FroggerScene implements Scene {
   // Game state
-  private state: GameState = "start";
+  private state: GameState = 'start';
   private gameData!: GameData;
   private gridSize: number = GRID_SIZE;
   private tickCount: number = 0;
@@ -75,11 +70,11 @@ export class FroggerScene implements Scene {
     const roadLane = this.gameData.lanes.find((l) => l.y === 17);
     if (roadLane) {
       roadLane.obstacles.push({
-        id: "test-car-1",
+        id: 'test-car-1',
         position: { x: 5, y: 17 },
         width: 2,
         velocity: 5,
-        type: "car",
+        type: 'car',
       });
     }
 
@@ -87,43 +82,43 @@ export class FroggerScene implements Scene {
     const waterLane = this.gameData.lanes.find((l) => l.y === 11);
     if (waterLane) {
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 11 },
         width: 3,
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
 
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 9 },
         width: 3,
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
 
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 10 },
         width: 3,
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
 
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 8 },
         width: 3,
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
 
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 7 },
         width: 3,
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
     }
   }
@@ -140,7 +135,7 @@ export class FroggerScene implements Scene {
     // Safe zone (bottom 2 rows)
     lanes.push({
       y: 19,
-      type: "safe",
+      type: 'safe',
       obstacles: [],
       spawnRate: 0,
       direction: 1,
@@ -148,7 +143,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 18,
-      type: "safe",
+      type: 'safe',
       obstacles: [],
       spawnRate: 0,
       direction: 1,
@@ -158,7 +153,7 @@ export class FroggerScene implements Scene {
     // Road lanes (rows 13-17)
     lanes.push({
       y: 17,
-      type: "road",
+      type: 'road',
       obstacles: [],
       spawnRate: 20,
       direction: 1,
@@ -166,7 +161,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 16,
-      type: "road",
+      type: 'road',
       obstacles: [],
       spawnRate: 25,
       direction: -1,
@@ -174,7 +169,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 15,
-      type: "road",
+      type: 'road',
       obstacles: [],
       spawnRate: 18,
       direction: 1,
@@ -182,7 +177,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 14,
-      type: "road",
+      type: 'road',
       obstacles: [],
       spawnRate: 22,
       direction: -1,
@@ -190,7 +185,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 13,
-      type: "road",
+      type: 'road',
       obstacles: [],
       spawnRate: 30,
       direction: 1,
@@ -200,7 +195,7 @@ export class FroggerScene implements Scene {
     // Safe middle (row 12)
     lanes.push({
       y: 12,
-      type: "safe",
+      type: 'safe',
       obstacles: [],
       spawnRate: 0,
       direction: 1,
@@ -210,7 +205,7 @@ export class FroggerScene implements Scene {
     // Water lanes (rows 7-11)
     lanes.push({
       y: 11,
-      type: "water",
+      type: 'water',
       obstacles: [],
       spawnRate: 25,
       direction: -1,
@@ -218,7 +213,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 10,
-      type: "water",
+      type: 'water',
       obstacles: [],
       spawnRate: 20,
       direction: 1,
@@ -226,7 +221,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 9,
-      type: "water",
+      type: 'water',
       obstacles: [],
       spawnRate: 30,
       direction: -1,
@@ -234,7 +229,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 8,
-      type: "water",
+      type: 'water',
       obstacles: [],
       spawnRate: 22,
       direction: 1,
@@ -242,7 +237,7 @@ export class FroggerScene implements Scene {
     });
     lanes.push({
       y: 7,
-      type: "water",
+      type: 'water',
       obstacles: [],
       spawnRate: 28,
       direction: -1,
@@ -253,7 +248,7 @@ export class FroggerScene implements Scene {
     for (let y = 0; y <= 6; y++) {
       lanes.push({
         y,
-        type: "goal",
+        type: 'goal',
         obstacles: [],
         spawnRate: 0,
         direction: 1,
@@ -265,7 +260,7 @@ export class FroggerScene implements Scene {
   }
 
   update(dt: number): void {
-    if (this.state !== "playing") return;
+    if (this.state !== 'playing') return;
 
     this.tickCount++;
 
@@ -277,18 +272,18 @@ export class FroggerScene implements Scene {
 
     // Handle collision results
     switch (collision.type) {
-      case "car":
-      case "water":
+      case 'car':
+      case 'water':
         this.handleDeath();
         break;
-      case "log":
+      case 'log':
         this.gameData.frog.isOnLog = true;
         this.gameData.frog.currentLogId = collision.logId;
         break;
-      case "goal":
+      case 'goal':
         this.handleVictory();
         break;
-      case "none":
+      case 'none':
         this.gameData.frog.isOnLog = false;
         this.gameData.frog.currentLogId = undefined;
         break;
@@ -301,7 +296,7 @@ export class FroggerScene implements Scene {
     this.gameData.frog.lives--;
 
     if (this.gameData.frog.lives <= 0) {
-      this.state = "gameOver";
+      this.state = 'gameOver';
     } else {
       // Respawn frog at start
       this.gameData.frog.position = {
@@ -314,29 +309,29 @@ export class FroggerScene implements Scene {
 
   private handleVictory(): void {
     this.gameData.score += 100;
-    this.state = "victory";
+    this.state = 'victory';
   }
 
   render(renderer: Renderer): void {
     renderer.clear();
 
     switch (this.state) {
-      case "start":
+      case 'start':
         renderStartScreen(renderer);
         break;
 
-      case "playing":
+      case 'playing':
         this.renderGame(renderer);
         if (this.showHelp) renderHelpOverlay(renderer);
         if (this.showDebug) renderDebugPanel(renderer, this.getDebugData());
         break;
 
-      case "gameOver":
+      case 'gameOver':
         this.renderGame(renderer);
         renderGameOverScreen(renderer, this.gameData.score);
         break;
 
-      case "victory":
+      case 'victory':
         this.renderGame(renderer);
         renderVictoryScreen(renderer, this.gameData.score);
         break;
@@ -361,16 +356,16 @@ export class FroggerScene implements Scene {
     for (const lane of this.gameData.lanes) {
       let color: number;
       switch (lane.type) {
-        case "safe":
+        case 'safe':
           color = 0x228822; // grass green
           break;
-        case "road":
+        case 'road':
           color = 0x444444; // gray
           break;
-        case "water":
+        case 'water':
           color = 0x2244aa; // blue
           break;
-        case "goal":
+        case 'goal':
           color = 0x226622; // darker green
           break;
       }
@@ -381,7 +376,7 @@ export class FroggerScene implements Scene {
   private renderObstacles(renderer: Renderer): void {
     for (const lane of this.gameData.lanes) {
       for (const obstacle of lane.obstacles) {
-        const color = obstacle.type === "car" ? 0xcc4444 : 0x8b4513; // red for cars, brown for logs
+        const color = obstacle.type === 'car' ? 0xcc4444 : 0x8b4513; // red for cars, brown for logs
         renderer.drawRect(
           Math.floor(obstacle.position.x),
           obstacle.position.y,
@@ -404,7 +399,7 @@ export class FroggerScene implements Scene {
 
     return {
       frogPosition: this.gameData.frog.position,
-      currentLaneType: currentLane?.type ?? "safe",
+      currentLaneType: currentLane?.type ?? 'safe',
       isOnLog: this.gameData.frog.isOnLog,
       godMode: this.collisionSystem.isGodMode(),
       tickCount: this.tickCount,
@@ -413,34 +408,34 @@ export class FroggerScene implements Scene {
 
   onKeyDown(key: string): void {
     // SPACE: Start / Restart
-    if (key === "Space") {
-      console.log("space hit");
-      if (this.state === "start") {
-        this.state = "playing";
-      } else if (this.state === "gameOver" || this.state === "victory") {
+    if (key === 'Space') {
+      console.log('space hit');
+      if (this.state === 'start') {
+        this.state = 'playing';
+      } else if (this.state === 'gameOver' || this.state === 'victory') {
         this.resetGame();
-        this.state = "start";
+        this.state = 'start';
       }
       return;
     }
 
     // Only handle other keys during play
-    if (this.state !== "playing") return;
+    if (this.state !== 'playing') return;
 
     // H: Toggle help
-    if (key === "KeyH") {
+    if (key === 'KeyH') {
       this.showHelp = !this.showHelp;
       return;
     }
 
     // D: Toggle debug
-    if (key === "KeyD") {
+    if (key === 'KeyD') {
       this.showDebug = !this.showDebug;
       return;
     }
 
     // G: Toggle god mode (only when debug is on)
-    if (key === "KeyG" && this.showDebug) {
+    if (key === 'KeyG' && this.showDebug) {
       this.collisionSystem.setGodMode(!this.collisionSystem.isGodMode());
       return;
     }

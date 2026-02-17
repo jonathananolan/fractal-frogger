@@ -8,7 +8,11 @@ export class MovementSystem {
    * Move the frog one cell in the given direction.
    * Returns true if move was valid, false if blocked (edge of grid).
    */
-  moveFrog(gameData: GameData, direction: 'up' | 'down' | 'left' | 'right', gridSize: number): boolean {
+  moveFrog(
+    gameData: GameData,
+    direction: 'up' | 'down' | 'left' | 'right',
+    gridSize: number,
+  ): boolean {
     const { position } = gameData.frog;
     let newX = position.x;
     let newY = position.y;

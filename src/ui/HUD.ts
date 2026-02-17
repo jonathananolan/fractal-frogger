@@ -8,7 +8,7 @@ export function renderHUD(
   renderer: Renderer,
   lives: number,
   score: number,
-  timeRemaining?: number
+  timeRemaining?: number,
 ): void {
   // TODO: Polish HUD design
   // - Lives display (hearts? number?)

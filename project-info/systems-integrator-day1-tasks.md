@@ -3,10 +3,12 @@
 ## Setup & Verify (Do First)
 
 ### Task 1: Run the app
+
 ```bash
 npm install
 npm run dev
 ```
+
 - [ ] App loads without errors
 - [ ] See start screen with "FROGGER" title
 - [ ] Press SPACE transitions to playing state
@@ -17,9 +19,11 @@ npm run dev
 ## Morning Tasks
 
 ### Task 2: Verify game state machine works
+
 **File:** `src/scenes/FroggerScene.ts`
 
 Test these transitions manually:
+
 - [ ] `start` → press SPACE → `playing`
 - [ ] `playing` → (when ED implements collision) → `gameOver`
 - [ ] `playing` → (when ED implements goal detection) → `victory`
@@ -31,9 +35,11 @@ The state machine is already implemented at **line 257-265**. Just verify it wor
 ---
 
 ### Task 3: Review entity types with Content Architect
+
 **File:** `src/entities/types.ts`
 
 Walk through with CA:
+
 - [ ] `Point` - x, y coordinates (line 4-7)
 - [ ] `Frog` - position, lives, isAlive, isOnLog (line 9-15)
 - [ ] `Obstacle` - id, position, width, velocity, type (line 19-25)
@@ -44,9 +50,11 @@ Ask CA: "Does this cover what you need for the UI?"
 ---
 
 ### Task 4: Verify lane configuration
+
 **File:** `src/scenes/FroggerScene.ts`, method `createLanes()` (line 70-106)
 
 Check the layout makes sense:
+
 ```
 Rows 0-6:   goal (green)
 Rows 7-11:  water (blue) - will have logs
@@ -63,6 +71,7 @@ Rows 18-19: safe start (green)
 ## Afternoon Tasks
 
 ### Task 5: Test keyboard input
+
 **File:** `src/scenes/FroggerScene.ts`, method `onKeyDown()` (line 255-293)
 
 - [ ] Arrow keys mapped correctly (line 22-31)
@@ -74,9 +83,11 @@ Rows 18-19: safe start (green)
 ---
 
 ### Task 6: Prepare for Engine Developer integration
+
 **File:** `src/scenes/FroggerScene.ts`
 
 The systems are already imported and instantiated (lines 9-11, 41-43):
+
 ```typescript
 private movementSystem = new MovementSystem();
 private collisionSystem = new CollisionSystem();
@@ -84,6 +95,7 @@ private spawnSystem = new SpawnSystem();
 ```
 
 When ED finishes their implementations:
+
 - [ ] Movement: `moveFrog()` called at line 291
 - [ ] Collision: `update()` called at line 117
 - [ ] Spawn: `update()` called at line 114
@@ -93,9 +105,11 @@ When ED finishes their implementations:
 ---
 
 ### Task 7: Prepare for Content Architect integration
+
 **File:** `src/scenes/FroggerScene.ts`
 
 UI functions are already imported and called (lines 14-19, 166-177):
+
 ```typescript
 renderStartScreen(renderer);
 renderGameOverScreen(renderer, this.gameData.score);
@@ -104,6 +118,7 @@ renderHUD(renderer, this.gameData.frog.lives, this.gameData.score);
 ```
 
 When CA finishes their screens:
+
 - [ ] Start screen looks good
 - [ ] Game over screen shows score
 - [ ] Victory screen shows score
@@ -112,6 +127,7 @@ When CA finishes their screens:
 ---
 
 ### Task 8: Test frog rendering
+
 **File:** `src/scenes/FroggerScene.ts`, method `renderFrog()` (line 237-240)
 
 - [ ] Frog appears as green square
@@ -122,7 +138,9 @@ When CA finishes their screens:
 ## End of Day
 
 ### Task 9: Integration test with team
+
 Once ED and CA have working pieces:
+
 - [ ] Frog moves with arrow keys (ED's MovementSystem)
 - [ ] Cars appear and move (ED's SpawnSystem + MovementSystem)
 - [ ] Hitting a car triggers game over (ED's CollisionSystem)
@@ -133,6 +151,7 @@ Once ED and CA have working pieces:
 ---
 
 ### Task 10: Commit working state
+
 ```bash
 git add -A
 git commit -m "Day 1: Basic game loop working"
@@ -143,12 +162,12 @@ git push
 
 ## Quick Reference
 
-| What | Where |
-|------|-------|
-| Game state | `FroggerScene.ts:35` |
+| What              | Where                     |
+| ----------------- | ------------------------- |
+| Game state        | `FroggerScene.ts:35`      |
 | State transitions | `FroggerScene.ts:257-265` |
-| Lane config | `FroggerScene.ts:70-106` |
-| Movement call | `FroggerScene.ts:291` |
-| Collision call | `FroggerScene.ts:117` |
-| Death handling | `FroggerScene.ts:139-153` |
-| Victory handling | `FroggerScene.ts:156-159` |
+| Lane config       | `FroggerScene.ts:70-106`  |
+| Movement call     | `FroggerScene.ts:291`     |
+| Collision call    | `FroggerScene.ts:117`     |
+| Death handling    | `FroggerScene.ts:139-153` |
+| Victory handling  | `FroggerScene.ts:156-159` |

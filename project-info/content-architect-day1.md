@@ -1,6 +1,7 @@
 # Content Architect - Day 1 Tasks
 
 ## Files to Create/Work In
+
 - `src/entities/types.ts` (shared with SI)
 - `src/ui/StartScreen.ts`
 - `src/ui/GameOverScreen.ts`
@@ -10,12 +11,13 @@
 
 ## Morning: Entity Types & Color Palette
 
-| Task | File |
-|------|------|
+| Task                        | File                    |
+| --------------------------- | ----------------------- |
 | Define entity types with SI | `src/entities/types.ts` |
-| Define color palette | Design decision |
+| Define color palette        | Design decision         |
 
 **Entity types to define:**
+
 ```typescript
 Point { x, y }
 Frog { position, lives, isAlive }
@@ -24,6 +26,7 @@ Lane { y, type, obstacles, direction, speed }
 ```
 
 **Colors to pick:**
+
 - Frog color
 - Car colors (vary by lane?)
 - Road color
@@ -34,23 +37,26 @@ Lane { y, type, obstacles, direction, speed }
 
 ## Afternoon: Core Screens
 
-| Task | File |
-|------|------|
-| Start screen | `src/ui/StartScreen.ts` |
+| Task             | File                       |
+| ---------------- | -------------------------- |
+| Start screen     | `src/ui/StartScreen.ts`    |
 | Game over screen | `src/ui/GameOverScreen.ts` |
-| Victory screen | `src/ui/VictoryScreen.ts` |
+| Victory screen   | `src/ui/VictoryScreen.ts`  |
 
 **StartScreen contents:**
+
 - Game title "FROGGER"
 - "Press SPACE to start"
 - Controls hint: "Arrow keys to move"
 
 **GameOverScreen contents:**
+
 - "GAME OVER" text
 - Final score display
 - "Press SPACE to restart"
 
 **VictoryScreen contents:**
+
 - "YOU WIN!" text
 - Final score display
 - "Press SPACE to play again"
@@ -58,6 +64,7 @@ Lane { y, type, obstacles, direction, speed }
 ---
 
 ## End of Day Checklist
+
 - [ ] All three screens render correctly
 - [ ] Colors look good together
 - [ ] Hand off to SI for integration
@@ -101,13 +108,13 @@ Canvas size: 600x600 pixels.
 
 ### Color Palette (fill in as you decide)
 
-| Element | Color (hex) | Notes |
-|---------|-------------|-------|
-| Frog | | |
-| Car (lane 1) | | |
-| Car (lane 2) | | |
-| Road | | |
-| Water | | |
-| Grass | | |
-| Goal | | |
-| UI text | | |
+| Element      | Color (hex) | Notes |
+| ------------ | ----------- | ----- |
+| Frog         |             |       |
+| Car (lane 1) |             |       |
+| Car (lane 2) |             |       |
+| Road         |             |       |
+| Water        |             |       |
+| Grass        |             |       |
+| Goal         |             |       |
+| UI text      |             |       |

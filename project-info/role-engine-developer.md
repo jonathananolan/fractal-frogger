@@ -3,6 +3,7 @@
 **Role:** Build the core game systems — movement, collision, spawning, physics.
 
 **Your files:**
+
 - `src/systems/MovementSystem.ts`
 - `src/systems/CollisionSystem.ts`
 - `src/systems/SpawnSystem.ts`
@@ -14,12 +15,14 @@
 **Goal:** Frog moves, cars move, collisions work.
 
 ### Morning
+
 - [ ] Create `src/systems/MovementSystem.ts`
 - [ ] Implement frog movement: one grid cell per arrow key press
 - [ ] Prevent frog from moving off the grid edges
 - [ ] Implement obstacle movement: move by velocity each tick
 
 ### Afternoon
+
 - [ ] Create `src/systems/CollisionSystem.ts`
 - [ ] Implement point-in-rectangle collision check
 - [ ] Detect frog hitting a car → return collision event
@@ -27,6 +30,7 @@
 - [ ] Test collisions feel accurate (not too strict, not too loose)
 
 ### End of Day
+
 - [ ] Hand off working systems to SI for integration
 - [ ] Frog movement feels responsive
 - [ ] Collision detection works correctly
@@ -39,6 +43,7 @@
 **Goal:** Logs work, obstacles spawn continuously.
 
 ### Morning
+
 - [ ] Implement log-riding mechanic:
   - [ ] Detect frog landing on log
   - [ ] Frog inherits log velocity while on log
@@ -47,6 +52,7 @@
   - [ ] Frog in water lane + not on log = death
 
 ### Afternoon
+
 - [ ] Create `src/systems/SpawnSystem.ts`
 - [ ] Spawn obstacles at lane edges based on spawn rate
 - [ ] Vary spawn timing slightly for natural feel
@@ -54,6 +60,7 @@
 - [ ] Different speeds for different lanes
 
 ### End of Day
+
 - [ ] Log riding feels good
 - [ ] Water death works correctly
 - [ ] Obstacles spawn and despawn smoothly
@@ -66,6 +73,7 @@
 **Goal:** Support timer system, add god mode, provide debug data.
 
 ### Morning
+
 - [ ] Add god mode flag to collision system
 - [ ] When god mode = true, collisions don't trigger death
 - [ ] Expose debug data function:
@@ -79,6 +87,7 @@
   ```
 
 ### Afternoon
+
 - [ ] Support SI's timer integration (no blocking work needed)
 - [ ] Test edge cases:
   - [ ] Frog at exact edge of log
@@ -87,6 +96,7 @@
 - [ ] Fix any edge case bugs
 
 ### End of Day
+
 - [ ] God mode toggles correctly
 - [ ] Debug data is accurate
 - [ ] Edge cases handled
@@ -99,11 +109,13 @@
 **Goal:** Handle multiple frogs, frog-frog interactions.
 
 ### Morning
+
 - [ ] Update MovementSystem to handle array of frogs
 - [ ] Each frog moves independently
 - [ ] Each frog can ride logs independently
 
 ### Afternoon
+
 - [ ] Implement frog-frog collision detection
 - [ ] Decide and implement collision behavior:
   - Option A: Bounce back (both frogs pushed apart)
@@ -113,6 +125,7 @@
 - [ ] Handle edge case: two frogs on same log
 
 ### End of Day
+
 - [ ] Multiple frogs work correctly
 - [ ] Frog-frog interaction feels fun
 - [ ] No crashes with multiple players
@@ -125,6 +138,7 @@
 **Goal:** Bulletproof the systems.
 
 ### All Day
+
 - [ ] Playtest — note any weird behavior
 - [ ] Fix collision edge cases
 - [ ] Tune values:
@@ -186,6 +200,7 @@ Bottom rows = safe zone (start)
 ## Testing Your Systems
 
 Before handing off to SI:
+
 1. [ ] Does it work with hardcoded test data?
 2. [ ] Does it handle edge cases (grid boundaries, etc.)?
 3. [ ] Is the interface clean? (SI should just call `update()`)
