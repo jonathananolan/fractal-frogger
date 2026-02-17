@@ -1,9 +1,9 @@
-import { Graphics } from "pixi.js";
-import type { Scene, GameContext, Renderer } from "../engine/types.js";
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../engine/types.js";
+import { Graphics } from 'pixi.js';
+import type { Scene, GameContext, Renderer } from '../engine/types.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../engine/types.js';
 
-type GameState = "start" | "playing" | "gameOver";
-type Direction = "up" | "down" | "left" | "right";
+type GameState = 'start' | 'playing' | 'gameOver';
+type Direction = 'up' | 'down' | 'left' | 'right';
 
 interface Point {
   x: number;
@@ -12,22 +12,22 @@ interface Point {
 
 // Maps key codes to directions
 const KEY_DIRECTION: Record<string, Direction> = {
-  ArrowUp: "up",
-  ArrowDown: "down",
-  ArrowLeft: "left",
-  ArrowRight: "right",
-  KeyW: "up",
-  KeyS: "down",
-  KeyA: "left",
-  KeyD: "right",
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  KeyW: 'up',
+  KeyS: 'down',
+  KeyA: 'left',
+  KeyD: 'right',
 };
 
 // Opposite directions — used to prevent 180-degree turns
 const OPPOSITE: Record<Direction, Direction> = {
-  up: "down",
-  down: "up",
-  left: "right",
-  right: "left",
+  up: 'down',
+  down: 'up',
+  left: 'right',
+  right: 'left',
 };
 
 // Movement deltas per direction
@@ -39,13 +39,13 @@ const DELTA: Record<Direction, Point> = {
 };
 
 export class SnakeScene implements Scene {
-  private state: GameState = "start";
+  private state: GameState = 'start';
   private gridSize = 0;
 
   // Snake state
   private snake: Point[] = [];
-  private direction: Direction = "right";
-  private nextDirection: Direction = "right"; // Buffered input — applied on next tick
+  private direction: Direction = 'right';
+  private nextDirection: Direction = 'right'; // Buffered input — applied on next tick
 
   // Food & score
   private food: Point = { x: 0, y: 0 };
@@ -65,8 +65,8 @@ export class SnakeScene implements Scene {
       { x: centerX - 1, y: centerY },
       { x: centerX - 2, y: centerY },
     ];
-    this.direction = "right";
-    this.nextDirection = "right";
+    this.direction = 'right';
+    this.nextDirection = 'right';
     this.score = 0;
     this.spawnFood();
   }
@@ -87,7 +87,7 @@ export class SnakeScene implements Scene {
   }
 
   update(_dt: number): void {
-    if (this.state !== "playing") return;
+    if (this.state !== 'playing') return;
 
     // Apply buffered direction
     this.direction = this.nextDirection;
@@ -104,13 +104,13 @@ export class SnakeScene implements Scene {
       newHead.y < 0 ||
       newHead.y >= this.gridSize
     ) {
-      this.state = "gameOver";
+      this.state = 'gameOver';
       return;
     }
 
     // Self collision (check before adding new head)
     if (this.snake.some((p) => p.x === newHead.x && p.y === newHead.y)) {
-      this.state = "gameOver";
+      this.state = 'gameOver';
       return;
     }
 
@@ -131,12 +131,12 @@ export class SnakeScene implements Scene {
     renderer.clear();
     this.renderBorder(renderer);
 
-    if (this.state === "start") {
+    if (this.state === 'start') {
       this.renderStartScreen(renderer);
       return;
     }
 
-    if (this.state === "gameOver") {
+    if (this.state === 'gameOver') {
       this.renderGameField(renderer);
       this.renderGameOverOverlay(renderer);
       return;
@@ -176,13 +176,13 @@ export class SnakeScene implements Scene {
 
   private renderStartScreen(renderer: Renderer): void {
     const cx = CANVAS_WIDTH / 2;
-    renderer.drawText("Snake", cx, 200, { fontSize: 64, color: 0x44cc44, anchor: 0.5 });
-    renderer.drawText("Press SPACE to start", cx, 320, {
+    renderer.drawText('Snake', cx, 200, { fontSize: 64, color: 0x44cc44, anchor: 0.5 });
+    renderer.drawText('Press SPACE to start', cx, 320, {
       fontSize: 24,
       color: 0xaaaaaa,
       anchor: 0.5,
     });
-    renderer.drawText("Arrow keys or WASD to move", cx, 360, {
+    renderer.drawText('Arrow keys or WASD to move', cx, 360, {
       fontSize: 18,
       color: 0x666666,
       anchor: 0.5,
@@ -196,7 +196,7 @@ export class SnakeScene implements Scene {
     // Re-draw the field on top at reduced opacity isn't easy with primitives,
     // so we just show game over text on dark background
     const cx = CANVAS_WIDTH / 2;
-    renderer.drawText("Game Over", cx, 200, {
+    renderer.drawText('Game Over', cx, 200, {
       fontSize: 48,
       color: 0xff4444,
       anchor: 0.5,
@@ -206,7 +206,7 @@ export class SnakeScene implements Scene {
       color: 0xffffff,
       anchor: 0.5,
     });
-    renderer.drawText("Press SPACE to restart", cx, 340, {
+    renderer.drawText('Press SPACE to restart', cx, 340, {
       fontSize: 24,
       color: 0xaaaaaa,
       anchor: 0.5,
@@ -215,18 +215,18 @@ export class SnakeScene implements Scene {
 
   onKeyDown(key: string): void {
     // Spacebar: start or restart
-    if (key === "Space") {
-      if (this.state === "start") {
-        this.state = "playing";
-      } else if (this.state === "gameOver") {
+    if (key === 'Space') {
+      if (this.state === 'start') {
+        this.state = 'playing';
+      } else if (this.state === 'gameOver') {
         this.resetGame();
-        this.state = "start";
+        this.state = 'start';
       }
       return;
     }
 
     // Direction input — only during play
-    if (this.state !== "playing") return;
+    if (this.state !== 'playing') return;
 
     const dir = KEY_DIRECTION[key];
     if (!dir) return;

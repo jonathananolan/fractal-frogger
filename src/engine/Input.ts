@@ -1,15 +1,15 @@
-import type { Scene } from "./types.js";
+import type { Scene } from './types.js';
 
 const GAME_KEYS = new Set([
-  "ArrowUp",
-  "ArrowDown",
-  "ArrowLeft",
-  "ArrowRight",
-  "KeyW",
-  "KeyA",
-  "KeyS",
-  "KeyD",
-  "Space",
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'KeyW',
+  'KeyA',
+  'KeyS',
+  'KeyD',
+  'Space',
 ]);
 
 export class Input {
@@ -32,8 +32,8 @@ export class Input {
       this.scene?.onKeyUp(e.code);
     };
 
-    window.addEventListener("keydown", this.onKeyDown);
-    window.addEventListener("keyup", this.onKeyUp);
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keyup', this.onKeyUp);
   }
 
   setScene(scene: Scene | null): void {
@@ -41,7 +41,7 @@ export class Input {
   }
 
   destroy(): void {
-    window.removeEventListener("keydown", this.onKeyDown);
-    window.removeEventListener("keyup", this.onKeyUp);
+    window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keyup', this.onKeyUp);
   }
 }
