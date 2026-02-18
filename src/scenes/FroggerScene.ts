@@ -488,12 +488,27 @@ export class FroggerScene implements Scene {
       for (const obstacle of lane.obstacles) {
         let car = obstacle.type === "car";
 
-        if (car) {
+        if (car && obstacle.sprite) {
           renderer.drawVehicle(
             obstacle.position.x,
             obstacle.position.y,
             obstacle.size,
             obstacle.sprite,
+          );
+        } else if (car) {
+          // Fallback for cars without sprite data (e.g., from server)
+          const SIZE_TO_CELLS: Record<VehicleSize, number> = {
+            s: 1,
+            m: 1.22,
+            l: 2,
+            xl: 2.67,
+          };
+          renderer.drawRect(
+            Math.floor(obstacle.position.x),
+            obstacle.position.y,
+            SIZE_TO_CELLS[obstacle.size],
+            1,
+            0xff0000, // red for cars
           );
         } else {
           const SIZE_TO_CELLS: Record<VehicleSize, number> = {
