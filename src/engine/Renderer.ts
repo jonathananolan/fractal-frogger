@@ -8,8 +8,10 @@ import {
   TextStyle,
 } from "pixi.js";
 import type { Renderer as IRenderer } from "./types.js";
-import { CELL_SIZE, VehicleSize } from "./types.js";
-import { SPRITE_PATH, VEHICLES_BY_SIZE } from "../sprites.js";
+import { CELL_SIZE } from "./types.js";
+import { VehicleSize } from "../entities/types.js";
+import { SPRITE_PATH } from "../sprites.js";
+import { SpriteData } from "../entities/types.js";
 export class Renderer implements IRenderer {
   private app: Application;
   private drawContainer: Container;
@@ -83,19 +85,19 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(text);
   }
 
-  drawVehicle(gridX: number, gridY: number, size: VehicleSize): void {
-    const vehiclesToChooseFrom = VEHICLES_BY_SIZE[size];
-    const index = Math.floor(Math.random() * vehiclesToChooseFrom.length);
-
-    const picked = vehiclesToChooseFrom[index];
-
-    const texture = Assets.get(SPRITE_PATH + picked.file);
-    const sprite = new Sprite(texture);
-    sprite.x = gridX * CELL_SIZE;
-    sprite.y = gridY * CELL_SIZE;
-    sprite.height = CELL_SIZE;
-    sprite.width = (picked.length / 48) * CELL_SIZE; // scale length relative to 48px base width
-    this.drawContainer.addChild(sprite);
+  drawVehicle(
+    gridX: number,
+    gridY: number,
+    size: VehicleSize,
+    sprite: SpriteData,
+  ): void {
+    const texture = Assets.get(SPRITE_PATH + sprite.file); // get cached texture
+    const pixiSprite = new Sprite(texture);
+    pixiSprite.x = gridX * CELL_SIZE;
+    pixiSprite.y = gridY * CELL_SIZE;
+    pixiSprite.height = CELL_SIZE;
+    pixiSprite.width = (sprite.length / 48) * CELL_SIZE; // scale length relative to 48px base width
+    this.drawContainer.addChild(pixiSprite);
   }
 
   clear(): void {

@@ -2,14 +2,9 @@
 // All sprites are 48px wide; length (px) varies by vehicle size
 
 import { Assets } from "pixi.js";
-import { VehicleSize } from "./engine/types";
+import { VehicleSize, SpriteData } from "./entities/types";
 
 export const SPRITE_PATH = "/sprites/";
-
-export interface SpriteData {
-  file: string;
-  length: number; // pixel length of the sprite
-}
 
 export const VEHICLE_SPRITES: SpriteData[] = [
   // Short (48px)
