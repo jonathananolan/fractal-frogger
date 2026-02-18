@@ -1,32 +1,44 @@
 // Start Screen UI
 // Owner: Content Architect
 
-import type { Renderer } from '../engine/types.js';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../engine/types.js';
+import { Graphics, Text, TextStyle } from "pixi.js";
+import type { Renderer } from "../engine/types.js";
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../engine/types.js";
+
+// Draws a single keycap icon (rounded rectangle + label) onto the stage
 
 export function renderStartScreen(renderer: Renderer): void {
   const cx = CANVAS_WIDTH / 2;
 
-  // TODO: Implement start screen
-  // - Game title "FROGGER"
-  // - "Press SPACE to start"
-  // - Controls hint
-
-  renderer.drawText('FROGGER', cx, 200, {
+  renderer.drawText("FROGGER", cx, 200, {
     fontSize: 64,
     color: 0x44cc44,
     anchor: 0.5,
   });
 
-  renderer.drawText('Press SPACE to start', cx, 320, {
+  // "Press [SPACE] to start" with a keycap icon for SPACE
+  renderer.drawText("Press", cx - 90, 405, {
+    fontSize: 24,
+    color: 0xaaaaaa,
+    anchor: 0.5,
+  });
+  renderer.drawKeyCap("SPACE", cx, 420, 80, 30);
+  renderer.drawText("to start", cx + 110, 405, {
     fontSize: 24,
     color: 0xaaaaaa,
     anchor: 0.5,
   });
 
-  renderer.drawText('Arrow keys or WASD to move', cx, 360, {
-    fontSize: 18,
-    color: 0x666666,
-    anchor: 0.5,
-  });
+  // Arrow key icons in a cross layout + "to move" label
+  const arrowY = 320;
+  renderer.drawKeyCap("▲", cx, arrowY - 28, 30, 30); // up
+  renderer.drawKeyCap("◀", cx - 34, arrowY + 6, 30, 30); // left
+  renderer.drawKeyCap("▼", cx, arrowY + 6, 30, 30); // down
+  renderer.drawKeyCap("▶", cx + 34, arrowY + 6, 30, 30); // right
+
+  //renderer.drawText("to move", cx, arrowY + 50, {
+  // fontSize: 18,
+  // color: 0x666666,
+  // anchor: 0.5,
+  // });
 }

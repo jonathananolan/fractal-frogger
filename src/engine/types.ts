@@ -1,3 +1,5 @@
+import { VehicleSize, SpriteData } from "../entities/types";
+import { Sprite } from "pixi.js";
 // --- Game Constants ---
 
 export const GRID_SIZE = 20;
@@ -31,6 +33,20 @@ export interface Renderer {
     pixelY: number,
     options?: { fontSize?: number; color?: number; anchor?: number },
   ): void;
+  drawKeyCap(
+    label: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ): void;
+  drawVehicle(
+    gridX: number,
+    gridY: number,
+    size: VehicleSize,
+    sprite: SpriteData,
+  ): void;
+
   clear(): void;
   readonly stage: import('pixi.js').Container;
 }

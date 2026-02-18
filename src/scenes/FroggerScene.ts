@@ -24,6 +24,11 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 // Server URL
 const SERVER_URL = 'http://localhost:3001';
 
+import { loadVehicleSprites } from "../sprites.js";
+
+import { VehicleSize } from "../entities/types.js";
+loadVehicleSprites();
+
 // Direction mapping
 const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
   ArrowUp: 'up',
@@ -157,24 +162,55 @@ export class FroggerScene implements Scene {
       roadLane.obstacles.push({
         id: 'test-car-1',
         position: { x: 5, y: 17 },
-        width: 2,
+        size: "m",
         velocity: 5,
-        type: 'car',
+        type: "car",
+        sprite: { file: "Vehicle_Dementia.png", length: 48 },
       });
     }
 
-    // TEST: Add logs to water lanes for testing
-    const testLogs: Obstacle[] = [
-      { id: 'test-log-1', position: { x: 8, y: 11 }, width: 3, velocity: 0.3, type: 'log' },
-      { id: 'test-log-2', position: { x: 8, y: 10 }, width: 3, velocity: 0.3, type: 'log' },
-      { id: 'test-log-3', position: { x: 8, y: 9 }, width: 3, velocity: 0.3, type: 'log' },
-      { id: 'test-log-4', position: { x: 8, y: 8 }, width: 3, velocity: 0.3, type: 'log' },
-      { id: 'test-log-5', position: { x: 8, y: 7 }, width: 3, velocity: 0.3, type: 'log' }
-    ]
+    // TEST: Add a log to see it render (remove later)
+    const waterLane = this.gameData.lanes.find((l) => l.y === 11);
+    if (waterLane) {
+      waterLane.obstacles.push({
+        id: "test-log-1",
+        position: { x: 8, y: 11 },
+        size: "m",
+        velocity: 0.3,
+        type: "log",
+      });
 
-    for (const log of testLogs) {
-      const lane = this.gameData.lanes.find(l => l.y === log.position.y)
-      if (lane) lane.obstacles.push(log)
+      waterLane.obstacles.push({
+        id: "test-log-1",
+        position: { x: 8, y: 9 },
+        size: "m",
+        velocity: 0.3,
+        type: "log",
+      });
+
+      waterLane.obstacles.push({
+        id: "test-log-1",
+        position: { x: 8, y: 10 },
+        size: "m",
+        velocity: 0.3,
+        type: "log",
+      });
+
+      waterLane.obstacles.push({
+        id: "test-log-1",
+        position: { x: 8, y: 8 },
+        size: "m",
+        velocity: 0.3,
+        type: "log",
+      });
+
+      waterLane.obstacles.push({
+        id: "test-log-1",
+        position: { x: 8, y: 7 },
+        size: "m",
+        velocity: 0.3,
+        type: "log",
+      });
     }
   }
 
@@ -450,14 +486,32 @@ export class FroggerScene implements Scene {
   private renderObstacles(renderer: Renderer): void {
     for (const lane of this.gameData.lanes) {
       for (const obstacle of lane.obstacles) {
-        const color = obstacle.type === 'car' ? 0xcc4444 : 0x8b4513; // red for cars, brown for logs
-        renderer.drawRect(
-          obstacle.position.x,
-          obstacle.position.y,
-          obstacle.width,
-          1,
-          color
-        );
+        let car = obstacle.type === "car";
+
+        if (car) {
+          renderer.drawVehicle(
+            obstacle.position.x,
+            obstacle.position.y,
+            obstacle.size,
+            obstacle.sprite,
+          );
+        } else {
+          const SIZE_TO_CELLS: Record<VehicleSize, number> = {
+            s: 1,
+            m: 1.22,
+            l: 2,
+            xl: 2.67,
+          };
+
+          const color = 0x8b4513; // red for cars, brown for log
+          renderer.drawRect(
+            Math.floor(obstacle.position.x),
+            obstacle.position.y,
+            SIZE_TO_CELLS[obstacle.size],
+            1,
+            color,
+          );
+        }
       }
     }
   }
