@@ -1,17 +1,9 @@
-import {
-  Application,
-  Assets,
-  Container,
-  Graphics,
-  Sprite,
-  Text,
-  TextStyle,
-} from "pixi.js";
-import type { Renderer as IRenderer } from "./types.js";
-import { CELL_SIZE } from "./types.js";
-import { VehicleSize } from "../entities/types.js";
-import { SPRITE_PATH } from "../sprites.js";
-import { SpriteData } from "../entities/types.js";
+import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
+import type { Renderer as IRenderer } from './types.js';
+import { CELL_SIZE } from './types.js';
+import { VehicleSize } from '../entities/types.js';
+import { SPRITE_PATH } from '../sprites.js';
+import { SpriteData } from '../entities/types.js';
 export class Renderer implements IRenderer {
   private app: Application;
   private drawContainer: Container;
@@ -32,15 +24,11 @@ export class Renderer implements IRenderer {
     widthCells: number,
     heightCells: number,
     color: number,
+    alpha?: number,
   ): void {
     const g = new Graphics();
-    g.rect(
-      gridX * CELL_SIZE,
-      gridY * CELL_SIZE,
-      widthCells * CELL_SIZE,
-      heightCells * CELL_SIZE,
-    );
-    g.fill(color);
+    g.rect(gridX * CELL_SIZE, gridY * CELL_SIZE, widthCells * CELL_SIZE, heightCells * CELL_SIZE);
+    g.fill(color, alpha);
     this.drawContainer.addChild(g);
   }
 
@@ -62,13 +50,7 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(t);
   }
 
-  drawKeyCap(
-    label: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-  ): void {
+  drawKeyCap(label: string, x: number, y: number, width: number, height: number): void {
     // Draw the rounded rectangle background
     const bg = new Graphics();
     bg.roundRect(x - width / 2, y - height / 2, width, height, 6);
@@ -85,12 +67,7 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(text);
   }
 
-  drawVehicle(
-    gridX: number,
-    gridY: number,
-    size: VehicleSize,
-    sprite: SpriteData,
-  ): void {
+  drawVehicle(gridX: number, gridY: number, size: VehicleSize, sprite: SpriteData): void {
     const texture = Assets.get(SPRITE_PATH + sprite.file); // get cached texture
     const pixiSprite = new Sprite(texture);
     pixiSprite.x = gridX * CELL_SIZE;
