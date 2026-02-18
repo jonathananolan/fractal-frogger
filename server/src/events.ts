@@ -13,6 +13,11 @@ function getNextColor(): number {
   return color;
 }
 
+// For testing - resets the color index
+export function resetColorIndex(): void {
+  colorIndex = 0;
+}
+
 export function setupEventHandlers(
   io: Server<ClientToServerEvents, ServerToClientEvents>,
   gameState: GameState
