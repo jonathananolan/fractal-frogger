@@ -10,6 +10,14 @@ import type {
 } from "../entities/types.js";
 import { VEHICLES_BY_SIZE } from "../sprites.js";
 
+/** Map VehicleSize to width in grid cells */
+const SIZE_TO_WIDTH: Record<VehicleSize, number> = {
+  s: 1,
+  m: 2,
+  l: 3,
+  xl: 4,
+};
+
 export class SpawnSystem {
   private tickCounters: Map<number, number> = new Map(); // lane y -> ticks since last spawn
   private obstacleIdCounter: number = 0;
@@ -41,24 +49,26 @@ export class SpawnSystem {
     size?: VehicleSize,
   ): Obstacle {
     const isRoad = lane.type === "road";
+    const actualSize = size ?? "m";
 
     let sprite: SpriteData | undefined;
 
     if (isRoad) {
-      const vehiclesToChooseFrom = VEHICLES_BY_SIZE[size];
+      const vehiclesToChooseFrom = VEHICLES_BY_SIZE[actualSize];
       const index = Math.floor(Math.random() * vehiclesToChooseFrom.length);
 
       sprite = vehiclesToChooseFrom[index];
     }
 
     const id = `obstacle-${this.obstacleIdCounter++}`;
-    size = size ? size : "m";
-    const x = lane.direction === 1 ? -2 : gridSize + 2;
+    const width = SIZE_TO_WIDTH[actualSize];
+    const x = lane.direction === 1 ? -width : gridSize;
 
     return {
       id,
       position: { x, y: lane.y },
-      size: size,
+      size: actualSize,
+      width,
       velocity: lane.speed * lane.direction,
       type: lane.type === "road" ? "car" : "log",
       sprite,
