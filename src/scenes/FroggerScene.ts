@@ -1,4 +1,4 @@
-// Frogger Scene - main game scene
+// Frogger Scene - main game scene with multiplayer support
 // Owner: Systems Integrator
 
 import type { Scene, GameContext, Renderer } from '../engine/types.js';
@@ -10,6 +10,9 @@ import { MovementSystem } from '../systems/MovementSystem.js';
 import { CollisionSystem } from '../systems/CollisionSystem.js';
 import { SpawnSystem } from '../systems/SpawnSystem.js';
 
+// Network
+import { socketClient, RemotePlayer } from '../network/SocketClient.js';
+
 // UI
 import { renderStartScreen } from '../ui/StartScreen.js';
 import { renderGameOverScreen } from '../ui/GameOverScreen.js';
@@ -17,6 +20,9 @@ import { renderVictoryScreen } from '../ui/VictoryScreen.js';
 import { renderHUD } from '../ui/HUD.js';
 import { renderHelpOverlay } from '../ui/HelpOverlay.js';
 import { renderDebugPanel } from '../ui/DebugPanel.js';
+
+// Server URL
+const SERVER_URL = 'http://localhost:3001';
 
 // Direction mapping
 const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
@@ -46,9 +52,88 @@ export class FroggerScene implements Scene {
   private showHelp: boolean = false;
   private showDebug: boolean = false;
 
+  // Multiplayer state
+  private multiplayerEnabled: boolean = true;
+  private remotePlayers: Map<string, RemotePlayer> = new Map();
+  private localPlayerColor: number = 0x44ff44;
+
   init(context: GameContext): void {
     this.gridSize = context.gridSize;
     this.resetGame();
+    this.connectToServer();
+  }
+
+  private connectToServer(): void {
+    if (!this.multiplayerEnabled) return;
+
+    socketClient.connect(SERVER_URL, {
+      onWelcome: (playerId, color, players, lanes) => {
+        this.localPlayerColor = color;
+        // Add existing players (excluding self)
+        for (const player of players) {
+          if (player.id !== playerId) {
+            this.remotePlayers.set(player.id, player);
+          }
+        }
+        // Sync lanes from server
+        this.syncLanesFromServer(lanes);
+      },
+      onPlayerJoined: (playerId, color, name) => {
+        this.remotePlayers.set(playerId, {
+          id: playerId,
+          name,
+          color,
+          position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
+          isAlive: true,
+        });
+      },
+      onPlayerLeft: (playerId) => {
+        this.remotePlayers.delete(playerId);
+      },
+      onPlayerMoved: (playerId, x, y) => {
+        const player = this.remotePlayers.get(playerId);
+        if (player) {
+          player.position = { x, y };
+        }
+      },
+      onPlayerDied: (playerId) => {
+        const player = this.remotePlayers.get(playerId);
+        if (player) {
+          player.isAlive = false;
+          // Reset after brief delay
+          setTimeout(() => {
+            if (player) {
+              player.isAlive = true;
+              player.position = {
+                x: Math.floor(this.gridSize / 2),
+                y: this.gridSize - 1,
+              };
+            }
+          }, 1000);
+        }
+      },
+      onPlayerWon: (playerId) => {
+        console.log(`Player ${playerId} won!`);
+      },
+      onObstacles: (lanes) => {
+        this.syncLanesFromServer(lanes);
+      },
+    });
+
+    // Join once connected
+    setTimeout(() => {
+      socketClient.join();
+    }, 100);
+  }
+
+  private syncLanesFromServer(serverLanes: Lane[]): void {
+    // Update obstacle positions from server
+    for (const serverLane of serverLanes) {
+      const localLane = this.gameData.lanes.find((l) => l.y === serverLane.y);
+      if (localLane) {
+        localLane.obstacles = serverLane.obstacles;
+      }
+    }
   }
 
   private resetGame(): void {
@@ -65,71 +150,9 @@ export class FroggerScene implements Scene {
       level: 1,
     };
     this.tickCount = 0;
-
-    // TEST: Add a car to see it render (remove later)
-    const roadLane = this.gameData.lanes.find((l) => l.y === 17);
-    if (roadLane) {
-      roadLane.obstacles.push({
-        id: 'test-car-1',
-        position: { x: 5, y: 17 },
-        width: 2,
-        velocity: 5,
-        type: 'car',
-      });
-    }
-
-    // TEST: Add a log to see it render (remove later)
-    const waterLane = this.gameData.lanes.find((l) => l.y === 11);
-    if (waterLane) {
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 11 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 9 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 10 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 8 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 7 },
-        width: 3,
-        velocity: 0.3,
-        type: 'log',
-      });
-    }
   }
 
   private createLanes(): Lane[] {
-    // TODO: Configure lanes for Frogger layout
-    // Bottom rows: safe zone
-    // Middle rows: road with cars
-    // Upper-middle rows: water with logs
-    // Top row: goal zone
-
     const lanes: Lane[] = [];
 
     // Safe zone (bottom 2 rows)
@@ -264,9 +287,15 @@ export class FroggerScene implements Scene {
 
     this.tickCount++;
 
-    // Update systems
-    this.spawnSystem.update(this.gameData, this.gridSize);
-    this.movementSystem.update(this.gameData, dt, this.gridSize);
+    // In multiplayer mode, server handles obstacle spawning/movement
+    // Only run local spawn/movement if not connected
+    if (!socketClient.isConnected) {
+      this.spawnSystem.update(this.gameData, this.gridSize);
+      this.movementSystem.update(this.gameData, dt, this.gridSize);
+    } else {
+      // Still update frog position on logs (client-side for responsiveness)
+      this.movementSystem.update(this.gameData, dt, this.gridSize);
+    }
 
     const collision = this.collisionSystem.update(this.gameData);
 
@@ -274,7 +303,7 @@ export class FroggerScene implements Scene {
     switch (collision.type) {
       case 'car':
       case 'water':
-        this.handleDeath();
+        this.handleDeath(collision.type);
         break;
       case 'log':
         this.gameData.frog.isOnLog = true;
@@ -290,8 +319,13 @@ export class FroggerScene implements Scene {
     }
   }
 
-  private handleDeath(): void {
+  private handleDeath(cause: string): void {
     if (this.collisionSystem.isGodMode()) return;
+
+    // Notify server of death
+    if (socketClient.isConnected) {
+      socketClient.sendDeath(cause);
+    }
 
     this.gameData.frog.lives--;
 
@@ -304,12 +338,25 @@ export class FroggerScene implements Scene {
         y: this.gridSize - 1,
       };
       this.gameData.frog.isOnLog = false;
+
+      // Send respawn position to server
+      if (socketClient.isConnected) {
+        socketClient.sendMove(
+          this.gameData.frog.position.x,
+          this.gameData.frog.position.y
+        );
+      }
     }
   }
 
   private handleVictory(): void {
     this.gameData.score += 100;
     this.state = 'victory';
+
+    // Notify server of victory
+    if (socketClient.isConnected) {
+      socketClient.sendVictory();
+    }
   }
 
   render(renderer: Renderer): void {
@@ -345,7 +392,10 @@ export class FroggerScene implements Scene {
     // Render obstacles
     this.renderObstacles(renderer);
 
-    // Render frog
+    // Render remote players
+    this.renderRemotePlayers(renderer);
+
+    // Render local frog
     this.renderFrog(renderer);
 
     // Render HUD
@@ -382,15 +432,24 @@ export class FroggerScene implements Scene {
           obstacle.position.y,
           obstacle.width,
           1,
-          color,
+          color
         );
+      }
+    }
+  }
+
+  private renderRemotePlayers(renderer: Renderer): void {
+    for (const player of this.remotePlayers.values()) {
+      if (player.isAlive) {
+        const { x, y } = player.position;
+        renderer.drawRect(x, y, 1, 1, player.color);
       }
     }
   }
 
   private renderFrog(renderer: Renderer): void {
     const { x, y } = this.gameData.frog.position;
-    renderer.drawRect(x, y, 1, 1, 0x44ff44); // bright green frog
+    renderer.drawRect(x, y, 1, 1, this.localPlayerColor);
   }
 
   private getDebugData(): DebugData {
@@ -444,6 +503,14 @@ export class FroggerScene implements Scene {
     const direction = KEY_DIRECTION[key];
     if (direction) {
       this.movementSystem.moveFrog(this.gameData, direction, this.gridSize);
+
+      // Send position to server
+      if (socketClient.isConnected) {
+        socketClient.sendMove(
+          this.gameData.frog.position.x,
+          this.gameData.frog.position.y
+        );
+      }
     }
   }
 
@@ -452,6 +519,7 @@ export class FroggerScene implements Scene {
   }
 
   destroy(): void {
-    // Clean up if needed
+    // Disconnect from server
+    socketClient.disconnect();
   }
 }
