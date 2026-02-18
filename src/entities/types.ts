@@ -27,6 +27,7 @@ export interface Obstacle {
   id: string;
   position: Point;
   size: VehicleSize; // in grid cells
+  width: number; // width in grid cells for collision/wrapping
   velocity: number; // cells per tick (positive = right, negative = left)
   type: ObstacleType;
   sprite?: SpriteData;

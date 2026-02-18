@@ -163,6 +163,7 @@ export class FroggerScene implements Scene {
         id: 'test-car-1',
         position: { x: 5, y: 17 },
         size: "m",
+        width: 2,
         velocity: 5,
         type: "car",
         sprite: { file: "Vehicle_Dementia.png", length: 48 },
@@ -176,6 +177,7 @@ export class FroggerScene implements Scene {
         id: "test-log-1",
         position: { x: 8, y: 11 },
         size: "m",
+        width: 2,
         velocity: 0.3,
         type: "log",
       });
@@ -184,6 +186,7 @@ export class FroggerScene implements Scene {
         id: "test-log-1",
         position: { x: 8, y: 9 },
         size: "m",
+        width: 2,
         velocity: 0.3,
         type: "log",
       });
@@ -192,6 +195,7 @@ export class FroggerScene implements Scene {
         id: "test-log-1",
         position: { x: 8, y: 10 },
         size: "m",
+        width: 2,
         velocity: 0.3,
         type: "log",
       });
@@ -200,6 +204,7 @@ export class FroggerScene implements Scene {
         id: "test-log-1",
         position: { x: 8, y: 8 },
         size: "m",
+        width: 2,
         velocity: 0.3,
         type: "log",
       });
@@ -208,6 +213,7 @@ export class FroggerScene implements Scene {
         id: "test-log-1",
         position: { x: 8, y: 7 },
         size: "m",
+        width: 2,
         velocity: 0.3,
         type: "log",
       });
