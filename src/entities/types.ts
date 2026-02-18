@@ -18,6 +18,14 @@ export type ObstacleType = "car" | "log" | "turtle";
 
 export type VehicleSize = "s" | "m" | "l" | "xl";
 
+/** Map VehicleSize to width in grid cells (for collision, spawning, wrapping) */
+export const SIZE_TO_WIDTH: Record<VehicleSize, number> = {
+  s: 1,
+  m: 2,
+  l: 3,
+  xl: 4,
+};
+
 export interface SpriteData {
   file: string;
   length: number; // pixel length of the sprite
@@ -26,8 +34,7 @@ export interface SpriteData {
 export interface Obstacle {
   id: string;
   position: Point;
-  size: VehicleSize; // in grid cells
-  width: number; // width in grid cells for collision/wrapping
+  size: VehicleSize;
   velocity: number; // cells per tick (positive = right, negative = left)
   type: ObstacleType;
   sprite?: SpriteData;

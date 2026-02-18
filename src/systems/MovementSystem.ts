@@ -2,6 +2,7 @@
 // Owner: Engine Developer
 
 import type { GameData, Lane, Obstacle, Point } from '../entities/types.js';
+import { SIZE_TO_WIDTH } from '../entities/types.js';
 
 export class MovementSystem {
   /**
@@ -54,9 +55,10 @@ export class MovementSystem {
         obstacle.position.x += obstacle.velocity * dt;
 
         // Wrap around when obstacle goes off screen
+        const width = SIZE_TO_WIDTH[obstacle.size];
         if (obstacle.velocity > 0 && obstacle.position.x > gridSize) {
-          obstacle.position.x = -obstacle.width;
-        } else if (obstacle.velocity < 0 && obstacle.position.x + obstacle.width < 0) {
+          obstacle.position.x = -width;
+        } else if (obstacle.velocity < 0 && obstacle.position.x + width < 0) {
           obstacle.position.x = gridSize;
         }
       }

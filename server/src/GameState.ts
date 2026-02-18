@@ -2,7 +2,9 @@
 // Server owns obstacle spawning and movement
 
 import type { Lane, Obstacle, Player, Point, ServerToClientEvents } from './types.js';
+import type { VehicleSize, SpriteData } from './types.js';
 import type { Server } from 'socket.io';
+import { VEHICLES_BY_SIZE, SIZE_TO_WIDTH } from './sprites.js';
 
 const GRID_SIZE = 20;
 const TICK_INTERVAL = 150; // ms, matches client
@@ -237,12 +239,13 @@ export class GameState {
 
       // Remove obstacles that left the grid
       lane.obstacles = lane.obstacles.filter((obstacle) => {
+        const width = SIZE_TO_WIDTH[obstacle.size];
         if (lane.direction === 1) {
           // Moving right - remove when fully past right edge
           return obstacle.position.x < GRID_SIZE;
         } else {
           // Moving left - remove when fully past left edge
-          return obstacle.position.x + obstacle.width > 0;
+          return obstacle.position.x + width > 0;
         }
       });
     }
@@ -253,15 +256,31 @@ export class GameState {
    */
   private spawnObstacle(lane: Lane): Obstacle {
     const id = `obstacle-${this.obstacleIdCounter++}`;
-    const width = lane.type === 'road' ? 2 : 3; // cars smaller than logs
+    const isRoad = lane.type === 'road';
+
+    // Pick a random vehicle size (logs default to "m" for now)
+    const sizes: VehicleSize[] = ['s', 'm', 'l', 'xl'];
+    const size: VehicleSize = isRoad
+      ? sizes[Math.floor(Math.random() * sizes.length)]
+      : 'm';
+
+    // Pick a random sprite for road obstacles
+    let sprite: SpriteData | undefined;
+    if (isRoad) {
+      const candidates = VEHICLES_BY_SIZE[size];
+      sprite = candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    const width = SIZE_TO_WIDTH[size];
     const x = lane.direction === 1 ? -width : GRID_SIZE;
 
     return {
       id,
       position: { x, y: lane.y },
-      width,
+      size,
       velocity: lane.speed * lane.direction,
-      type: lane.type === 'road' ? 'car' : 'log',
+      type: isRoad ? 'car' : 'log',
+      sprite,
     };
   }
 }
