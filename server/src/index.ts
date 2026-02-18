@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import fs from 'fs';
 import type { ClientToServerEvents, ServerToClientEvents } from './types.js';
 import { GameState } from './GameState.js';
 import { setupEventHandlers } from './events.js';
@@ -13,6 +14,20 @@ import { setupEventHandlers } from './events.js';
 const PORT = process.env.PORT || 3001;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_PATH = path.join(__dirname, '../../dist');
+
+console.log('__dirname:', __dirname);
+console.log('DIST_PATH:', DIST_PATH);
+console.log('DIST_PATH exists:', fs.existsSync(DIST_PATH));
+if (fs.existsSync(DIST_PATH)) {
+  console.log('DIST_PATH contents:', fs.readdirSync(DIST_PATH));
+} else {
+  console.log('Checking parent directories...');
+  const parent = path.dirname(DIST_PATH);
+  console.log('Parent dir:', parent, 'exists:', fs.existsSync(parent));
+  if (fs.existsSync(parent)) {
+    console.log('Parent contents:', fs.readdirSync(parent));
+  }
+}
 
 // Create Express app and HTTP server
 const app = express();
@@ -49,7 +64,14 @@ app.use(express.static(DIST_PATH));
 
 // SPA fallback - serve index.html for all other routes
 app.get('*', (_req, res) => {
-  res.sendFile(path.join(DIST_PATH, 'index.html'));
+  const indexPath = path.join(DIST_PATH, 'index.html');
+  console.log('Serving index.html from:', indexPath);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading page');
+    }
+  });
 });
 
 // Start server
