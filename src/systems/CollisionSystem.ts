@@ -2,6 +2,7 @@
 // Owner: Engine Developer
 
 import type { GameData, Lane, Obstacle } from '../entities/types.js';
+import { SIZE_TO_WIDTH } from '../entities/types.js';
 
 export type CollisionResult =
   | { type: 'none' }
@@ -73,7 +74,7 @@ export class CollisionSystem {
   private pointInObstacle(x: number, y: number, obstacle: Obstacle): boolean {
     return (
       x >= obstacle.position.x &&
-      x < obstacle.position.x + obstacle.width &&
+      x < obstacle.position.x + SIZE_TO_WIDTH[obstacle.size] &&
       y === obstacle.position.y
     );
   }

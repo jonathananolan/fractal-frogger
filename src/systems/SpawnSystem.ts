@@ -8,15 +8,8 @@ import type {
   VehicleSize,
   SpriteData,
 } from "../entities/types.js";
+import { SIZE_TO_WIDTH } from "../entities/types.js";
 import { VEHICLES_BY_SIZE } from "../sprites.js";
-
-/** Map VehicleSize to width in grid cells */
-const SIZE_TO_WIDTH: Record<VehicleSize, number> = {
-  s: 1,
-  m: 2,
-  l: 3,
-  xl: 4,
-};
 
 export class SpawnSystem {
   private tickCounters: Map<number, number> = new Map(); // lane y -> ticks since last spawn
@@ -68,7 +61,6 @@ export class SpawnSystem {
       id,
       position: { x, y: lane.y },
       size: actualSize,
-      width,
       velocity: lane.speed * lane.direction,
       type: lane.type === "road" ? "car" : "log",
       sprite,

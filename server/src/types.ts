@@ -15,12 +15,20 @@ export interface Player {
 
 export type ObstacleType = 'car' | 'log';
 
+export type VehicleSize = 's' | 'm' | 'l' | 'xl';
+
+export interface SpriteData {
+  file: string;
+  length: number; // pixel length of the sprite
+}
+
 export interface Obstacle {
   id: string;
   position: Point;
-  width: number;
   velocity: number;
   type: ObstacleType;
+  size: VehicleSize;
+  sprite?: SpriteData;
 }
 
 export type LaneType = 'safe' | 'road' | 'water' | 'goal';
