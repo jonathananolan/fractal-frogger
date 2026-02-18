@@ -3,7 +3,7 @@
 
 import type { Scene, GameContext, Renderer } from '../engine/types.js';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE } from '../engine/types.js';
-import type { GameData, GameState, DebugData, Lane } from '../entities/types.js';
+import type { GameData, GameState, DebugData, Lane, Obstacle } from '../entities/types.js';
 
 // Systems
 import { MovementSystem } from '../systems/MovementSystem.js';
@@ -150,6 +150,32 @@ export class FroggerScene implements Scene {
       level: 1,
     };
     this.tickCount = 0;
+
+    // TEST: Add a car to see it render (remove later)
+    const roadLane = this.gameData.lanes.find((l) => l.y === 17);
+    if (roadLane) {
+      roadLane.obstacles.push({
+        id: 'test-car-1',
+        position: { x: 5, y: 17 },
+        width: 2,
+        velocity: 5,
+        type: 'car',
+      });
+    }
+
+    // TEST: Add logs to water lanes for testing
+    const testLogs: Obstacle[] = [
+      { id: 'test-log-1', position: { x: 8, y: 11 }, width: 3, velocity: 0.3, type: 'log' },
+      { id: 'test-log-2', position: { x: 8, y: 10 }, width: 3, velocity: 0.3, type: 'log' },
+      { id: 'test-log-3', position: { x: 8, y: 9 }, width: 3, velocity: 0.3, type: 'log' },
+      { id: 'test-log-4', position: { x: 8, y: 8 }, width: 3, velocity: 0.3, type: 'log' },
+      { id: 'test-log-5', position: { x: 8, y: 7 }, width: 3, velocity: 0.3, type: 'log' }
+    ]
+
+    for (const log of testLogs) {
+      const lane = this.gameData.lanes.find(l => l.y === log.position.y)
+      if (lane) lane.obstacles.push(log)
+    }
   }
 
   private createLanes(): Lane[] {
@@ -428,7 +454,7 @@ export class FroggerScene implements Scene {
       for (const obstacle of lane.obstacles) {
         const color = obstacle.type === 'car' ? 0xcc4444 : 0x8b4513; // red for cars, brown for logs
         renderer.drawRect(
-          Math.floor(obstacle.position.x),
+          obstacle.position.x,
           obstacle.position.y,
           obstacle.width,
           1,
