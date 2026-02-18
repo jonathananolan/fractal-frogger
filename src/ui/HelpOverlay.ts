@@ -2,7 +2,7 @@
 // Owner: Content Architect
 
 import type { Renderer } from '../engine/types.js';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../engine/types.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
 
 export function renderHelpOverlay(renderer: Renderer): void {
   const cx = CANVAS_WIDTH / 2;

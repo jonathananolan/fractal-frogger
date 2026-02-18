@@ -1,8 +1,10 @@
 // Movement System - handles frog and obstacle movement
 // Owner: Engine Developer
 
-import type { GameData, Lane, Obstacle, Point } from '../entities/types.js';
-import { SIZE_TO_WIDTH } from '../entities/types.js';
+import { GameData, SIZE_TO_WIDTH } from "../../shared/types";
+
+//import type { GameData, Lane, Obstacle, Point } from '../entities/types.js';
+//import { SIZE_TO_WIDTH } from '../entities/types.js';
 
 export class MovementSystem {
   /**

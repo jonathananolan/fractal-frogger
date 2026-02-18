@@ -1,9 +1,7 @@
 // Frogger Scene - main game scene with multiplayer support
 // Owner: Systems Integrator
 
-import type { Scene, GameContext, Renderer } from '../engine/types.js';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE } from '../engine/types.js';
-import type { GameData, GameState, DebugData, Lane, Obstacle } from '../entities/types.js';
+import type { Scene, GameContext, Renderer, GameState, DebugData } from '../engine/types.js';
 
 // Systems
 import { MovementSystem } from '../systems/MovementSystem.js';
@@ -25,8 +23,10 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 const SERVER_URL = 'http://localhost:3001';
 
 import { loadVehicleSprites } from "../sprites.js";
+import { GameData, Lane, VehicleSize } from '../../shared/types.js';
+import { GRID_SIZE } from '../../shared/constants.js';
 
-import { VehicleSize } from "../entities/types.js";
+//import { VehicleSize } from "../entities/types.js";
 loadVehicleSprites();
 
 // Direction mapping

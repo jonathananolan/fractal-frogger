@@ -1,16 +1,4 @@
-import { VehicleSize, SpriteData } from "../entities/types";
-import { Sprite } from "pixi.js";
-// --- Game Constants ---
-
-export const GRID_SIZE = 20;
-export const CELL_SIZE = 30;
-export const CANVAS_WIDTH = GRID_SIZE * CELL_SIZE; // 600px
-export const CANVAS_HEIGHT = GRID_SIZE * CELL_SIZE; // 600px
-export const TICK_RATE_MS = 30; // 150 = ~6.67 ticks/sec
-export const TICK_RATE_S = TICK_RATE_MS / 1000; // 0.15s per tick
-export const MAX_ACCUMULATOR_MS = 1000;
-
-// --- Interfaces ---
+import { LaneType, Point, SpriteData, VehicleSize } from '../../shared/types';
 
 export interface GameContext {
   gridSize: number;
@@ -58,4 +46,14 @@ export interface Scene {
   onKeyDown(key: string): void;
   onKeyUp(key: string): void;
   destroy(): void;
+}
+
+export type GameState = "start" | "playing" | "victory" | "gameOver";
+
+// Debug data exposed by Engine Developer for debug panel
+export interface DebugData {
+  frogPosition: Point;
+  currentLaneType: LaneType;
+  isOnLog: boolean;
+  tickCount: number;
 }

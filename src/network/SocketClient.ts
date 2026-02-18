@@ -1,7 +1,7 @@
 // SocketClient - handles WebSocket connection to multiplayer server
 
 import { io, Socket } from 'socket.io-client';
-import type { Lane } from '../entities/types.js';
+import { Lane } from '../../shared/types';
 
 // Remote player representation
 export interface RemotePlayer {

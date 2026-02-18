@@ -1,8 +1,8 @@
 // Game Over Screen UI
 // Owner: Content Architect
 
+import { CANVAS_WIDTH } from '../../shared/constants.js';
 import type { Renderer } from '../engine/types.js';
-import { CANVAS_WIDTH } from '../engine/types.js';
 
 export function renderGameOverScreen(renderer: Renderer, score: number): void {
   const cx = CANVAS_WIDTH / 2;

@@ -1,8 +1,7 @@
 // GameState - manages obstacles, lanes, and tick loop
 // Server owns obstacle spawning and movement
 
-import type { Lane, Obstacle, Player, Point, ServerToClientEvents } from './types.js';
-import type { VehicleSize, SpriteData } from './types.js';
+import type { Lane, Obstacle, Player, Point, ServerToClientEvents, SpriteData, VehicleSize } from '../../shared/types.js';
 import type { Server } from 'socket.io';
 import { VEHICLES_BY_SIZE, SIZE_TO_WIDTH } from './sprites.js';
 

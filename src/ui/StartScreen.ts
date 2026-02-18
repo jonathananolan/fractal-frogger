@@ -1,9 +1,8 @@
 // Start Screen UI
 // Owner: Content Architect
 
-import { Graphics, Text, TextStyle } from "pixi.js";
 import type { Renderer } from "../engine/types.js";
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from "../engine/types.js";
+import { CANVAS_WIDTH } from '../../shared/constants.js';
 
 // Draws a single keycap icon (rounded rectangle + label) onto the stage
 

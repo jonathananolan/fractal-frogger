@@ -1,6 +1,6 @@
 // Server-side vehicle sprite registry (data only, no rendering)
 
-import type { VehicleSize, SpriteData } from './types.js';
+import type { VehicleSize, SpriteData } from '../../shared/types.js';
 
 export const VEHICLE_SPRITES: SpriteData[] = [
   // Short (48px)

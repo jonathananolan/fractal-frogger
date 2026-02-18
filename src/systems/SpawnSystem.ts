@@ -1,14 +1,7 @@
 // Spawn System - spawns and despawns obstacles in lanes
 // Owner: Engine Developer
 
-import type {
-  GameData,
-  Lane,
-  Obstacle,
-  VehicleSize,
-  SpriteData,
-} from "../entities/types.js";
-import { SIZE_TO_WIDTH } from "../entities/types.js";
+import { GameData, Lane, Obstacle, SIZE_TO_WIDTH, SpriteData, VehicleSize } from "../../shared/types.js";
 import { VEHICLES_BY_SIZE } from "../sprites.js";
 
 export class SpawnSystem {

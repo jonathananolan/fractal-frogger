@@ -8,10 +8,9 @@ import {
   TextStyle,
 } from "pixi.js";
 import type { Renderer as IRenderer } from "./types.js";
-import { CELL_SIZE } from "./types.js";
-import { VehicleSize } from "../entities/types.js";
+import { CELL_SIZE } from "../../shared/constants.js";
+import { SpriteData, VehicleSize } from "../../shared/types.js";
 import { SPRITE_PATH } from "../sprites.js";
-import { SpriteData } from "../entities/types.js";
 export class Renderer implements IRenderer {
   private app: Application;
   private drawContainer: Container;
