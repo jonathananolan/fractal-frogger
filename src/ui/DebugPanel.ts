@@ -19,7 +19,6 @@ export function renderDebugPanel(renderer: Renderer, debugData: DebugData): void
     `Pos: (${debugData.frogPosition.x}, ${debugData.frogPosition.y})`,
     `Lane: ${debugData.currentLaneType}`,
     `On Log: ${debugData.isOnLog ? 'YES' : 'NO'}`,
-    `God Mode: ${debugData.godMode ? 'ON' : 'OFF'}`,
     `Tick: ${debugData.tickCount}`,
   ];
 

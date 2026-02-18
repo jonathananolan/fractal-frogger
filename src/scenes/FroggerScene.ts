@@ -346,8 +346,6 @@ export class FroggerScene implements Scene {
   }
 
   private handleDeath(cause: string): void {
-    if (this.collisionSystem.isGodMode()) return;
-
     // Notify server of death
     if (socketClient.isConnected) {
       socketClient.sendDeath(cause);
@@ -486,7 +484,6 @@ export class FroggerScene implements Scene {
       frogPosition: this.gameData.frog.position,
       currentLaneType: currentLane?.type ?? 'safe',
       isOnLog: this.gameData.frog.isOnLog,
-      godMode: this.collisionSystem.isGodMode(),
       tickCount: this.tickCount,
     };
   }
@@ -516,12 +513,6 @@ export class FroggerScene implements Scene {
     // D: Toggle debug
     if (key === 'KeyD') {
       this.showDebug = !this.showDebug;
-      return;
-    }
-
-    // G: Toggle god mode (only when debug is on)
-    if (key === 'KeyG' && this.showDebug) {
-      this.collisionSystem.setGodMode(!this.collisionSystem.isGodMode());
       return;
     }
 
