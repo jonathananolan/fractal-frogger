@@ -50,6 +50,5 @@ export interface DebugData {
   frogPosition: Point;
   currentLaneType: LaneType;
   isOnLog: boolean;
-  godMode: boolean;
   tickCount: number;
 }
