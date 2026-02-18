@@ -62,9 +62,8 @@ export class CollisionSystem {
             return { type: 'log', logId: obstacle.id };
           }
         }
-        // TODO: Re-enable water death when logs are properly spawning
-        // return { type: 'water' };
-        return { type: 'none' };
+
+        return { type: 'water' }
     }
   }
 
