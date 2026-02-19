@@ -22,7 +22,7 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 // Server URL
 const SERVER_URL = 'http://localhost:3001';
 
-import { loadVehicleSprites } from "../sprites.js";
+import { loadVehicleSprites } from '../sprites.js';
 import { GameData, Lane, VehicleSize } from '../../shared/types.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
@@ -162,10 +162,10 @@ export class FroggerScene implements Scene {
       roadLane.obstacles.push({
         id: 'test-car-1',
         position: { x: 5, y: 17 },
-        size: "m",
+        size: 'm',
         velocity: 5,
-        type: "car",
-        sprite: { file: "Vehicle_Dementia.png", length: 48 },
+        type: 'car',
+        sprite: { file: 'Vehicle_Dementia.png', length: 48 },
       });
     }
 
@@ -173,43 +173,43 @@ export class FroggerScene implements Scene {
     const waterLane = this.gameData.lanes.find((l) => l.y === 11);
     if (waterLane) {
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 11 },
-        size: "m",
+        size: 'm',
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
 
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 9 },
-        size: "m",
+        size: 'm',
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
 
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 10 },
-        size: "m",
+        size: 'm',
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
 
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 8 },
-        size: "m",
+        size: 'm',
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
 
       waterLane.obstacles.push({
-        id: "test-log-1",
+        id: 'test-log-1',
         position: { x: 8, y: 7 },
-        size: "m",
+        size: 'm',
         velocity: 0.3,
-        type: "log",
+        type: 'log',
       });
     }
   }
@@ -401,10 +401,7 @@ export class FroggerScene implements Scene {
 
       // Send respawn position to server
       if (socketClient.isConnected) {
-        socketClient.sendMove(
-          this.gameData.frog.position.x,
-          this.gameData.frog.position.y
-        );
+        socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
       }
     }
   }
@@ -486,7 +483,7 @@ export class FroggerScene implements Scene {
   private renderObstacles(renderer: Renderer): void {
     for (const lane of this.gameData.lanes) {
       for (const obstacle of lane.obstacles) {
-        let car = obstacle.type === "car";
+        let car = obstacle.type === 'car';
 
         if (car && obstacle.sprite) {
           renderer.drawVehicle(
@@ -592,10 +589,7 @@ export class FroggerScene implements Scene {
 
       // Send position to server
       if (socketClient.isConnected) {
-        socketClient.sendMove(
-          this.gameData.frog.position.x,
-          this.gameData.frog.position.y
-        );
+        socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
       }
     }
   }

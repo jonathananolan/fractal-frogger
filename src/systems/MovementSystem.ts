@@ -1,7 +1,7 @@
 // Movement System - handles frog and obstacle movement
 // Owner: Engine Developer
 
-import { GameData, SIZE_TO_WIDTH } from "../../shared/types";
+import { GameData, SIZE_TO_WIDTH } from '../../shared/types';
 
 //import type { GameData, Lane, Obstacle, Point } from '../entities/types.js';
 //import { SIZE_TO_WIDTH } from '../entities/types.js';
@@ -69,17 +69,15 @@ export class MovementSystem {
     // if frog on log, move frog
     if (gameData.frog.isOnLog) {
       // get frog's log
-      const logId = gameData.frog.currentLogId as string
-      const log = gameData.lanes
-        .flatMap(l => l.obstacles)
-        .find(o => o.id === logId)
+      const logId = gameData.frog.currentLogId as string;
+      const log = gameData.lanes.flatMap((l) => l.obstacles).find((o) => o.id === logId);
 
       // update frog's position
       //const frogVelocity = log.direction * log.speed
       if (log) {
-        gameData.frog.position.x += log.velocity * dt
+        gameData.frog.position.x += log.velocity * dt;
       } else {
-        throw new Error("no log found")
+        throw new Error('no log found');
       }
     }
   }

@@ -1,7 +1,7 @@
 // Start Screen UI
 // Owner: Content Architect
 
-import type { Renderer } from "../engine/types.js";
+import type { Renderer } from '../engine/types.js';
 import { CANVAS_WIDTH } from '../../shared/constants.js';
 
 // Draws a single keycap icon (rounded rectangle + label) onto the stage
@@ -9,20 +9,20 @@ import { CANVAS_WIDTH } from '../../shared/constants.js';
 export function renderStartScreen(renderer: Renderer): void {
   const cx = CANVAS_WIDTH / 2;
 
-  renderer.drawText("FROGGER", cx, 200, {
+  renderer.drawText('FROGGER', cx, 200, {
     fontSize: 64,
     color: 0x44cc44,
     anchor: 0.5,
   });
 
   // "Press [SPACE] to start" with a keycap icon for SPACE
-  renderer.drawText("Press", cx - 90, 405, {
+  renderer.drawText('Press', cx - 90, 405, {
     fontSize: 24,
     color: 0xaaaaaa,
     anchor: 0.5,
   });
-  renderer.drawKeyCap("SPACE", cx, 420, 80, 30);
-  renderer.drawText("to start", cx + 110, 405, {
+  renderer.drawKeyCap('SPACE', cx, 420, 80, 30);
+  renderer.drawText('to start', cx + 110, 405, {
     fontSize: 24,
     color: 0xaaaaaa,
     anchor: 0.5,
@@ -30,10 +30,10 @@ export function renderStartScreen(renderer: Renderer): void {
 
   // Arrow key icons in a cross layout + "to move" label
   const arrowY = 320;
-  renderer.drawKeyCap("▲", cx, arrowY - 28, 30, 30); // up
-  renderer.drawKeyCap("◀", cx - 34, arrowY + 6, 30, 30); // left
-  renderer.drawKeyCap("▼", cx, arrowY + 6, 30, 30); // down
-  renderer.drawKeyCap("▶", cx + 34, arrowY + 6, 30, 30); // right
+  renderer.drawKeyCap('▲', cx, arrowY - 28, 30, 30); // up
+  renderer.drawKeyCap('◀', cx - 34, arrowY + 6, 30, 30); // left
+  renderer.drawKeyCap('▼', cx, arrowY + 6, 30, 30); // down
+  renderer.drawKeyCap('▶', cx + 34, arrowY + 6, 30, 30); // right
 
   //renderer.drawText("to move", cx, arrowY + 50, {
   // fontSize: 18,

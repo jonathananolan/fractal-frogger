@@ -21,19 +21,8 @@ export interface Renderer {
     pixelY: number,
     options?: { fontSize?: number; color?: number; anchor?: number },
   ): void;
-  drawKeyCap(
-    label: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-  ): void;
-  drawVehicle(
-    gridX: number,
-    gridY: number,
-    size: VehicleSize,
-    sprite: SpriteData,
-  ): void;
+  drawKeyCap(label: string, x: number, y: number, width: number, height: number): void;
+  drawVehicle(gridX: number, gridY: number, size: VehicleSize, sprite: SpriteData): void;
 
   clear(): void;
   readonly stage: import('pixi.js').Container;
@@ -48,7 +37,7 @@ export interface Scene {
   destroy(): void;
 }
 
-export type GameState = "start" | "playing" | "victory" | "gameOver";
+export type GameState = 'start' | 'playing' | 'victory' | 'gameOver';
 
 // Debug data exposed by Engine Developer for debug panel
 export interface DebugData {
