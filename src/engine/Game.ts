@@ -32,7 +32,8 @@ export class Game {
   constructor(app: Application) {
     this.app = app;
     this.renderer = new Renderer(app);
-    this.input = new Input();
+    // this.input = new Input();
+    this.input = new Input(app.canvas as unknown as HTMLElement);
   }
 
   loadScene(scene: Scene): void {

@@ -11,6 +11,11 @@ async function bootstrap() {
     background: 0x1a1a2e,
   });
 
+  // Mobile: route touch gestures to the canvas (prevent scroll/zoom hijacking)
+  app.canvas.style.touchAction = 'none';
+  (app.canvas.style as any).webkitUserSelect = 'none';
+  app.canvas.style.userSelect = 'none';
+
   const container = document.getElementById('app');
   if (!container) throw new Error('Missing #app element');
   container.appendChild(app.canvas);
