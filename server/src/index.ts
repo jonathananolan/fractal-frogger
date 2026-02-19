@@ -13,7 +13,7 @@ import { setupEventHandlers } from './events.js';
 
 const PORT = process.env.PORT || 3001;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DIST_PATH = path.join(__dirname, '../../dist');
+const DIST_PATH = path.join(__dirname, '../../../../dist');
 
 console.log('__dirname:', __dirname);
 console.log('DIST_PATH:', DIST_PATH);
