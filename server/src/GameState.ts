@@ -1,8 +1,15 @@
 // GameState - manages obstacles, lanes, and tick loop
 // Server owns obstacle spawning and movement
 
-import type { Lane, Obstacle, Player, Point, ServerToClientEvents } from './types.js';
-import type { VehicleSize, SpriteData } from './types.js';
+import type {
+  Lane,
+  Obstacle,
+  Player,
+  Point,
+  ServerToClientEvents,
+  SpriteData,
+  VehicleSize,
+} from '../../shared/types.js';
 import type { Server } from 'socket.io';
 import { VEHICLES_BY_SIZE, SIZE_TO_WIDTH } from './sprites.js';
 
@@ -260,9 +267,7 @@ export class GameState {
 
     // Pick a random vehicle size (logs default to "m" for now)
     const sizes: VehicleSize[] = ['s', 'm', 'l', 'xl'];
-    const size: VehicleSize = isRoad
-      ? sizes[Math.floor(Math.random() * sizes.length)]
-      : 'm';
+    const size: VehicleSize = isRoad ? sizes[Math.floor(Math.random() * sizes.length)] : 'm';
 
     // Pick a random sprite for road obstacles
     let sprite: SpriteData | undefined;

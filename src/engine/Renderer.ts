@@ -1,9 +1,8 @@
 import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
 import type { Renderer as IRenderer } from './types.js';
-import { CELL_SIZE } from './types.js';
-import { VehicleSize } from '../entities/types.js';
+import { CELL_SIZE } from '../../shared/constants.js';
+import { SpriteData, VehicleSize } from '../../shared/types.js';
 import { SPRITE_PATH } from '../sprites.js';
-import { SpriteData } from '../entities/types.js';
 export class Renderer implements IRenderer {
   private app: Application;
   private drawContainer: Container;
@@ -28,7 +27,7 @@ export class Renderer implements IRenderer {
   ): void {
     const g = new Graphics();
     g.rect(gridX * CELL_SIZE, gridY * CELL_SIZE, widthCells * CELL_SIZE, heightCells * CELL_SIZE);
-    g.fill(color, alpha);
+    g.fill(color);
     this.drawContainer.addChild(g);
   }
 

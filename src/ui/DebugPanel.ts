@@ -1,8 +1,7 @@
 // Debug Panel - shows game state for debugging
 // Owner: Content Architect (design) + Engine Developer (data)
 
-import type { Renderer } from '../engine/types.js';
-import type { DebugData } from '../entities/types.js';
+import type { DebugData, Renderer } from '../engine/types.js';
 
 export function renderDebugPanel(renderer: Renderer, debugData: DebugData): void {
   // TODO: Polish debug panel design

@@ -1,9 +1,8 @@
 // Socket event handlers for multiplayer Frogger
 
 import type { Server, Socket } from 'socket.io';
-import type { ClientToServerEvents, ServerToClientEvents } from './types.js';
-import { PLAYER_COLORS } from './types.js';
 import { GameState } from './GameState.js';
+import { ClientToServerEvents, PLAYER_COLORS, ServerToClientEvents } from '../../shared/types.js';
 
 let colorIndex = 0;
 
@@ -20,7 +19,7 @@ export function resetColorIndex(): void {
 
 export function setupEventHandlers(
   io: Server<ClientToServerEvents, ServerToClientEvents>,
-  gameState: GameState
+  gameState: GameState,
 ): void {
   io.on('connection', (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
     console.log(`Client connected: ${socket.id}`);

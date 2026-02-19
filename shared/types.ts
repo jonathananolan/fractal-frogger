@@ -1,5 +1,3 @@
-// Shared types for multiplayer Frogger server
-
 export interface Point {
   x: number;
   y: number;
@@ -13,9 +11,17 @@ export interface Player {
   isAlive: boolean;
 }
 
-export type ObstacleType = 'car' | 'log';
+export type ObstacleType = 'car' | 'log' | 'turtle';
 
 export type VehicleSize = 's' | 'm' | 'l' | 'xl';
+
+/** Map VehicleSize to width in grid cells (for collision, spawning, wrapping) */
+export const SIZE_TO_WIDTH: Record<VehicleSize, number> = {
+  s: 1,
+  m: 2,
+  l: 3,
+  xl: 4,
+};
 
 export interface SpriteData {
   file: string;
@@ -42,6 +48,22 @@ export interface Lane {
   speed: number;
 }
 
+export interface Frog {
+  position: Point;
+  lives: number;
+  isAlive: boolean;
+  isOnLog: boolean;
+  currentLogId?: string;
+}
+
+export interface GameData {
+  frog: Frog;
+  lanes: Lane[];
+  score: number;
+  timeRemaining: number;
+  level: number;
+}
+
 // Client -> Server events
 export interface ClientToServerEvents {
   join: (payload: { name?: string }) => void;
@@ -52,12 +74,7 @@ export interface ClientToServerEvents {
 
 // Server -> Client events
 export interface ServerToClientEvents {
-  welcome: (payload: {
-    playerId: string;
-    color: number;
-    players: Player[];
-    lanes: Lane[];
-  }) => void;
+  welcome: (payload: { playerId: string; color: number; players: Player[]; lanes: Lane[] }) => void;
   playerJoined: (payload: { playerId: string; color: number; name: string }) => void;
   playerLeft: (payload: { playerId: string }) => void;
   playerMoved: (payload: { playerId: string; x: number; y: number }) => void;
