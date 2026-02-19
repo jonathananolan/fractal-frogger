@@ -576,8 +576,8 @@ export class FroggerScene implements Scene {
       return;
     }
 
-    // D: Toggle debug
-    if (key === 'KeyD') {
+    // P: Toggle debug
+    if (key === 'KeyP') {
       this.showDebug = !this.showDebug;
       return;
     }
