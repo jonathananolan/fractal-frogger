@@ -19,8 +19,8 @@ import { renderHUD } from '../ui/HUD.js';
 import { renderHelpOverlay } from '../ui/HelpOverlay.js';
 import { renderDebugPanel } from '../ui/DebugPanel.js';
 
-// Server URL
-const SERVER_URL = 'http://localhost:3001';
+// Server URL - use localhost in dev, same origin in production
+const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
 import { loadVehicleSprites } from '../sprites.js';
 import { GameData, Lane, VehicleSize } from '../../shared/types.js';
