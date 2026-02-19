@@ -56,6 +56,8 @@ export class SpawnSystem {
     return {
       id,
       position: { x, y: lane.y },
+      height: 1,
+      width: width,
       size: actualSize,
       velocity: lane.speed * lane.direction,
       type: lane.type === 'road' ? 'car' : 'log',

@@ -145,6 +145,8 @@ export class FroggerScene implements Scene {
     this.gameData = {
       frog: {
         position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
+        height: 1,
+        width: 1,
         lives: 3,
         isAlive: true,
         isOnLog: false,
@@ -162,6 +164,8 @@ export class FroggerScene implements Scene {
       roadLane.obstacles.push({
         id: 'test-car-1',
         position: { x: 5, y: 17 },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 5,
         type: 'car',
@@ -175,6 +179,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 11 },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -183,6 +189,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 9 },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -191,6 +199,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 10 },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -199,6 +209,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 8 },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -207,6 +219,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 7 },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 0.3,
         type: 'log',

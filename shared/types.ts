@@ -8,6 +8,8 @@ export interface Player {
   name: string;
   color: number;
   position: Point;
+  height: number;
+  width: number;
   isAlive: boolean;
 }
 
@@ -31,6 +33,8 @@ export interface SpriteData {
 export interface Obstacle {
   id: string;
   position: Point;
+  height: number;
+  width: number;
   velocity: number;
   type: ObstacleType;
   size: VehicleSize;
@@ -50,6 +54,8 @@ export interface Lane {
 
 export interface Frog {
   position: Point;
+  height: number;
+  width: number;
   lives: number;
   isAlive: boolean;
   isOnLog: boolean;

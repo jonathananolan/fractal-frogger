@@ -175,6 +175,8 @@ export class GameState {
       name,
       color,
       position: { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 },
+      width: 1,
+      height: 1,
       isAlive: true,
     };
     this.players.set(id, player);
@@ -282,6 +284,8 @@ export class GameState {
     return {
       id,
       position: { x, y: lane.y },
+      height: 1,
+      width: width,
       size,
       velocity: lane.speed * lane.direction,
       type: isRoad ? 'car' : 'log',

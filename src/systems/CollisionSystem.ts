@@ -11,19 +11,6 @@ export type CollisionResult =
   | { type: 'goal' };
 
 export class CollisionSystem {
-  private godMode: boolean = false;
-
-  /**
-   * Toggle god mode (no death from collisions).
-   */
-  setGodMode(enabled: boolean): void {
-    this.godMode = enabled;
-  }
-
-  isGodMode(): boolean {
-    return this.godMode;
-  }
-
   /**
    * Check what the frog is colliding with.
    * Returns the collision result.
@@ -31,6 +18,8 @@ export class CollisionSystem {
   update(gameData: GameData): CollisionResult {
     const frogX = gameData.frog.position.x;
     const frogY = gameData.frog.position.y;
+    const frogHeight = gameData.frog.height;
+    const frogWidth = gameData.frog.width;
 
     // Find which lane the frog is in
     const currentLane = gameData.lanes.find((l) => l.y === frogY);
@@ -49,7 +38,11 @@ export class CollisionSystem {
       case 'road':
         // Check collision with cars
         for (const obstacle of currentLane.obstacles) {
-          if (this.pointInObstacle(frogX, frogY, obstacle)) {
+          const obstacleX = obstacle.position.x
+          const obstacleY = obstacle.position.y
+          const obstacleWidth = obstacle.width
+          const obstacleHeight = obstacle.height
+          if (this.collides(frogX, frogY, frogHeight, frogWidth, obstacleX, obstacleY, obstacleHeight, obstacleWidth)) {
             return { type: 'car' };
           }
         }
@@ -58,7 +51,11 @@ export class CollisionSystem {
       case 'water':
         // Check if on a log
         for (const obstacle of currentLane.obstacles) {
-          if (this.pointInObstacle(frogX, frogY, obstacle)) {
+          const obstacleX = obstacle.position.x
+          const obstacleY = obstacle.position.y
+          const obstacleWidth = obstacle.width
+          const obstacleHeight = obstacle.height
+          if (this.collides(frogX, frogY, frogHeight, frogWidth, obstacleX, obstacleY, obstacleHeight, obstacleWidth)) {
             return { type: 'log', logId: obstacle.id };
           }
         }
@@ -68,13 +65,22 @@ export class CollisionSystem {
   }
 
   /**
-   * Check if a point is inside an obstacle's bounding box.
-   */
-  private pointInObstacle(x: number, y: number, obstacle: Obstacle): boolean {
+ * input: the bounding boxes (x, y, width, height) of two shapes
+ * output: whether the bounding boxes overlap
+ * 
+ * checks whether both X ranges and Y ranges overlap
+ * 
+ * see link for more details: https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
+ */
+  private collides(
+    ax: number, ay: number, aWidth: number, aHeight: number,
+    bx: number, by: number, bWidth: number, bHeight: number,
+  ): boolean {
     return (
-      x >= obstacle.position.x &&
-      x < obstacle.position.x + SIZE_TO_WIDTH[obstacle.size] &&
-      y === obstacle.position.y
-    );
+      ax <= bx + bWidth &&
+      bx <= ax + aWidth &&
+      ay <= by + bHeight &&
+      by <= ay + aHeight
+    )
   }
 }
