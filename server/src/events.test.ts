@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { setupEventHandlers, resetColorIndex } from './events.js';
 import { GameState } from './GameState.js';
-import { PLAYER_COLORS } from './types.js';
+import { PLAYER_COLORS } from '../../shared/types.js';
 
 // Mock socket factory
 function createMockSocket(id: string) {
