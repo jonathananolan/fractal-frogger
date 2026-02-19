@@ -76,10 +76,12 @@
       <div class="url">fractal-frogger.onrender.com</div>
     </div>
     <script>
-      const url = 'https://fractal-frogger.onrender.com/';
-      QRCode.toCanvas(url, { width: 280, margin: 0 }, function (error, canvas) {
-        if (error) console.error(error);
-        document.getElementById('qrcode').appendChild(canvas);
+      window.addEventListener('load', function () {
+        const url = 'https://fractal-frogger.onrender.com/';
+        QRCode.toCanvas(url, { width: 280, margin: 0 }, function (error, canvas) {
+          if (error) console.error(error);
+          document.getElementById('qrcode').appendChild(canvas);
+        });
       });
     </script>
   </body>
