@@ -11,6 +11,9 @@ import { SpawnSystem } from '../systems/SpawnSystem.js';
 // Network
 import { socketClient, RemotePlayer } from '../network/SocketClient.js';
 
+// Audio
+import { soundManager } from '../audio/SoundManager.js';
+
 // UI
 import { renderStartScreen } from '../ui/StartScreen.js';
 import { renderGameOverScreen } from '../ui/GameOverScreen.js';
@@ -22,12 +25,13 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { loadVehicleSprites } from '../sprites.js';
-import { GameData, Lane, SIZE_TO_WIDTH } from '../../shared/types.js';
+import { GameData, Lane, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
+import { loadSprites, loadBackground, loadVehicleSprites } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
-//import { VehicleSize } from "../entities/types.js";
-loadVehicleSprites();
+loadSprites();
+loadBackground();
+loadSprites();
 
 // Direction mapping
 const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
@@ -91,6 +95,8 @@ export class FroggerScene implements Scene {
           position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
           isAlive: true,
         });
+        // Play sound when another player joins
+        soundManager.playPlayerJoined();
       },
       onPlayerLeft: (playerId) => {
         this.remotePlayers.delete(playerId);
@@ -150,6 +156,7 @@ export class FroggerScene implements Scene {
         lives: 3,
         isAlive: true,
         isOnLog: false,
+        color: this.localPlayerColor,
       },
       lanes: this.createLanes(),
       score: 0,
@@ -396,6 +403,9 @@ export class FroggerScene implements Scene {
   }
 
   private handleDeath(cause: string): void {
+    // Play death sound
+    soundManager.playDeath();
+
     // Notify server of death
     if (socketClient.isConnected) {
       socketClient.sendDeath(cause);
@@ -405,6 +415,7 @@ export class FroggerScene implements Scene {
 
     if (this.gameData.frog.lives <= 0) {
       this.state = 'gameOver';
+      soundManager.stopMusic();
     } else {
       // Respawn frog at start
       this.gameData.frog.position = {
@@ -423,6 +434,10 @@ export class FroggerScene implements Scene {
   private handleVictory(): void {
     this.gameData.score += 100;
     this.state = 'victory';
+
+    // Play victory sound and stop music
+    soundManager.playVictory();
+    soundManager.stopMusic();
 
     // Notify server of victory
     if (socketClient.isConnected) {
@@ -491,6 +506,23 @@ export class FroggerScene implements Scene {
           break;
       }
       renderer.drawRect(0, lane.y, this.gridSize, 1, color);
+
+      // Road: dashed lane markings
+      if (lane.type === 'road') {
+        for (let x = 0; x < this.gridSize; x += 2) {
+          renderer.drawRect(x + 0.25, lane.y, 0.5, 0.05, 0x5a5a5a);
+        }
+      }
+
+      // Water: animated wave highlights that drift with the lane direction
+      if (lane.type === 'water') {
+        const drift = (this.tickCount * lane.speed * lane.direction * 0.05) % this.gridSize;
+        for (let x = 0; x < this.gridSize; x += 1.5) {
+          const waveX = (((x + drift) % this.gridSize) + this.gridSize) % this.gridSize;
+          renderer.drawRect(waveX, lane.y + 0.3, 0.6, 0.1, 0x1156d6);
+          renderer.drawRect(waveX + 0.7, lane.y + 0.6, 0.4, 0.08, 0x160096);
+        }
+      }
     }
   }
 
@@ -532,14 +564,15 @@ export class FroggerScene implements Scene {
     for (const player of this.remotePlayers.values()) {
       if (player.isAlive) {
         const { x, y } = player.position;
-        renderer.drawRect(x, y, 1, 1, player.color);
+
+        renderer.drawPlayer(x, y, player.color);
       }
     }
   }
 
   private renderFrog(renderer: Renderer): void {
     const { x, y } = this.gameData.frog.position;
-    renderer.drawRect(x, y, 1, 1, this.localPlayerColor);
+    renderer.drawPlayer(x, y, this.gameData.frog.color);
   }
 
   private getDebugData(): DebugData {
@@ -560,9 +593,13 @@ export class FroggerScene implements Scene {
       console.log('space hit');
       if (this.state === 'start') {
         this.state = 'playing';
+        soundManager.unlock(); // Ensure audio context is unlocked
+        soundManager.playGameStart();
+        soundManager.startMusic();
       } else if (this.state === 'gameOver' || this.state === 'victory') {
         this.resetGame();
         this.state = 'start';
+        soundManager.playRestart();
       }
       return;
     }
@@ -576,8 +613,8 @@ export class FroggerScene implements Scene {
       return;
     }
 
-    // D: Toggle debug
-    if (key === 'KeyD') {
+    // P: Toggle debug
+    if (key === 'KeyP') {
       this.showDebug = !this.showDebug;
       return;
     }
@@ -585,11 +622,16 @@ export class FroggerScene implements Scene {
     // Movement
     const direction = KEY_DIRECTION[key];
     if (direction) {
-      this.movementSystem.moveFrog(this.gameData, direction, this.gridSize);
+      const moved = this.movementSystem.moveFrog(this.gameData, direction, this.gridSize);
 
-      // Send position to server
-      if (socketClient.isConnected) {
-        socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
+      if (moved) {
+        // Play hop sound on successful movement
+        soundManager.playHop();
+
+        // Send position to server
+        if (socketClient.isConnected) {
+          socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
+        }
       }
     }
   }

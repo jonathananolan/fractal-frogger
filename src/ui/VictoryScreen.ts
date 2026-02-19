@@ -7,7 +7,7 @@ import { CANVAS_WIDTH } from '../../shared/constants.js';
 export function renderVictoryScreen(renderer: Renderer, score: number): void {
   const cx = CANVAS_WIDTH / 2;
 
-  // TODO: Polish victory screen design
+  renderer.drawBackground();
 
   renderer.drawText('YOU WIN!', cx, 200, {
     fontSize: 48,
