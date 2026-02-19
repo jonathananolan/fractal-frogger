@@ -104,10 +104,6 @@ export class CollisionSystem {
     bWidth: number,
     bHeight: number,
   ): boolean {
-    return (
-      ax < bx + bWidth &&
-      bx < ax + aWidth &&
-      ay < by + bHeight &&
-      by < ay + aHeight);
+    return ax < bx + bWidth && bx < ax + aWidth && ay < by + bHeight && by < ay + aHeight;
   }
 }
