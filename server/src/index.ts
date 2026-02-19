@@ -62,6 +62,11 @@ app.get('/health', (_req, res) => {
 // Serve static frontend files in production
 app.use(express.static(DIST_PATH));
 
+// Serve join.html for /join route
+app.get('/join', (_req, res) => {
+  res.sendFile(path.join(DIST_PATH, 'join.html'));
+});
+
 // SPA fallback - serve index.html for all other routes
 app.get('*', (_req, res) => {
   const indexPath = path.join(DIST_PATH, 'index.html');
