@@ -76,6 +76,17 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(pixiSprite);
   }
 
+  drawPlayer(gridX: number, gridY: number, color: number): void {
+    const texture = Assets.get(SPRITE_PATH + 'frog.svg');
+    const frogSprite = new Sprite(texture);
+    frogSprite.x = gridX * CELL_SIZE;
+    frogSprite.y = gridY * CELL_SIZE;
+    frogSprite.width = CELL_SIZE;
+    frogSprite.height = CELL_SIZE;
+    frogSprite.tint = color;
+    this.drawContainer.addChild(frogSprite);
+  }
+
   drawBackground(path?: string): void {
     const texture = Assets.get(path ?? BACKGROUND_PATH);
     const bg = new Sprite(texture);

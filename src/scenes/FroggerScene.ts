@@ -25,13 +25,11 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { loadVehicleSprites, loadBackground } from '../sprites.js';
-import { loadSprites } from '../sprites.js';
+import { loadSprites, loadBackground } from '../sprites.js';
 import { GameData, Lane, VehicleSize } from '../../shared/types.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
-//import { VehicleSize } from "../entities/types.js";
-loadVehicleSprites();
+loadSprites();
 loadBackground();
 loadSprites();
 
@@ -156,6 +154,7 @@ export class FroggerScene implements Scene {
         lives: 3,
         isAlive: true,
         isOnLog: false,
+        color: this.localPlayerColor,
       },
       lanes: this.createLanes(),
       score: 0,
