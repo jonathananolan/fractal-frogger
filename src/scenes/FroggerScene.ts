@@ -477,6 +477,23 @@ export class FroggerScene implements Scene {
           break;
       }
       renderer.drawRect(0, lane.y, this.gridSize, 1, color);
+
+      // Road: dashed lane markings
+      if (lane.type === 'road') {
+        for (let x = 0; x < this.gridSize; x += 2) {
+          renderer.drawRect(x + 0.25, lane.y, 0.5, 0.05, 0x5a5a5a);
+        }
+      }
+
+      // Water: animated wave highlights that drift with the lane direction
+      if (lane.type === 'water') {
+        const drift = (this.tickCount * lane.speed * lane.direction * 0.05) % this.gridSize;
+        for (let x = 0; x < this.gridSize; x += 1.5) {
+          const waveX = (((x + drift) % this.gridSize) + this.gridSize) % this.gridSize;
+          renderer.drawRect(waveX, lane.y + 0.3, 0.6, 0.1, 0x1156d6);
+          renderer.drawRect(waveX + 0.7, lane.y + 0.6, 0.4, 0.08, 0x160096);
+        }
+      }
     }
   }
 
