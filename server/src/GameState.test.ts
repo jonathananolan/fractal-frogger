@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { GameState } from './GameState.js';
 import { SIZE_TO_WIDTH } from './sprites.js';
+import type { Obstacle } from '../../shared/types.js';
 
 describe('GameState', () => {
   let gameState: GameState;
@@ -185,7 +186,7 @@ describe('GameState', () => {
       (gs as any).tick();
     }
 
-    function spawnObstacle(gs: GameState, lane: any) {
+    function spawnObstacle(gs: GameState, lane: any): Obstacle {
       return (gs as any).spawnObstacle(lane);
     }
 

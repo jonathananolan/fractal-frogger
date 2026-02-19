@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { VEHICLE_SPRITES, SIZE_TO_WIDTH, VEHICLES_BY_SIZE } from './sprites.js';
-import type { VehicleSize } from './types.js';
+import type { VehicleSize } from '../../shared/types.js';
 
 describe('sprites', () => {
   describe('VEHICLE_SPRITES', () => {

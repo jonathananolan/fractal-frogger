@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PLAYER_COLORS } from './types.js';
+import { PLAYER_COLORS } from '../../shared/types.js';
 
 describe('types', () => {
   describe('PLAYER_COLORS', () => {
