@@ -1,6 +1,7 @@
 // Spawn System - spawns and despawns obstacles in lanes
 // Owner: Engine Developer
 
+import { SPRITE_BASE_PX } from '../../shared/constants.js';
 import {
   GameData,
   Lane,
@@ -57,7 +58,7 @@ export class SpawnSystem {
       id,
       position: { x, y: lane.y },
       height: 1,
-      width: width,
+      width: sprite ? sprite.length / SPRITE_BASE_PX : SIZE_TO_WIDTH[actualSize], // written in grid units (1, 2, 3...)
       size: actualSize,
       velocity: lane.speed * lane.direction,
       type: lane.type === 'road' ? 'car' : 'log',

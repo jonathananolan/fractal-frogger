@@ -12,6 +12,7 @@ import type {
 } from '../../shared/types.js';
 import type { Server } from 'socket.io';
 import { VEHICLES_BY_SIZE, SIZE_TO_WIDTH } from './sprites.js';
+import { SPRITE_BASE_PX } from '../../shared/constants.js';
 
 const GRID_SIZE = 20;
 const TICK_INTERVAL = 150; // ms, matches client
@@ -248,7 +249,7 @@ export class GameState {
 
       // Remove obstacles that left the grid
       lane.obstacles = lane.obstacles.filter((obstacle) => {
-        const width = SIZE_TO_WIDTH[obstacle.size];
+        const width = obstacle.width;
         if (lane.direction === 1) {
           // Moving right - remove when fully past right edge
           return obstacle.position.x < GRID_SIZE;
@@ -285,7 +286,7 @@ export class GameState {
       id,
       position: { x, y: lane.y },
       height: 1,
-      width: width,
+      width: sprite ? sprite.length / SPRITE_BASE_PX : SIZE_TO_WIDTH[size],
       size,
       velocity: lane.speed * lane.direction,
       type: isRoad ? 'car' : 'log',

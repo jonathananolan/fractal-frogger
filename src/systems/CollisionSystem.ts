@@ -1,7 +1,7 @@
 // Collision System - detects frog collisions with obstacles and zones
 // Owner: Engine Developer
 
-import { GameData, Obstacle, SIZE_TO_WIDTH } from '../../shared/types';
+import { GameData } from '../../shared/types';
 
 export type CollisionResult =
   | { type: 'none' }
@@ -38,11 +38,22 @@ export class CollisionSystem {
       case 'road':
         // Check collision with cars
         for (const obstacle of currentLane.obstacles) {
-          const obstacleX = obstacle.position.x
-          const obstacleY = obstacle.position.y
-          const obstacleWidth = obstacle.width
-          const obstacleHeight = obstacle.height
-          if (this.collides(frogX, frogY, frogHeight, frogWidth, obstacleX, obstacleY, obstacleHeight, obstacleWidth)) {
+          const obstacleX = obstacle.position.x;
+          const obstacleY = obstacle.position.y;
+          const obstacleWidth = obstacle.width;
+          const obstacleHeight = obstacle.height;
+          if (
+            this.collides(
+              frogX,
+              frogY,
+              frogWidth,
+              frogHeight,
+              obstacleX,
+              obstacleY,
+              obstacleWidth,
+              obstacleHeight,
+            )
+          ) {
             return { type: 'car' };
           }
         }
@@ -51,11 +62,22 @@ export class CollisionSystem {
       case 'water':
         // Check if on a log
         for (const obstacle of currentLane.obstacles) {
-          const obstacleX = obstacle.position.x
-          const obstacleY = obstacle.position.y
-          const obstacleWidth = obstacle.width
-          const obstacleHeight = obstacle.height
-          if (this.collides(frogX, frogY, frogHeight, frogWidth, obstacleX, obstacleY, obstacleHeight, obstacleWidth)) {
+          const obstacleX = obstacle.position.x;
+          const obstacleY = obstacle.position.y;
+          const obstacleWidth = obstacle.width;
+          const obstacleHeight = obstacle.height;
+          if (
+            this.collides(
+              frogX,
+              frogY,
+              frogWidth,
+              frogHeight,
+              obstacleX,
+              obstacleY,
+              obstacleWidth,
+              obstacleHeight,
+            )
+          ) {
             return { type: 'log', logId: obstacle.id };
           }
         }
@@ -65,22 +87,27 @@ export class CollisionSystem {
   }
 
   /**
- * input: the bounding boxes (x, y, width, height) of two shapes
- * output: whether the bounding boxes overlap
- * 
- * checks whether both X ranges and Y ranges overlap
- * 
- * see link for more details: https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
- */
+   * input: the bounding boxes (x, y, width, height) of two shapes
+   * output: whether the bounding boxes overlap
+   *
+   * checks whether both X ranges and Y ranges overlap
+   *
+   * see link for more details: https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
+   */
   private collides(
-    ax: number, ay: number, aWidth: number, aHeight: number,
-    bx: number, by: number, bWidth: number, bHeight: number,
+    ax: number,
+    ay: number,
+    aWidth: number,
+    aHeight: number,
+    bx: number,
+    by: number,
+    bWidth: number,
+    bHeight: number,
   ): boolean {
     return (
-      ax <= bx + bWidth &&
-      bx <= ax + aWidth &&
-      ay <= by + bHeight &&
-      by <= ay + aHeight
-    )
+      ax < bx + bWidth &&
+      bx < ax + aWidth &&
+      ay < by + bHeight &&
+      by < ay + aHeight);
   }
 }
