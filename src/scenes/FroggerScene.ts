@@ -25,8 +25,8 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { loadSprites, loadBackground } from '../sprites.js';
-import { GameData, Lane, VehicleSize } from '../../shared/types.js';
+import { GameData, Lane, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
+import { loadSprites, loadBackground, loadVehicleSprites } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
 loadSprites();
@@ -151,6 +151,8 @@ export class FroggerScene implements Scene {
     this.gameData = {
       frog: {
         position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
+        height: 1,
+        width: 1,
         lives: 3,
         isAlive: true,
         isOnLog: false,
@@ -169,6 +171,8 @@ export class FroggerScene implements Scene {
       roadLane.obstacles.push({
         id: 'test-car-1',
         position: { x: 5, y: 17 },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 5,
         type: 'car',
@@ -182,6 +186,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 11 },
+        height: 1,
+        width: SIZE_TO_WIDTH['m'],
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -190,6 +196,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 9 },
+        height: 1,
+        width: SIZE_TO_WIDTH['m'],
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -198,6 +206,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 10 },
+        height: 1,
+        width: SIZE_TO_WIDTH['m'],
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -206,6 +216,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 8 },
+        height: 1,
+        width: SIZE_TO_WIDTH['m'],
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -214,6 +226,8 @@ export class FroggerScene implements Scene {
       waterLane.obstacles.push({
         id: 'test-log-1',
         position: { x: 8, y: 7 },
+        height: 1,
+        width: SIZE_TO_WIDTH['m'],
         size: 'm',
         velocity: 0.3,
         type: 'log',
@@ -526,34 +540,20 @@ export class FroggerScene implements Scene {
           );
         } else if (car) {
           // Fallback for cars without sprite data (e.g., from server)
-          const SIZE_TO_CELLS: Record<VehicleSize, number> = {
-            s: 1,
-            m: 1.22,
-            l: 2,
-            xl: 2.67,
-          };
           renderer.drawRect(
             Math.floor(obstacle.position.x),
             obstacle.position.y,
-            SIZE_TO_CELLS[obstacle.size],
+            obstacle.width,
             1,
-            0xff0000, // red for cars
+            0xff0000,
           );
         } else {
-          const SIZE_TO_CELLS: Record<VehicleSize, number> = {
-            s: 1,
-            m: 1.22,
-            l: 2,
-            xl: 2.67,
-          };
-
-          const color = 0x8b4513; // red for cars, brown for log
           renderer.drawRect(
             Math.floor(obstacle.position.x),
             obstacle.position.y,
-            SIZE_TO_CELLS[obstacle.size],
+            obstacle.width,
             1,
-            color,
+            0x8b4513, // brown for logs
           );
         }
       }

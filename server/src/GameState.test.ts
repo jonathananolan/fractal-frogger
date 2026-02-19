@@ -268,6 +268,8 @@ describe('GameState', () => {
       roadLane.obstacles.push({
         id: 'test-obstacle',
         position: { x: 5, y: roadLane.y },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 0.5,
         type: 'car',
@@ -285,6 +287,8 @@ describe('GameState', () => {
       rightMovingLane.obstacles.push({
         id: 'test-obstacle',
         position: { x: 20, y: rightMovingLane.y }, // at edge
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 0.5,
         type: 'car',
@@ -302,6 +306,8 @@ describe('GameState', () => {
       leftMovingLane.obstacles.push({
         id: 'test-obstacle',
         position: { x: -2, y: leftMovingLane.y }, // past left edge
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: -0.5,
         type: 'car',
@@ -319,6 +325,8 @@ describe('GameState', () => {
       rightMovingLane.obstacles.push({
         id: 'test-obstacle',
         position: { x: 10, y: rightMovingLane.y },
+        height: 1,
+        width: 1,
         size: 'm',
         velocity: 0.5,
         type: 'car',

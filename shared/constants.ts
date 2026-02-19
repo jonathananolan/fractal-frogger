@@ -5,3 +5,4 @@ export const CANVAS_HEIGHT = GRID_SIZE * CELL_SIZE; // 600px
 export const TICK_RATE_MS = 30; // 150 = ~6.67 ticks/sec
 export const TICK_RATE_S = TICK_RATE_MS / 1000; // 0.15s per tick
 export const MAX_ACCUMULATOR_MS = 1000;
+export const SPRITE_BASE_PX = 48;

@@ -126,7 +126,7 @@ describe('Event Handlers', () => {
         socket._trigger('join', { name: `Player${i}` });
 
         const welcomeCall = (socket.emit as any).mock.calls.find(
-          (call: any) => call[0] === 'welcome'
+          (call: any) => call[0] === 'welcome',
         );
         colors.push(welcomeCall[1].color);
       }
@@ -289,7 +289,7 @@ describe('Event Handlers', () => {
 
       // Player 2's welcome should include Player 1
       const welcomeCall = (socket2.emit as any).mock.calls.find(
-        (call: any) => call[0] === 'welcome'
+        (call: any) => call[0] === 'welcome',
       );
       expect(welcomeCall[1].players).toHaveLength(2);
     });
