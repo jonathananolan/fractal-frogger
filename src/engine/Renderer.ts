@@ -40,7 +40,7 @@ export class Renderer implements IRenderer {
     const style = new TextStyle({
       fontSize: options?.fontSize ?? 24,
       fill: options?.color ?? 0xffffff,
-      fontFamily: 'monospace',
+      fontFamily: 'Arial',
     });
     const t = new Text({ text, style });
     t.anchor.set(options?.anchor ?? 0, 0);
