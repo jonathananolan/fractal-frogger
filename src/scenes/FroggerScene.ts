@@ -22,12 +22,12 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { loadVehicleSprites } from '../sprites.js';
+import { loadSprites } from '../sprites.js';
 import { GameData, Lane, VehicleSize } from '../../shared/types.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
 //import { VehicleSize } from "../entities/types.js";
-loadVehicleSprites();
+loadSprites();
 
 // Direction mapping
 const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
@@ -532,14 +532,15 @@ export class FroggerScene implements Scene {
     for (const player of this.remotePlayers.values()) {
       if (player.isAlive) {
         const { x, y } = player.position;
-        renderer.drawRect(x, y, 1, 1, player.color);
+
+        renderer.drawPlayer(x, y, player.color);
       }
     }
   }
 
   private renderFrog(renderer: Renderer): void {
     const { x, y } = this.gameData.frog.position;
-    renderer.drawRect(x, y, 1, 1, this.localPlayerColor);
+    renderer.drawPlayer(x, y, this.gameData.frog.color);
   }
 
   private getDebugData(): DebugData {

@@ -54,6 +54,7 @@ export interface Frog {
   isAlive: boolean;
   isOnLog: boolean;
   currentLogId?: string;
+  color: number;
 }
 
 export interface GameData {
