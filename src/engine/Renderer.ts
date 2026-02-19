@@ -1,8 +1,8 @@
 import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
 import type { Renderer as IRenderer } from './types.js';
-import { CELL_SIZE } from '../../shared/constants.js';
+import { CELL_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
 import { SpriteData, VehicleSize } from '../../shared/types.js';
-import { SPRITE_PATH } from '../sprites.js';
+import { SPRITE_PATH, BACKGROUND_PATH } from '../sprites.js';
 export class Renderer implements IRenderer {
   private app: Application;
   private drawContainer: Container;
@@ -40,7 +40,7 @@ export class Renderer implements IRenderer {
     const style = new TextStyle({
       fontSize: options?.fontSize ?? 24,
       fill: options?.color ?? 0xffffff,
-      fontFamily: 'monospace',
+      fontFamily: 'SuperFrog',
     });
     const t = new Text({ text, style });
     t.anchor.set(options?.anchor ?? 0, 0);
@@ -58,7 +58,7 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(bg);
 
     // Draw the label text centered on the keycap
-    const style = new TextStyle({ fontSize: 14, fill: 0xffffff });
+    const style = new TextStyle({ fontSize: 14, fill: 0xffffff, fontFamily: 'Courier' });
     const text = new Text({ text: label, style });
     text.anchor.set(0.5);
     text.x = x;
@@ -74,6 +74,14 @@ export class Renderer implements IRenderer {
     pixiSprite.height = CELL_SIZE;
     pixiSprite.width = (sprite.length / 48) * CELL_SIZE; // scale length relative to 48px base width
     this.drawContainer.addChild(pixiSprite);
+  }
+
+  drawBackground(path?: string): void {
+    const texture = Assets.get(path ?? BACKGROUND_PATH);
+    const bg = new Sprite(texture);
+    bg.width = CANVAS_WIDTH;
+    bg.height = CANVAS_HEIGHT;
+    this.drawContainer.addChild(bg);
   }
 
   clear(): void {

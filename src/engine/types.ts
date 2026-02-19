@@ -24,6 +24,7 @@ export interface Renderer {
   ): void;
   drawKeyCap(label: string, x: number, y: number, width: number, height: number): void;
   drawVehicle(gridX: number, gridY: number, size: VehicleSize, sprite: SpriteData): void;
+  drawBackground(path?: string): void;
 
   clear(): void;
   readonly stage: import('pixi.js').Container;

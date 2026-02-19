@@ -5,6 +5,8 @@ import { Assets } from 'pixi.js';
 import { SpriteData, VehicleSize } from '../shared/types';
 
 export const SPRITE_PATH = '/sprites/';
+export const BACKGROUND_PATH = '/background.png';
+export const BACKGROUND2_PATH = '/frogbackground2.png';
 
 export const VEHICLE_SPRITES: SpriteData[] = [
   // Short (48px)
@@ -86,6 +88,11 @@ export const VEHICLE_SPRITES: SpriteData[] = [
 /** Load all vehicle sprite textures. Call once at startup. */
 export async function loadVehicleSprites(): Promise<void> {
   await Assets.load(VEHICLE_SPRITES.map((s) => SPRITE_PATH + s.file));
+}
+
+/** Load background images. Call once at startup. */
+export async function loadBackground(): Promise<void> {
+  await Assets.load([BACKGROUND_PATH, BACKGROUND2_PATH]);
 }
 
 export const VEHICLES_BY_SIZE: Record<VehicleSize, SpriteData[]> = {
