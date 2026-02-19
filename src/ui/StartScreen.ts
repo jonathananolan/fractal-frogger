@@ -14,7 +14,7 @@ export function renderStartScreen(renderer: Renderer): void {
 
   renderer.drawText('FROGGERS', cx, 200, {
     fontSize: 64,
-    color: 0x44cc44,
+    color: 0x7ce97c,
     anchor: 0.5,
   });
 
@@ -26,13 +26,13 @@ export function renderStartScreen(renderer: Renderer): void {
   renderer.drawKeyCap('▶', cx + 34, arrowY + 6, 30, 30); // right
 
   // "Press [SPACE] to start" with a keycap icon for SPACE
-  renderer.drawText('Press', cx - 90, 405, {
+  renderer.drawText('Press', cx - 90, 505, {
     fontSize: 24,
     color: 0xffffff,
     anchor: 0.5,
   });
-  renderer.drawKeyCap('SPACE', cx, 420, 80, 30);
-  renderer.drawText('to start', cx + 110, 405, {
+  renderer.drawKeyCap('SPACE', cx, 520, 80, 30);
+  renderer.drawText('to start', cx + 110, 505, {
     fontSize: 24,
     color: 0xffffff,
     anchor: 0.5,
