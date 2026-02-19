@@ -26,13 +26,13 @@ export function renderStartScreen(renderer: Renderer): void {
   renderer.drawKeyCap('▶', cx + 34, arrowY + 6, 30, 30); // right
 
   // "Press [SPACE] to start" with a keycap icon for SPACE
-  renderer.drawText('Press', cx - 90, 505, {
+  renderer.drawText('Press', cx - 90, 515, {
     fontSize: 24,
     color: 0xffffff,
     anchor: 0.5,
   });
-  renderer.drawKeyCap('SPACE', cx, 520, 80, 30);
-  renderer.drawText('to start', cx + 110, 505, {
+  renderer.drawKeyCap('SPACE', cx, 525, 80, 30);
+  renderer.drawText('to start', cx + 110, 515, {
     fontSize: 24,
     color: 0xffffff,
     anchor: 0.5,
