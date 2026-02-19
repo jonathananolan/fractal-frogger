@@ -2,7 +2,7 @@
 // Owner: Content Architect
 
 import type { Renderer } from '../engine/types.js';
-import { CANVAS_WIDTH } from '../../shared/constants.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
 
 // Draws a single keycap icon (rounded rectangle + label) onto the stage
 
@@ -35,17 +35,4 @@ export function renderStartScreen(renderer: Renderer): void {
     color: 0xaaaaaa,
     anchor: 0.5,
   });
-
-  // Arrow key icons in a cross layout + "to move" label
-  const arrowY = 320;
-  renderer.drawKeyCap('▲', cx, arrowY - 28, 30, 30); // up
-  renderer.drawKeyCap('◀', cx - 34, arrowY + 6, 30, 30); // left
-  renderer.drawKeyCap('▼', cx, arrowY + 6, 30, 30); // down
-  renderer.drawKeyCap('▶', cx + 34, arrowY + 6, 30, 30); // right
-
-  //renderer.drawText("to move", cx, arrowY + 50, {
-  // fontSize: 18,
-  // color: 0x666666,
-  // anchor: 0.5,
-  // });
 }
