@@ -1,8 +1,7 @@
 // Collision System - detects frog collisions with obstacles and zones
 // Owner: Engine Developer
 
-import type { GameData, Lane, Obstacle } from '../entities/types.js';
-import { SIZE_TO_WIDTH } from '../entities/types.js';
+import { GameData, Obstacle, SIZE_TO_WIDTH } from '../../shared/types';
 
 export type CollisionResult =
   | { type: 'none' }
@@ -64,7 +63,7 @@ export class CollisionSystem {
           }
         }
 
-        return { type: 'water' }
+        return { type: 'water' };
     }
   }
 

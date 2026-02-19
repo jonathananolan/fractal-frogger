@@ -1,6 +1,6 @@
 import { Application } from 'pixi.js';
 import { Game } from './engine/Game.js';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from './engine/types.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../shared/constants.js';
 import { FroggerScene } from './scenes/FroggerScene.js';
 
 async function bootstrap() {

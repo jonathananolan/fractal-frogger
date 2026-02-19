@@ -7,7 +7,7 @@ import { Server } from 'socket.io';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
-import type { ClientToServerEvents, ServerToClientEvents } from './types.js';
+import type { ClientToServerEvents, ServerToClientEvents } from '../../shared/types.js';
 import { GameState } from './GameState.js';
 import { setupEventHandlers } from './events.js';
 

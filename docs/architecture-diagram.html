@@ -1,650 +1,627 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fractal Frogger - Full Stack Architecture</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: white;
-      color: #000;
-      padding: 40px;
-      min-height: 100vh;
-    }
-    h1 {
-      text-align: center;
-      font-size: 2.2rem;
-      margin-bottom: 8px;
-      border-bottom: 2px solid #000;
-      padding-bottom: 10px;
-    }
-    .subtitle {
-      text-align: center;
-      color: #444;
-      margin-bottom: 30px;
-    }
-    .diagram {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .split-view {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    .side {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .side-header {
-      text-align: center;
-      padding: 10px;
-      border: 2px solid #000;
-      font-weight: 700;
-      font-size: 1.1rem;
-      background: #f0f0f0;
-    }
-    .layer {
-      border: 1px solid #000;
-      padding: 16px;
-    }
-    .layer-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #000;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .components {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .component {
-      border: 1px solid #000;
-      padding: 12px;
-      min-width: 140px;
-      flex: 1;
-      max-width: 200px;
-      background: white;
-    }
-    .component.main {
-      border-width: 2px;
-    }
-    .component-name {
-      font-weight: 700;
-      margin-bottom: 4px;
-      font-size: 0.9rem;
-    }
-    .component-file {
-      font-size: 0.7rem;
-      color: #666;
-      font-family: monospace;
-      margin-bottom: 6px;
-    }
-    .component-list {
-      font-size: 0.75rem;
-      color: #333;
-    }
-    .component-list li {
-      margin-left: 14px;
-      margin-bottom: 2px;
-    }
-    .arrow-container {
-      display: flex;
-      justify-content: center;
-      margin: -2px 0;
-    }
-    .arrow {
-      font-size: 1rem;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fractal Frogger - Full Stack Architecture</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: white;
+        color: #000;
+        padding: 40px;
+        min-height: 100vh;
+      }
+      h1 {
+        text-align: center;
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10px;
+      }
+      .subtitle {
+        text-align: center;
+        color: #444;
+        margin-bottom: 30px;
+      }
+      .diagram {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .split-view {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+      .side {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .side-header {
+        text-align: center;
+        padding: 10px;
+        border: 2px solid #000;
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: #f0f0f0;
+      }
+      .layer {
+        border: 1px solid #000;
+        padding: 16px;
+      }
+      .layer-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #000;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .components {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .component {
+        border: 1px solid #000;
+        padding: 12px;
+        min-width: 140px;
+        flex: 1;
+        max-width: 200px;
+        background: white;
+      }
+      .component.main {
+        border-width: 2px;
+      }
+      .component-name {
+        font-weight: 700;
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+      }
+      .component-file {
+        font-size: 0.7rem;
+        color: #666;
+        font-family: monospace;
+        margin-bottom: 6px;
+      }
+      .component-list {
+        font-size: 0.75rem;
+        color: #333;
+      }
+      .component-list li {
+        margin-left: 14px;
+        margin-bottom: 2px;
+      }
+      .arrow-container {
+        display: flex;
+        justify-content: center;
+        margin: -2px 0;
+      }
+      .arrow {
+        font-size: 1rem;
+      }
 
-    .network-bridge {
-      border: 2px dashed #000;
-      padding: 16px;
-      margin: 20px 0;
-      text-align: center;
-    }
-    .network-bridge h3 {
-      margin-bottom: 12px;
-      font-size: 1rem;
-    }
-    .socket-events {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 16px;
-      align-items: center;
-    }
-    .event-list {
-      border: 1px solid #000;
-      padding: 12px;
-      text-align: left;
-      background: #fafafa;
-    }
-    .event-list h4 {
-      font-size: 0.85rem;
-      margin-bottom: 6px;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 4px;
-    }
-    .event-list ul {
-      font-size: 0.75rem;
-      font-family: monospace;
-    }
-    .event-list li {
-      margin-left: 14px;
-      margin-bottom: 2px;
-    }
-    .socket-icon {
-      font-size: 1.5rem;
-    }
+      .network-bridge {
+        border: 2px dashed #000;
+        padding: 16px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .network-bridge h3 {
+        margin-bottom: 12px;
+        font-size: 1rem;
+      }
+      .socket-events {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 16px;
+        align-items: center;
+      }
+      .event-list {
+        border: 1px solid #000;
+        padding: 12px;
+        text-align: left;
+        background: #fafafa;
+      }
+      .event-list h4 {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 4px;
+      }
+      .event-list ul {
+        font-size: 0.75rem;
+        font-family: monospace;
+      }
+      .event-list li {
+        margin-left: 14px;
+        margin-bottom: 2px;
+      }
+      .socket-icon {
+        font-size: 1.5rem;
+      }
 
-    .data-flow {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-      margin-top: 20px;
-    }
-    .flow-box {
-      border: 1px solid #000;
-      padding: 12px;
-    }
-    .flow-title {
-      font-weight: 700;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 4px;
-    }
-    .flow-diagram {
-      font-family: monospace;
-      font-size: 0.7rem;
-      white-space: pre;
-      background: #f5f5f5;
-      padding: 8px;
-      border: 1px solid #ddd;
-      overflow-x: auto;
-    }
+      .data-flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+      .flow-box {
+        border: 1px solid #000;
+        padding: 12px;
+      }
+      .flow-title {
+        font-weight: 700;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 4px;
+      }
+      .flow-diagram {
+        font-family: monospace;
+        font-size: 0.7rem;
+        white-space: pre;
+        background: #f5f5f5;
+        padding: 8px;
+        border: 1px solid #ddd;
+        overflow-x: auto;
+      }
 
-    .tech-stack {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    .tech-badge {
-      border: 1px solid #000;
-      padding: 4px 10px;
-      font-size: 0.7rem;
-    }
+      .tech-stack {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+      .tech-badge {
+        border: 1px solid #000;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+      }
 
-    .data-structures {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
+      .data-structures {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
 
-    @media (max-width: 900px) {
-      .split-view { grid-template-columns: 1fr; }
-      .socket-events { grid-template-columns: 1fr; }
-    }
+      @media (max-width: 900px) {
+        .split-view {
+          grid-template-columns: 1fr;
+        }
+        .socket-events {
+          grid-template-columns: 1fr;
+        }
+      }
 
-    @media print {
-      body { padding: 20px; }
-      .layer, .component, .flow-box, .event-list { break-inside: avoid; }
-    }
-  </style>
-</head>
-<body>
-  <div class="diagram">
-    <h1>FRACTAL FROGGER ARCHITECTURE</h1>
-    <p class="subtitle">Full-Stack Multiplayer Game System</p>
+      @media print {
+        body {
+          padding: 20px;
+        }
+        .layer,
+        .component,
+        .flow-box,
+        .event-list {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="diagram">
+      <h1>FRACTAL FROGGER ARCHITECTURE</h1>
+      <p class="subtitle">Full-Stack Multiplayer Game System</p>
 
-    <div class="tech-stack">
-      <span class="tech-badge">PixiJS 8.16</span>
-      <span class="tech-badge">TypeScript 5.7</span>
-      <span class="tech-badge">Vite 6.4</span>
-      <span class="tech-badge">Express</span>
-      <span class="tech-badge">Socket.io</span>
-      <span class="tech-badge">Node.js</span>
-    </div>
+      <div class="tech-stack">
+        <span class="tech-badge">PixiJS 8.16</span>
+        <span class="tech-badge">TypeScript 5.7</span>
+        <span class="tech-badge">Vite 6.4</span>
+        <span class="tech-badge">Express</span>
+        <span class="tech-badge">Socket.io</span>
+        <span class="tech-badge">Node.js</span>
+      </div>
 
-    <!-- Split Client/Server View -->
-    <div class="split-view">
-      <!-- CLIENT SIDE -->
-      <div class="side">
-        <div class="side-header">CLIENT (Browser)</div>
+      <!-- Split Client/Server View -->
+      <div class="split-view">
+        <!-- CLIENT SIDE -->
+        <div class="side">
+          <div class="side-header">CLIENT (Browser)</div>
 
-        <div class="layer">
-          <div class="layer-title">Entry Point</div>
-          <div class="components">
-            <div class="component main">
-              <div class="component-name">main.ts</div>
-              <div class="component-file">src/main.ts</div>
-              <ul class="component-list">
-                <li>Bootstrap PixiJS</li>
-                <li>Create Game instance</li>
-                <li>Load FroggerScene</li>
-              </ul>
+          <div class="layer">
+            <div class="layer-title">Entry Point</div>
+            <div class="components">
+              <div class="component main">
+                <div class="component-name">main.ts</div>
+                <div class="component-file">src/main.ts</div>
+                <ul class="component-list">
+                  <li>Bootstrap PixiJS</li>
+                  <li>Create Game instance</li>
+                  <li>Load FroggerScene</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="arrow-container"><span class="arrow">▼</span></div>
+
+          <div class="layer">
+            <div class="layer-title">Game Engine</div>
+            <div class="components">
+              <div class="component main">
+                <div class="component-name">Game</div>
+                <div class="component-file">engine/Game.ts</div>
+                <ul class="component-list">
+                  <li>RAF loop</li>
+                  <li>Fixed timestep 30ms</li>
+                  <li>Scene lifecycle</li>
+                </ul>
+              </div>
+              <div class="component">
+                <div class="component-name">Renderer</div>
+                <div class="component-file">engine/Renderer.ts</div>
+                <ul class="component-list">
+                  <li>PixiJS wrapper</li>
+                  <li>Grid drawing</li>
+                  <li>Sprites</li>
+                </ul>
+              </div>
+              <div class="component">
+                <div class="component-name">Input</div>
+                <div class="component-file">engine/Input.ts</div>
+                <ul class="component-list">
+                  <li>Keyboard events</li>
+                  <li>Arrow/WASD</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="arrow-container"><span class="arrow">▼</span></div>
+
+          <div class="layer">
+            <div class="layer-title">Scene & Systems</div>
+            <div class="components">
+              <div class="component main" style="max-width: none">
+                <div class="component-name">FroggerScene</div>
+                <div class="component-file">scenes/FroggerScene.ts</div>
+                <ul class="component-list">
+                  <li>GameState machine</li>
+                  <li>Composes systems</li>
+                  <li>Multiplayer sync</li>
+                </ul>
+              </div>
+            </div>
+            <div class="components" style="margin-top: 10px">
+              <div class="component">
+                <div class="component-name">Movement</div>
+                <ul class="component-list">
+                  <li>Frog movement</li>
+                  <li>Log riding</li>
+                </ul>
+              </div>
+              <div class="component">
+                <div class="component-name">Collision</div>
+                <ul class="component-list">
+                  <li>Hit detection</li>
+                  <li>Zone checks</li>
+                </ul>
+              </div>
+              <div class="component">
+                <div class="component-name">SocketClient</div>
+                <ul class="component-list">
+                  <li>Server connection</li>
+                  <li>Event callbacks</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="arrow-container"><span class="arrow">▼</span></div>
+
+          <div class="layer">
+            <div class="layer-title">UI Components</div>
+            <div class="components">
+              <div class="component">
+                <div class="component-name">StartScreen</div>
+              </div>
+              <div class="component">
+                <div class="component-name">HUD</div>
+              </div>
+              <div class="component">
+                <div class="component-name">GameOver</div>
+              </div>
+              <div class="component">
+                <div class="component-name">Victory</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="arrow-container"><span class="arrow">▼</span></div>
+        <!-- SERVER SIDE -->
+        <div class="side">
+          <div class="side-header">SERVER (Node.js)</div>
 
-        <div class="layer">
-          <div class="layer-title">Game Engine</div>
-          <div class="components">
-            <div class="component main">
-              <div class="component-name">Game</div>
-              <div class="component-file">engine/Game.ts</div>
-              <ul class="component-list">
-                <li>RAF loop</li>
-                <li>Fixed timestep 30ms</li>
-                <li>Scene lifecycle</li>
-              </ul>
-            </div>
-            <div class="component">
-              <div class="component-name">Renderer</div>
-              <div class="component-file">engine/Renderer.ts</div>
-              <ul class="component-list">
-                <li>PixiJS wrapper</li>
-                <li>Grid drawing</li>
-                <li>Sprites</li>
-              </ul>
-            </div>
-            <div class="component">
-              <div class="component-name">Input</div>
-              <div class="component-file">engine/Input.ts</div>
-              <ul class="component-list">
-                <li>Keyboard events</li>
-                <li>Arrow/WASD</li>
-              </ul>
+          <div class="layer">
+            <div class="layer-title">Entry Point</div>
+            <div class="components">
+              <div class="component main">
+                <div class="component-name">index.ts</div>
+                <div class="component-file">server/src/index.ts</div>
+                <ul class="component-list">
+                  <li>Express + HTTP server</li>
+                  <li>Socket.io setup</li>
+                  <li>CORS config</li>
+                  <li>Health endpoint</li>
+                  <li>Graceful shutdown</li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="arrow-container"><span class="arrow">▼</span></div>
+          <div class="arrow-container"><span class="arrow">▼</span></div>
 
-        <div class="layer">
-          <div class="layer-title">Scene & Systems</div>
-          <div class="components">
-            <div class="component main" style="max-width: none;">
-              <div class="component-name">FroggerScene</div>
-              <div class="component-file">scenes/FroggerScene.ts</div>
-              <ul class="component-list">
-                <li>GameState machine</li>
-                <li>Composes systems</li>
-                <li>Multiplayer sync</li>
-              </ul>
+          <div class="layer">
+            <div class="layer-title">Game State (Authoritative)</div>
+            <div class="components">
+              <div class="component main" style="max-width: none">
+                <div class="component-name">GameState</div>
+                <div class="component-file">server/src/GameState.ts</div>
+                <ul class="component-list">
+                  <li>lanes: Lane[] (20 lanes)</li>
+                  <li>players: Map&lt;id, Player&gt;</li>
+                  <li>Tick loop (150ms interval)</li>
+                  <li>Obstacle spawning</li>
+                  <li>Obstacle movement</li>
+                  <li>Player management</li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div class="components" style="margin-top: 10px;">
-            <div class="component">
-              <div class="component-name">Movement</div>
-              <ul class="component-list">
-                <li>Frog movement</li>
-                <li>Log riding</li>
-              </ul>
-            </div>
-            <div class="component">
-              <div class="component-name">Collision</div>
-              <ul class="component-list">
-                <li>Hit detection</li>
-                <li>Zone checks</li>
-              </ul>
-            </div>
-            <div class="component">
-              <div class="component-name">SocketClient</div>
-              <ul class="component-list">
-                <li>Server connection</li>
-                <li>Event callbacks</li>
-              </ul>
+
+          <div class="arrow-container"><span class="arrow">▼</span></div>
+
+          <div class="layer">
+            <div class="layer-title">Event Handlers</div>
+            <div class="components">
+              <div class="component main" style="max-width: none">
+                <div class="component-name">events.ts</div>
+                <div class="component-file">server/src/events.ts</div>
+                <ul class="component-list">
+                  <li>on('connection') - new socket</li>
+                  <li>on('join') - add player, assign color</li>
+                  <li>on('move') - update & broadcast</li>
+                  <li>on('death') - mark dead, respawn</li>
+                  <li>on('victory') - broadcast win</li>
+                  <li>on('disconnect') - cleanup</li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="arrow-container"><span class="arrow">▼</span></div>
+          <div class="arrow-container"><span class="arrow">▼</span></div>
 
-        <div class="layer">
-          <div class="layer-title">UI Components</div>
-          <div class="components">
-            <div class="component">
-              <div class="component-name">StartScreen</div>
-            </div>
-            <div class="component">
-              <div class="component-name">HUD</div>
-            </div>
-            <div class="component">
-              <div class="component-name">GameOver</div>
-            </div>
-            <div class="component">
-              <div class="component-name">Victory</div>
+          <div class="layer">
+            <div class="layer-title">Shared Types</div>
+            <div class="components">
+              <div class="component">
+                <div class="component-name">types.ts</div>
+                <div class="component-file">server/src/types.ts</div>
+                <ul class="component-list">
+                  <li>Player, Obstacle, Lane</li>
+                  <li>ClientToServerEvents</li>
+                  <li>ServerToClientEvents</li>
+                  <li>PLAYER_COLORS[]</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SERVER SIDE -->
-      <div class="side">
-        <div class="side-header">SERVER (Node.js)</div>
-
-        <div class="layer">
-          <div class="layer-title">Entry Point</div>
-          <div class="components">
-            <div class="component main">
-              <div class="component-name">index.ts</div>
-              <div class="component-file">server/src/index.ts</div>
-              <ul class="component-list">
-                <li>Express + HTTP server</li>
-                <li>Socket.io setup</li>
-                <li>CORS config</li>
-                <li>Health endpoint</li>
-                <li>Graceful shutdown</li>
-              </ul>
-            </div>
+      <!-- Network Bridge -->
+      <div class="network-bridge">
+        <h3>WEBSOCKET COMMUNICATION (Socket.io)</h3>
+        <div class="socket-events">
+          <div class="event-list">
+            <h4>Client → Server</h4>
+            <ul>
+              <li>join({ name? })</li>
+              <li>move({ x, y })</li>
+              <li>death({ cause })</li>
+              <li>victory()</li>
+            </ul>
           </div>
-        </div>
-
-        <div class="arrow-container"><span class="arrow">▼</span></div>
-
-        <div class="layer">
-          <div class="layer-title">Game State (Authoritative)</div>
-          <div class="components">
-            <div class="component main" style="max-width: none;">
-              <div class="component-name">GameState</div>
-              <div class="component-file">server/src/GameState.ts</div>
-              <ul class="component-list">
-                <li>lanes: Lane[] (20 lanes)</li>
-                <li>players: Map&lt;id, Player&gt;</li>
-                <li>Tick loop (150ms interval)</li>
-                <li>Obstacle spawning</li>
-                <li>Obstacle movement</li>
-                <li>Player management</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="arrow-container"><span class="arrow">▼</span></div>
-
-        <div class="layer">
-          <div class="layer-title">Event Handlers</div>
-          <div class="components">
-            <div class="component main" style="max-width: none;">
-              <div class="component-name">events.ts</div>
-              <div class="component-file">server/src/events.ts</div>
-              <ul class="component-list">
-                <li>on('connection') - new socket</li>
-                <li>on('join') - add player, assign color</li>
-                <li>on('move') - update & broadcast</li>
-                <li>on('death') - mark dead, respawn</li>
-                <li>on('victory') - broadcast win</li>
-                <li>on('disconnect') - cleanup</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div class="arrow-container"><span class="arrow">▼</span></div>
-
-        <div class="layer">
-          <div class="layer-title">Shared Types</div>
-          <div class="components">
-            <div class="component">
-              <div class="component-name">types.ts</div>
-              <div class="component-file">server/src/types.ts</div>
-              <ul class="component-list">
-                <li>Player, Obstacle, Lane</li>
-                <li>ClientToServerEvents</li>
-                <li>ServerToClientEvents</li>
-                <li>PLAYER_COLORS[]</li>
-              </ul>
-            </div>
+          <div class="socket-icon">⇄</div>
+          <div class="event-list">
+            <h4>Server → Client(s)</h4>
+            <ul>
+              <li>welcome({ playerId, color, players, lanes })</li>
+              <li>playerJoined({ playerId, color, name })</li>
+              <li>playerLeft({ playerId })</li>
+              <li>playerMoved({ playerId, x, y })</li>
+              <li>playerDied({ playerId })</li>
+              <li>playerWon({ playerId })</li>
+              <li>obstacles({ lanes }) - every 150ms</li>
+            </ul>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Network Bridge -->
-    <div class="network-bridge">
-      <h3>WEBSOCKET COMMUNICATION (Socket.io)</h3>
-      <div class="socket-events">
-        <div class="event-list">
-          <h4>Client → Server</h4>
-          <ul>
-            <li>join({ name? })</li>
-            <li>move({ x, y })</li>
-            <li>death({ cause })</li>
-            <li>victory()</li>
-          </ul>
+      <!-- Data Flow Diagrams -->
+      <div class="data-flow">
+        <div class="flow-box">
+          <div class="flow-title">Client Game Loop</div>
+          <div class="flow-diagram">
+            requestAnimationFrame(t) │ ├─► dt = t - lastTime ├─► accumulator += dt │ ├─► while (acc
+            >= 30ms) │ └─► scene.update(0.03s) │ ├─► movementSystem │ └─► collisionSystem │ ├─►
+            renderer.clear() └─► scene.render()
+          </div>
         </div>
-        <div class="socket-icon">⇄</div>
-        <div class="event-list">
-          <h4>Server → Client(s)</h4>
-          <ul>
-            <li>welcome({ playerId, color, players, lanes })</li>
-            <li>playerJoined({ playerId, color, name })</li>
-            <li>playerLeft({ playerId })</li>
-            <li>playerMoved({ playerId, x, y })</li>
-            <li>playerDied({ playerId })</li>
-            <li>playerWon({ playerId })</li>
-            <li>obstacles({ lanes }) - every 150ms</li>
-          </ul>
+
+        <div class="flow-box">
+          <div class="flow-title">Server Tick Loop</div>
+          <div class="flow-diagram">
+            setInterval(150ms) │ ├─► For each lane: │ ├─► Increment spawn counter │ ├─► If counter
+            >= spawnRate: │ │ └─► spawnObstacle() │ ├─► Move all obstacles │ └─► Remove off-screen │
+            └─► io.emit('obstacles', lanes)
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Data Flow Diagrams -->
-    <div class="data-flow">
-      <div class="flow-box">
-        <div class="flow-title">Client Game Loop</div>
-        <div class="flow-diagram">requestAnimationFrame(t)
-│
-├─► dt = t - lastTime
-├─► accumulator += dt
-│
-├─► while (acc >= 30ms)
-│     └─► scene.update(0.03s)
-│         ├─► movementSystem
-│         └─► collisionSystem
-│
-├─► renderer.clear()
-└─► scene.render()</div>
-      </div>
-
-      <div class="flow-box">
-        <div class="flow-title">Server Tick Loop</div>
-        <div class="flow-diagram">setInterval(150ms)
-│
-├─► For each lane:
-│   ├─► Increment spawn counter
-│   ├─► If counter >= spawnRate:
-│   │     └─► spawnObstacle()
-│   ├─► Move all obstacles
-│   └─► Remove off-screen
-│
-└─► io.emit('obstacles', lanes)</div>
-      </div>
-
-      <div class="flow-box">
-        <div class="flow-title">Player Join Flow</div>
-        <div class="flow-diagram">Client                    Server
-  │                          │
-  ├─► connect ──────────────►│
-  │                          │
-  ├─► join({name}) ─────────►│
-  │                          ├─► addPlayer()
-  │                          ├─► getNextColor()
-  │◄── welcome({id,color}) ──┤
-  │                          │
-  │   [other clients]◄───────┼── playerJoined()</div>
-      </div>
-
-      <div class="flow-box">
-        <div class="flow-title">Movement Sync Flow</div>
-        <div class="flow-diagram">Client A        Server        Client B
-   │               │               │
-   │ keydown       │               │
-   ├─► local move  │               │
-   ├─► move(x,y) ─►│               │
-   │               ├─► updatePos() │
-   │               ├─► broadcast ─►│
-   │               │               ├─► update
-   │               │               │   remotePlayers</div>
-      </div>
-
-      <div class="flow-box">
-        <div class="flow-title">Collision → Death Flow</div>
-        <div class="flow-diagram">Client                    Server
-│                          │
-├─► collisionSystem.update()
-│   └─► result: 'car'
-│
-├─► handleDeath()
-│   ├─► lives--
-│   ├─► death('car') ──────►│
-│   │                       ├─► setAlive(false)
-│   │                       ├─► broadcast playerDied
-│   │                       └─► setTimeout(1s)
-│   │                             └─► respawn
-│   └─► local respawn</div>
-      </div>
-
-      <div class="flow-box">
-        <div class="flow-title">Obstacle State Authority</div>
-        <div class="flow-diagram">SERVER owns obstacle state:
-├─► Spawning (when, where)
-├─► Movement (velocity × tick)
-├─► Despawning (off-screen)
-└─► Broadcasting (every 150ms)
-
-CLIENT receives & renders:
-├─► syncLanesFromServer()
-└─► renderObstacles()
-
-Note: Server uses width-based
-obstacles, client uses sprite-
-based (potential mismatch)</div>
-      </div>
-    </div>
-
-    <!-- Data Structures -->
-    <div class="layer" style="margin-top: 20px;">
-      <div class="layer-title">Core Data Structures</div>
-      <div class="data-structures">
-        <div class="component">
-          <div class="component-name">GameData (Client)</div>
-          <ul class="component-list">
-            <li>frog: Frog</li>
-            <li>lanes: Lane[]</li>
-            <li>score: number</li>
-            <li>timeRemaining: number</li>
-            <li>level: number</li>
-          </ul>
+        <div class="flow-box">
+          <div class="flow-title">Player Join Flow</div>
+          <div class="flow-diagram">
+            Client Server │ │ ├─► connect ──────────────►│ │ │ ├─► join({name}) ─────────►│ │ ├─►
+            addPlayer() │ ├─► getNextColor() │◄── welcome({id,color}) ──┤ │ │ │ [other
+            clients]◄───────┼── playerJoined()
+          </div>
         </div>
-        <div class="component">
-          <div class="component-name">Player (Server)</div>
-          <ul class="component-list">
-            <li>id: string</li>
-            <li>name: string</li>
-            <li>color: number</li>
-            <li>position: Point</li>
-            <li>isAlive: boolean</li>
-          </ul>
+
+        <div class="flow-box">
+          <div class="flow-title">Movement Sync Flow</div>
+          <div class="flow-diagram">
+            Client A Server Client B │ │ │ │ keydown │ │ ├─► local move │ │ ├─► move(x,y) ─►│ │ │
+            ├─► updatePos() │ │ ├─► broadcast ─►│ │ │ ├─► update │ │ │ remotePlayers
+          </div>
         </div>
-        <div class="component">
-          <div class="component-name">Lane</div>
-          <ul class="component-list">
-            <li>y: number</li>
-            <li>type: LaneType</li>
-            <li>obstacles: Obstacle[]</li>
-            <li>spawnRate, direction</li>
-            <li>speed: number</li>
-          </ul>
+
+        <div class="flow-box">
+          <div class="flow-title">Collision → Death Flow</div>
+          <div class="flow-diagram">
+            Client Server │ │ ├─► collisionSystem.update() │ └─► result: 'car' │ ├─► handleDeath() │
+            ├─► lives-- │ ├─► death('car') ──────►│ │ │ ├─► setAlive(false) │ │ ├─► broadcast
+            playerDied │ │ └─► setTimeout(1s) │ │ └─► respawn │ └─► local respawn
+          </div>
         </div>
-        <div class="component">
-          <div class="component-name">Obstacle (Client)</div>
-          <ul class="component-list">
-            <li>id, position</li>
-            <li>size: s|m|l|xl</li>
-            <li>velocity: number</li>
-            <li>type: car|log</li>
-            <li>sprite?: SpriteData</li>
-          </ul>
-        </div>
-        <div class="component">
-          <div class="component-name">Obstacle (Server)</div>
-          <ul class="component-list">
-            <li>id, position</li>
-            <li>width: number</li>
-            <li>velocity: number</li>
-            <li>type: car|log</li>
-          </ul>
-        </div>
-        <div class="component">
-          <div class="component-name">Frog (Client)</div>
-          <ul class="component-list">
-            <li>position: Point</li>
-            <li>lives: 1-3</li>
-            <li>isAlive: boolean</li>
-            <li>isOnLog: boolean</li>
-            <li>currentLogId?: string</li>
-          </ul>
+
+        <div class="flow-box">
+          <div class="flow-title">Obstacle State Authority</div>
+          <div class="flow-diagram">
+            SERVER owns obstacle state: ├─► Spawning (when, where) ├─► Movement (velocity × tick)
+            ├─► Despawning (off-screen) └─► Broadcasting (every 150ms) CLIENT receives & renders:
+            ├─► syncLanesFromServer() └─► renderObstacles() Note: Server uses width-based obstacles,
+            client uses sprite- based (potential mismatch)
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Architecture Notes -->
-    <div class="layer" style="margin-top: 20px;">
-      <div class="layer-title">Architecture Notes</div>
-      <div class="data-structures">
-        <div class="component">
-          <div class="component-name">Server Authority</div>
-          <ul class="component-list">
-            <li>Server owns obstacle state</li>
-            <li>Server assigns player colors</li>
-            <li>150ms broadcast interval</li>
-            <li>Client prediction for movement</li>
-          </ul>
+      <!-- Data Structures -->
+      <div class="layer" style="margin-top: 20px">
+        <div class="layer-title">Core Data Structures</div>
+        <div class="data-structures">
+          <div class="component">
+            <div class="component-name">GameData (Client)</div>
+            <ul class="component-list">
+              <li>frog: Frog</li>
+              <li>lanes: Lane[]</li>
+              <li>score: number</li>
+              <li>timeRemaining: number</li>
+              <li>level: number</li>
+            </ul>
+          </div>
+          <div class="component">
+            <div class="component-name">Player (Server)</div>
+            <ul class="component-list">
+              <li>id: string</li>
+              <li>name: string</li>
+              <li>color: number</li>
+              <li>position: Point</li>
+              <li>isAlive: boolean</li>
+            </ul>
+          </div>
+          <div class="component">
+            <div class="component-name">Lane</div>
+            <ul class="component-list">
+              <li>y: number</li>
+              <li>type: LaneType</li>
+              <li>obstacles: Obstacle[]</li>
+              <li>spawnRate, direction</li>
+              <li>speed: number</li>
+            </ul>
+          </div>
+          <div class="component">
+            <div class="component-name">Obstacle (Client)</div>
+            <ul class="component-list">
+              <li>id, position</li>
+              <li>size: s|m|l|xl</li>
+              <li>velocity: number</li>
+              <li>type: car|log</li>
+              <li>sprite?: SpriteData</li>
+            </ul>
+          </div>
+          <div class="component">
+            <div class="component-name">Obstacle (Server)</div>
+            <ul class="component-list">
+              <li>id, position</li>
+              <li>width: number</li>
+              <li>velocity: number</li>
+              <li>type: car|log</li>
+            </ul>
+          </div>
+          <div class="component">
+            <div class="component-name">Frog (Client)</div>
+            <ul class="component-list">
+              <li>position: Point</li>
+              <li>lives: 1-3</li>
+              <li>isAlive: boolean</li>
+              <li>isOnLog: boolean</li>
+              <li>currentLogId?: string</li>
+            </ul>
+          </div>
         </div>
-        <div class="component">
-          <div class="component-name">Type Mismatch</div>
-          <ul class="component-list">
-            <li>Server: obstacle.width</li>
-            <li>Client: obstacle.size + sprite</li>
-            <li>Potential sync issues</li>
-            <li>Sprite data not sent</li>
-          </ul>
-        </div>
-        <div class="component">
-          <div class="component-name">Tick Rates</div>
-          <ul class="component-list">
-            <li>Client: 30ms (33 FPS)</li>
-            <li>Server: 150ms (6.6 TPS)</li>
-            <li>Client interpolates between</li>
-          </ul>
-        </div>
-        <div class="component">
-          <div class="component-name">Player Colors</div>
-          <ul class="component-list">
-            <li>8 colors in rotation</li>
-            <li>Assigned on join</li>
-            <li>Green, Magenta, Cyan...</li>
-          </ul>
+      </div>
+
+      <!-- Architecture Notes -->
+      <div class="layer" style="margin-top: 20px">
+        <div class="layer-title">Architecture Notes</div>
+        <div class="data-structures">
+          <div class="component">
+            <div class="component-name">Server Authority</div>
+            <ul class="component-list">
+              <li>Server owns obstacle state</li>
+              <li>Server assigns player colors</li>
+              <li>150ms broadcast interval</li>
+              <li>Client prediction for movement</li>
+            </ul>
+          </div>
+          <div class="component">
+            <div class="component-name">Type Mismatch</div>
+            <ul class="component-list">
+              <li>Server: obstacle.width</li>
+              <li>Client: obstacle.size + sprite</li>
+              <li>Potential sync issues</li>
+              <li>Sprite data not sent</li>
+            </ul>
+          </div>
+          <div class="component">
+            <div class="component-name">Tick Rates</div>
+            <ul class="component-list">
+              <li>Client: 30ms (33 FPS)</li>
+              <li>Server: 150ms (6.6 TPS)</li>
+              <li>Client interpolates between</li>
+            </ul>
+          </div>
+          <div class="component">
+            <div class="component-name">Player Colors</div>
+            <ul class="component-list">
+              <li>8 colors in rotation</li>
+              <li>Assigned on join</li>
+              <li>Green, Magenta, Cyan...</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
-
-  </div>
-</body>
+  </body>
 </html>

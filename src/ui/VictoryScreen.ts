@@ -2,7 +2,7 @@
 // Owner: Content Architect
 
 import type { Renderer } from '../engine/types.js';
-import { CANVAS_WIDTH } from '../engine/types.js';
+import { CANVAS_WIDTH } from '../../shared/constants.js';
 
 export function renderVictoryScreen(renderer: Renderer, score: number): void {
   const cx = CANVAS_WIDTH / 2;

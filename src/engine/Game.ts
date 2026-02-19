@@ -3,14 +3,14 @@ import { Renderer } from './Renderer.js';
 import { Input } from './Input.js';
 import type { Scene, GameContext } from './types.js';
 import {
-  GRID_SIZE,
-  CELL_SIZE,
-  CANVAS_WIDTH,
   CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+  CELL_SIZE,
+  GRID_SIZE,
+  MAX_ACCUMULATOR_MS,
   TICK_RATE_MS,
   TICK_RATE_S,
-  MAX_ACCUMULATOR_MS,
-} from './types.js';
+} from '../../shared/constants.js';
 
 export class Game {
   private app: Application;
