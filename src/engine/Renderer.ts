@@ -76,6 +76,17 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(pixiSprite);
   }
 
+  drawPlayer(gridX: number, gridY: number, color: number): void {
+    const texture = Assets.get(SPRITE_PATH + 'frog.svg'); // get cached texture
+    const pixiSprite = new Sprite(texture);
+    pixiSprite.x = gridX * CELL_SIZE;
+    pixiSprite.y = gridY * CELL_SIZE;
+    pixiSprite.height = CELL_SIZE;
+    pixiSprite.width = CELL_SIZE;
+    pixiSprite.tint = color;
+    this.drawContainer.addChild(pixiSprite);
+  }
+
   clear(): void {
     this.drawContainer.removeChildren();
   }

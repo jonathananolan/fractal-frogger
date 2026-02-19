@@ -84,8 +84,11 @@ export const VEHICLE_SPRITES: SpriteData[] = [
 ];
 
 /** Load all vehicle sprite textures. Call once at startup. */
-export async function loadVehicleSprites(): Promise<void> {
-  await Assets.load(VEHICLE_SPRITES.map((s) => SPRITE_PATH + s.file));
+export async function loadSprites(): Promise<void> {
+  await Assets.load([
+    ...VEHICLE_SPRITES.map((s) => SPRITE_PATH + s.file),
+    SPRITE_PATH + 'frog.svg',
+  ]);
 }
 
 export const VEHICLES_BY_SIZE: Record<VehicleSize, SpriteData[]> = {
