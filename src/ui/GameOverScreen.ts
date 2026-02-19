@@ -7,7 +7,7 @@ import type { Renderer } from '../engine/types.js';
 export function renderGameOverScreen(renderer: Renderer, score: number): void {
   const cx = CANVAS_WIDTH / 2;
 
-  // TODO: Polish game over screen design
+  renderer.drawRect(0, 0, 20, 20, 0x000000, 0.5);
 
   renderer.drawText('GAME OVER', cx, 200, {
     fontSize: 48,

@@ -14,6 +14,7 @@ export interface Renderer {
     widthCells: number,
     heightCells: number,
     color: number,
+    alpha: number,
   ): void;
   drawText(
     text: string,

@@ -23,6 +23,7 @@ export class Renderer implements IRenderer {
     widthCells: number,
     heightCells: number,
     color: number,
+    alpha?: number,
   ): void {
     const g = new Graphics();
     g.rect(gridX * CELL_SIZE, gridY * CELL_SIZE, widthCells * CELL_SIZE, heightCells * CELL_SIZE);
