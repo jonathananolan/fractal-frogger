@@ -5,7 +5,6 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Join Froggers</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
       @font-face {
         font-family: 'SuperFrog';
@@ -53,8 +52,10 @@
         display: inline-block;
         margin-bottom: 20px;
       }
-      #qrcode canvas {
+      #qrcode img {
         display: block;
+        width: 280px;
+        height: 280px;
       }
       .url {
         color: #a5f3fc;
@@ -72,17 +73,8 @@
     <div class="container">
       <h1>FROGGERS</h1>
       <p class="subtitle">Scan to play!</p>
-      <div id="qrcode"></div>
+      <div id="qrcode"><img src="/qr.png" alt="QR Code"></div>
       <div class="url">fractal-frogger.onrender.com</div>
     </div>
-    <script>
-      window.addEventListener('load', function () {
-        const url = 'https://fractal-frogger.onrender.com/';
-        QRCode.toCanvas(url, { width: 280, margin: 0 }, function (error, canvas) {
-          if (error) console.error(error);
-          document.getElementById('qrcode').appendChild(canvas);
-        });
-      });
-    </script>
   </body>
 </html>
