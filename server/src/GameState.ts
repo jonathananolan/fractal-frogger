@@ -340,6 +340,19 @@ export class GameState {
     }
   }
 
+  updatePlayerScore(id: string, score: number): void {
+    const player = this.players.get(id);
+    if (player) {
+      player.score = score;
+    }
+  }
+
+  getLeaderboard(): Array<{ id: string; name: string; color: number; score: number }> {
+    return Array.from(this.players.values())
+      .map(p => ({ id: p.id, name: p.name, color: p.color, score: p.score }))
+      .sort((a, b) => b.score - a.score);
+  }
+
   /**
    * Start the game tick loop
    */
