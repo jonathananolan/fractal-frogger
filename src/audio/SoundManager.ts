@@ -42,7 +42,7 @@ export class SoundManager {
     duration: number,
     type: OscillatorType = 'sine',
     gainNode: GainNode | null = null,
-    detune: number = 0
+    detune: number = 0,
   ): void {
     const ctx = this.ensureContext();
     const target = gainNode || this.sfxGain!;
@@ -69,7 +69,7 @@ export class SoundManager {
   // Play a sequence of notes
   private playSequence(
     notes: { freq: number; dur: number; delay: number }[],
-    type: OscillatorType = 'sine'
+    type: OscillatorType = 'sine',
   ): void {
     if (!this.sfxEnabled) return;
 
@@ -100,11 +100,14 @@ export class SoundManager {
     if (!this.sfxEnabled) return;
 
     // Ascending arpeggio - welcoming feel
-    this.playSequence([
-      { freq: 523, dur: 0.12, delay: 0 },     // C5
-      { freq: 659, dur: 0.12, delay: 0.08 },  // E5
-      { freq: 784, dur: 0.15, delay: 0.16 },  // G5
-    ], 'triangle');
+    this.playSequence(
+      [
+        { freq: 523, dur: 0.12, delay: 0 }, // C5
+        { freq: 659, dur: 0.12, delay: 0.08 }, // E5
+        { freq: 784, dur: 0.15, delay: 0.16 }, // G5
+      ],
+      'triangle',
+    );
   }
 
   // Game start - gentle upbeat sound
@@ -112,46 +115,58 @@ export class SoundManager {
     if (!this.sfxEnabled) return;
 
     // Soft fanfare
-    this.playSequence([
-      { freq: 392, dur: 0.15, delay: 0 },      // G4
-      { freq: 523, dur: 0.15, delay: 0.12 },   // C5
-      { freq: 659, dur: 0.15, delay: 0.24 },   // E5
-      { freq: 784, dur: 0.25, delay: 0.36 },   // G5
-    ], 'sine');
+    this.playSequence(
+      [
+        { freq: 392, dur: 0.15, delay: 0 }, // G4
+        { freq: 523, dur: 0.15, delay: 0.12 }, // C5
+        { freq: 659, dur: 0.15, delay: 0.24 }, // E5
+        { freq: 784, dur: 0.25, delay: 0.36 }, // G5
+      ],
+      'sine',
+    );
   }
 
   // Game restart - similar but softer
   playRestart(): void {
     if (!this.sfxEnabled) return;
 
-    this.playSequence([
-      { freq: 392, dur: 0.08, delay: 0 },     // G4
-      { freq: 494, dur: 0.08, delay: 0.08 },  // B4
-      { freq: 587, dur: 0.15, delay: 0.16 },  // D5
-    ], 'triangle');
+    this.playSequence(
+      [
+        { freq: 392, dur: 0.08, delay: 0 }, // G4
+        { freq: 494, dur: 0.08, delay: 0.08 }, // B4
+        { freq: 587, dur: 0.15, delay: 0.16 }, // D5
+      ],
+      'triangle',
+    );
   }
 
   // Death sound - soft descending tone
   playDeath(): void {
     if (!this.sfxEnabled) return;
 
-    this.playSequence([
-      { freq: 440, dur: 0.18, delay: 0 },     // A4
-      { freq: 370, dur: 0.18, delay: 0.15 },  // F#4
-      { freq: 294, dur: 0.3, delay: 0.3 },    // D4
-    ], 'triangle');
+    this.playSequence(
+      [
+        { freq: 440, dur: 0.18, delay: 0 }, // A4
+        { freq: 370, dur: 0.18, delay: 0.15 }, // F#4
+        { freq: 294, dur: 0.3, delay: 0.3 }, // D4
+      ],
+      'triangle',
+    );
   }
 
   // Victory sound - gentle triumphant melody
   playVictory(): void {
     if (!this.sfxEnabled) return;
 
-    this.playSequence([
-      { freq: 523, dur: 0.15, delay: 0 },     // C5
-      { freq: 659, dur: 0.15, delay: 0.12 },  // E5
-      { freq: 784, dur: 0.15, delay: 0.24 },  // G5
-      { freq: 1047, dur: 0.35, delay: 0.36 }, // C6
-    ], 'triangle');
+    this.playSequence(
+      [
+        { freq: 523, dur: 0.15, delay: 0 }, // C5
+        { freq: 659, dur: 0.15, delay: 0.12 }, // E5
+        { freq: 784, dur: 0.15, delay: 0.24 }, // G5
+        { freq: 1047, dur: 0.35, delay: 0.36 }, // C6
+      ],
+      'triangle',
+    );
   }
 
   // === BACKGROUND MUSIC ===
@@ -165,8 +180,22 @@ export class SoundManager {
 
     // Simple gentle melody pattern - pentatonic for pleasant sound
     const melody = [
-      392, 440, 523, 587, 659, 587, 523, 440,  // G4, A4, C5, D5, E5, D5, C5, A4
-      392, 330, 392, 440, 523, 440, 392, 330,  // G4, E4, G4, A4, C5, A4, G4, E4
+      392,
+      440,
+      523,
+      587,
+      659,
+      587,
+      523,
+      440, // G4, A4, C5, D5, E5, D5, C5, A4
+      392,
+      330,
+      392,
+      440,
+      523,
+      440,
+      392,
+      330, // G4, E4, G4, A4, C5, A4, G4, E4
     ];
 
     const playMelodyNote = (index: number) => {

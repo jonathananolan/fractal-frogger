@@ -12,10 +12,7 @@ import type {
 } from '../../shared/types.js';
 import type { Server } from 'socket.io';
 import { VEHICLES_BY_SIZE, SIZE_TO_WIDTH } from './sprites.js';
-import { SPRITE_BASE_PX } from '../../shared/constants.js';
-
-const GRID_SIZE = 20;
-const TICK_INTERVAL = 150; // ms, matches client
+import { GRID_SIZE, SPRITE_BASE_PX, TICK_RATE_MS } from '../../shared/constants.js';
 
 export class GameState {
   private lanes: Lane[] = [];
@@ -212,7 +209,7 @@ export class GameState {
       this.tick();
       // Broadcast obstacle positions to all clients
       io.emit('obstacles', { lanes: this.lanes });
-    }, TICK_INTERVAL);
+    }, TICK_RATE_MS);
 
     console.log('Game tick loop started');
   }
