@@ -158,7 +158,7 @@ describe('GameState', () => {
     it('starts tick loop only once', () => {
       vi.useFakeTimers();
       const mockIo = {
-        emit: vi.fn(),
+        sockets: { emit: vi.fn() },
       } as any;
 
       gameState.startTickLoop(mockIo);
@@ -171,7 +171,7 @@ describe('GameState', () => {
 
     it('stops tick loop', () => {
       const mockIo = {
-        emit: vi.fn(),
+        sockets: { emit: vi.fn() },
       } as any;
 
       gameState.startTickLoop(mockIo);
