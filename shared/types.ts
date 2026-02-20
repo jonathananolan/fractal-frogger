@@ -43,6 +43,18 @@ export interface Obstacle {
 
 export type LaneType = 'safe' | 'road' | 'water' | 'goal';
 
+// Prize types for collectible items
+export type PrizeType = 'coin' | 'crystal' | 'orange' | 'watermelon' | 'butterfly';
+
+export interface Prize {
+  id: string;
+  position: Point;
+  type: PrizeType;
+  value: number;
+  collected: boolean;
+  spawnTime: number;
+}
+
 export interface Lane {
   y: number;
   type: LaneType;

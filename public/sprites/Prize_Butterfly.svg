@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- 8-bit Butterfly -->
+  <!-- Body -->
+  <rect x="11" y="4" width="2" height="2" fill="#4A4A4A"/>
+  <rect x="11" y="6" width="2" height="12" fill="#2F2F2F"/>
+  <rect x="11" y="18" width="2" height="2" fill="#4A4A4A"/>
+  <!-- Antennae -->
+  <rect x="9" y="2" width="2" height="2" fill="#4A4A4A"/>
+  <rect x="13" y="2" width="2" height="2" fill="#4A4A4A"/>
+  <rect x="10" y="4" width="1" height="2" fill="#4A4A4A"/>
+  <rect x="13" y="4" width="1" height="2" fill="#4A4A4A"/>
+  <!-- Left wing top -->
+  <rect x="4" y="6" width="6" height="2" fill="#FF69B4"/>
+  <rect x="2" y="8" width="8" height="4" fill="#FF1493"/>
+  <rect x="4" y="12" width="6" height="2" fill="#FF69B4"/>
+  <!-- Left wing bottom -->
+  <rect x="4" y="14" width="6" height="2" fill="#FFB6C1"/>
+  <rect x="2" y="16" width="8" height="2" fill="#FF69B4"/>
+  <rect x="4" y="18" width="6" height="2" fill="#FFB6C1"/>
+  <!-- Right wing top -->
+  <rect x="14" y="6" width="6" height="2" fill="#FF69B4"/>
+  <rect x="14" y="8" width="8" height="4" fill="#FF1493"/>
+  <rect x="14" y="12" width="6" height="2" fill="#FF69B4"/>
+  <!-- Right wing bottom -->
+  <rect x="14" y="14" width="6" height="2" fill="#FFB6C1"/>
+  <rect x="14" y="16" width="8" height="2" fill="#FF69B4"/>
+  <rect x="14" y="18" width="6" height="2" fill="#FFB6C1"/>
+  <!-- Wing spots -->
+  <rect x="4" y="8" width="2" height="2" fill="#FFFFFF"/>
+  <rect x="6" y="10" width="2" height="2" fill="#FFE4E1"/>
+  <rect x="18" y="8" width="2" height="2" fill="#FFFFFF"/>
+  <rect x="16" y="10" width="2" height="2" fill="#FFE4E1"/>
+  <rect x="4" y="16" width="2" height="2" fill="#FFE4E1"/>
+  <rect x="18" y="16" width="2" height="2" fill="#FFE4E1"/>
+</svg>
