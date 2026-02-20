@@ -16,6 +16,9 @@ async function bootstrap() {
   (app.canvas.style as any).webkitUserSelect = 'none';
   app.canvas.style.userSelect = 'none';
 
+  // Wait for custom fonts to load before rendering any text
+  await document.fonts.ready;
+
   const container = document.getElementById('app');
   if (!container) throw new Error('Missing #app element');
   container.appendChild(app.canvas);

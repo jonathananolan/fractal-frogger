@@ -1,3 +1,5 @@
+import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
+import { Input } from '@pixi/ui';
 import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle, BlurFilter } from 'pixi.js';
 import type { Renderer as IRenderer } from './types.js';
 import { CELL_SIZE, SPRITE_BASE_PX, CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
@@ -7,6 +9,8 @@ import { getPrizeSpritePath } from '../prizes/PrizeRegistry.js';
 export class Renderer implements IRenderer {
   private app: Application;
   private drawContainer: Container;
+  private drawInputs: Container; // consistent ui elements
+  private nameInput: Input | null = null;
 
   get stage(): Container {
     return this.app.stage;
@@ -15,7 +19,9 @@ export class Renderer implements IRenderer {
   constructor(app: Application) {
     this.app = app;
     this.drawContainer = new Container();
+    this.drawInputs = new Container();
     this.app.stage.addChild(this.drawContainer);
+    this.app.stage.addChild(this.drawInputs);
   }
 
   drawRect(
@@ -157,6 +163,56 @@ export class Renderer implements IRenderer {
     bg.width = CANVAS_WIDTH;
     bg.height = CANVAS_HEIGHT;
     this.drawContainer.addChild(bg);
+  }
+
+  showNameInput(): void {
+    if (!this.nameInput) {
+      const width = 280;
+      const height = 50;
+      const border = 3;
+      const radius = 10;
+
+      // Background: green border with dark fill (local coords start at 0,0)
+      const bg = new Graphics()
+        .roundRect(0, 0, width, height, radius)
+        .fill(0x1a3a1a)
+        .stroke({ color: 0x7ce97c, width: border });
+
+      this.nameInput = new Input({
+        bg,
+        placeholder: 'Enter your name',
+        textStyle: {
+          fill: 0xffffff,
+          fontSize: 22,
+          fontFamily: 'SuperFrog',
+        },
+        align: 'center' as const,
+        maxLength: 12,
+        padding: {
+          top: 12,
+          right: 0,
+          bottom: 12,
+          left: 0,
+        },
+      });
+
+      // Position the whole Input on the canvas (centered, below the title)
+      this.nameInput.x = (CANVAS_WIDTH - width) / 2;
+      this.nameInput.y = 380;
+
+      this.drawInputs.addChild(this.nameInput);
+    }
+    this.nameInput.visible = true;
+  }
+
+  hideInput(): void {
+    if (this.nameInput) {
+      this.nameInput.visible = false;
+    }
+  }
+
+  getNameValue(): string {
+    return this.nameInput?.value ?? '';
   }
 
   clear(): void {

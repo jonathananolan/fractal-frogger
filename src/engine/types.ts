@@ -28,6 +28,9 @@ export interface Renderer {
   drawPrize(gridX: number, gridY: number, prizeType: PrizeType): void;
   drawTongue(tongue: Tongue, frogColor: number): void;
   drawBackground(path?: string): void;
+  showNameInput(): void;
+  getNameValue(): string;
+  hideInput(): void;
 
   clear(): void;
   readonly stage: import('pixi.js').Container;
