@@ -115,10 +115,8 @@ export class Input {
       const dy = this.gesture.lastY - this.gesture.startY;
       const dist = Math.hypot(dx, dy);
 
-      // TAP => Space (scene decides what to do in current state)
-      if (dist <= this.TAP_MAX_MOVE_PX) {
-        this.scene?.onKeyDown('Space');
-      } else if (dist >= this.SWIPE_MIN_DIST_PX && dt <= this.SWIPE_MAX_TIME_MS) {
+      // Swipe gestures for movement (tap no longer triggers Space — keyboard only)
+      if (dist >= this.SWIPE_MIN_DIST_PX && dt <= this.SWIPE_MAX_TIME_MS) {
         const absX = Math.abs(dx);
         const absY = Math.abs(dy);
 

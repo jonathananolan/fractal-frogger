@@ -26,6 +26,9 @@ export interface Renderer {
   drawVehicle(gridX: number, gridY: number, size: VehicleSize, sprite: SpriteData): void;
   drawPlayer(gridX: number, gridY: number, color: number): void;
   drawBackground(path?: string): void;
+  showNameInput(): void;
+  getNameValue(): string;
+  hideInput(): void;
 
   clear(): void;
   readonly stage: import('pixi.js').Container;

@@ -19,7 +19,9 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@pixi/ui": "^2.3.2",
     "pixi.js": "8.16.0",
+    "pixieui": "^1.1.8",
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {

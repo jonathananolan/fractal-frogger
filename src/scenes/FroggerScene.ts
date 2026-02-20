@@ -66,6 +66,9 @@ export class FroggerScene implements Scene {
   private remotePlayers: Map<string, RemotePlayer> = new Map();
   private localPlayerColor: number = 0x44ff44;
 
+  //renderer.
+  private renderer: Renderer | null = null;
+
   init(context: GameContext): void {
     this.gridSize = context.gridSize;
     this.resetGame();
@@ -446,11 +449,13 @@ export class FroggerScene implements Scene {
   }
 
   render(renderer: Renderer): void {
+    this.renderer = renderer;
     renderer.clear();
 
     switch (this.state) {
       case 'start':
         renderStartScreen(renderer);
+        renderer.showNameInput();
         break;
 
       case 'playing':
@@ -591,7 +596,8 @@ export class FroggerScene implements Scene {
     // SPACE: Start / Restart
     if (key === 'Space') {
       console.log('space hit');
-      if (this.state === 'start') {
+      if (this.state === 'start' && this.renderer?.getNameValue() !== '') {
+        this.renderer?.hideInput();
         this.state = 'playing';
         soundManager.unlock(); // Ensure audio context is unlocked
         soundManager.playGameStart();
