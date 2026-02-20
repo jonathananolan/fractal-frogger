@@ -1,7 +1,7 @@
-import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
+import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle, BlurFilter } from 'pixi.js';
 import type { Renderer as IRenderer } from './types.js';
 import { CELL_SIZE, SPRITE_BASE_PX, CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
-import { PrizeType, SpriteData, VehicleSize } from '../../shared/types.js';
+import { PrizeType, SpriteData, VehicleSize, Tongue } from '../../shared/types.js';
 import { SPRITE_PATH, BACKGROUND_PATH } from '../sprites.js';
 import { getPrizeSpritePath } from '../prizes/PrizeRegistry.js';
 export class Renderer implements IRenderer {
@@ -81,7 +81,7 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(pixiSprite);
   }
 
-  drawPlayer(gridX: number, gridY: number, color: number): void {
+  drawPlayer(gridX: number, gridY: number, color: number, isInvincible?: boolean): void {
     const texture = Assets.get(SPRITE_PATH + 'frog.svg');
     const frogSprite = new Sprite(texture);
     frogSprite.x = gridX * CELL_SIZE;
@@ -89,7 +89,55 @@ export class Renderer implements IRenderer {
     frogSprite.width = CELL_SIZE;
     frogSprite.height = CELL_SIZE;
     frogSprite.tint = color;
+
+    // Add glow effect when invincible
+    if (isInvincible) {
+      // Draw glow behind the frog
+      const glow = new Graphics();
+      const centerX = gridX * CELL_SIZE + CELL_SIZE / 2;
+      const centerY = gridY * CELL_SIZE + CELL_SIZE / 2;
+      const glowRadius = CELL_SIZE * 0.8;
+
+      // Pulsing glow effect
+      glow.circle(centerX, centerY, glowRadius);
+      glow.fill({ color: 0xffff00, alpha: 0.4 });
+      glow.filters = [new BlurFilter({ strength: 8 })];
+      this.drawContainer.addChild(glow);
+
+      // Make frog brighter/golden
+      frogSprite.tint = 0xffdd44;
+    }
+
     this.drawContainer.addChild(frogSprite);
+  }
+
+  drawTongue(tongue: Tongue, _frogColor: number): void {
+    if (!tongue.active) return;
+
+    const tongueWidth = 0.15; // thin tongue
+    const startX = tongue.x + 0.5 - tongueWidth / 2; // center on frog
+    const startY = tongue.startY;
+    const tipY = tongue.currentY;
+    const tongueLength = startY - tipY;
+
+    // Draw tongue body (pink/red)
+    const g = new Graphics();
+    g.rect(
+      startX * CELL_SIZE,
+      tipY * CELL_SIZE,
+      tongueWidth * CELL_SIZE,
+      tongueLength * CELL_SIZE,
+    );
+    g.fill(0xff6688);
+    this.drawContainer.addChild(g);
+
+    // Draw tongue tip (darker, rounded)
+    const tip = new Graphics();
+    const tipCenterX = (startX + tongueWidth / 2) * CELL_SIZE;
+    const tipCenterY = tipY * CELL_SIZE + 0.1 * CELL_SIZE;
+    tip.circle(tipCenterX, tipCenterY, tongueWidth * CELL_SIZE);
+    tip.fill(0xff4466);
+    this.drawContainer.addChild(tip);
   }
 
   drawPrize(gridX: number, gridY: number, prizeType: PrizeType): void {

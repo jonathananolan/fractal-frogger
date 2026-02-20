@@ -1,4 +1,4 @@
-import { LaneType, Point, PrizeType, SpriteData, VehicleSize } from '../../shared/types';
+import { LaneType, Point, PrizeType, SpriteData, VehicleSize, Tongue } from '../../shared/types';
 
 export interface GameContext {
   gridSize: number;
@@ -24,8 +24,9 @@ export interface Renderer {
   ): void;
   drawKeyCap(label: string, x: number, y: number, width: number, height: number): void;
   drawVehicle(gridX: number, gridY: number, size: VehicleSize, sprite: SpriteData): void;
-  drawPlayer(gridX: number, gridY: number, color: number): void;
+  drawPlayer(gridX: number, gridY: number, color: number, isInvincible?: boolean): void;
   drawPrize(gridX: number, gridY: number, prizeType: PrizeType): void;
+  drawTongue(tongue: Tongue, frogColor: number): void;
   drawBackground(path?: string): void;
 
   clear(): void;
