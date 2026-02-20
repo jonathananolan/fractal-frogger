@@ -27,7 +27,7 @@ import { updateLeaderboard } from '../ui/Leaderboard.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { GameData, Lane, LeaderboardEntry, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
+import { GameData, Lane } from '../../shared/types.js';
 import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
@@ -68,12 +68,14 @@ export class FroggerScene implements Scene {
   private showHelp: boolean = false;
   private showDebug: boolean = false;
 
+  // Interpolation
+  private prevObstaclePositions = new Map<string, number>();
+  private prevFrogX = 0;
+
   // Multiplayer state
   private multiplayerEnabled: boolean = true;
   private remotePlayers: Map<string, RemotePlayer> = new Map();
   private localPlayerColor: number = 0x44ff44;
-  private leaderboardData: LeaderboardEntry[] = [];
-
   //renderer.
   private renderer: Renderer | null = null;
 
@@ -143,7 +145,6 @@ export class FroggerScene implements Scene {
         this.syncLanesFromServer(lanes);
       },
       onLeaderboard: (players) => {
-        this.leaderboardData = players;
         updateLeaderboard(players, socketClient.playerId);
       },
     });
@@ -155,6 +156,10 @@ export class FroggerScene implements Scene {
       const localLane = this.gameData.lanes.find((l) => l.y === serverLane.y);
       if (localLane) {
         localLane.obstacles = serverLane.obstacles;
+        // Keep prev positions in sync so server corrections don't cause a visual snap
+        for (const obs of serverLane.obstacles) {
+          this.prevObstaclePositions.set(obs.id, obs.position.x);
+        }
       }
     }
   }
@@ -178,77 +183,9 @@ export class FroggerScene implements Scene {
       level: 1,
     };
     this.tickCount = 0;
+    this.prevFrogX = this.gameData.frog.position.x;
     this.prizeSystem?.reset();
     this.tongueSystem?.reset();
-
-    // TEST: Add a car to see it render (remove later)
-    const roadLane = this.gameData.lanes.find((l) => l.y === 17);
-    if (roadLane) {
-      roadLane.obstacles.push({
-        id: 'test-car-1',
-        position: { x: 5, y: 17 },
-        height: 1,
-        width: 1,
-        size: 'm',
-        velocity: 5,
-        type: 'car',
-        sprite: { file: 'Vehicle_Dementia.png', length: 48 },
-      });
-    }
-
-    // TEST: Add a log to see it render (remove later)
-    const waterLane = this.gameData.lanes.find((l) => l.y === 11);
-    if (waterLane) {
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 11 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 9 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 10 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 8 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 7 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-    }
   }
 
   private createLanes(): Lane[] {
@@ -436,15 +373,21 @@ export class FroggerScene implements Scene {
   update(dt: number): void {
     if (this.state !== 'playing') return;
 
+    // Snapshot positions before this tick for interpolation
+    this.prevFrogX = this.gameData.frog.position.x;
+    for (const lane of this.gameData.lanes) {
+      for (const obstacle of lane.obstacles) {
+        this.prevObstaclePositions.set(obstacle.id, obstacle.position.x);
+      }
+    }
+
     this.tickCount++;
 
-    // In multiplayer mode, server handles obstacle spawning/movement
-    // Only run local spawn/movement if not connected
-    if (!socketClient.isConnected) {
-      this.spawnSystem.update(this.gameData, this.gridSize);
-      this.movementSystem.update(this.gameData, dt, this.gridSize);
+    // Server owns obstacle spawning/movement; client owns all player physics
+    if (socketClient.isConnected) {
+      this.movementSystem.update(this.gameData, dt, this.gridSize, true);
     } else {
-      // Still update frog position on logs (client-side for responsiveness)
+      this.spawnSystem.update(this.gameData, this.gridSize);
       this.movementSystem.update(this.gameData, dt, this.gridSize);
     }
 
@@ -470,7 +413,10 @@ export class FroggerScene implements Scene {
     }
 
     // Check invincibility expiration
-    if (this.gameData.frog.isInvincible && this.tickCount >= this.gameData.frog.invincibilityEndTick) {
+    if (
+      this.gameData.frog.isInvincible &&
+      this.tickCount >= this.gameData.frog.invincibilityEndTick
+    ) {
       this.gameData.frog.isInvincible = false;
       console.log('Invincibility expired!');
     }
@@ -515,6 +461,7 @@ export class FroggerScene implements Scene {
       y: this.gridSize - 1,
     };
     this.gameData.frog.isOnLog = false;
+    this.prevFrogX = this.gameData.frog.position.x;
 
     // Send respawn position to server
     if (socketClient.isConnected) {
@@ -540,6 +487,7 @@ export class FroggerScene implements Scene {
       y: this.gridSize - 1,
     };
     this.gameData.frog.isOnLog = false;
+    this.prevFrogX = this.gameData.frog.position.x;
 
     // Send respawn position to server
     if (socketClient.isConnected) {
@@ -559,12 +507,15 @@ export class FroggerScene implements Scene {
     // Butterfly and crystal grant invincibility
     if (prize.type === 'butterfly' || prize.type === 'crystal') {
       this.gameData.frog.isInvincible = true;
-      this.gameData.frog.invincibilityEndTick = this.tickCount + FroggerScene.INVINCIBILITY_DURATION;
-      console.log(`Invincibility activated! Ends at tick ${this.gameData.frog.invincibilityEndTick}`);
+      this.gameData.frog.invincibilityEndTick =
+        this.tickCount + FroggerScene.INVINCIBILITY_DURATION;
+      console.log(
+        `Invincibility activated! Ends at tick ${this.gameData.frog.invincibilityEndTick}`,
+      );
     }
   }
 
-  render(renderer: Renderer): void {
+  render(renderer: Renderer, alpha = 0): void {
     this.renderer = renderer;
     renderer.clear();
 
@@ -575,19 +526,19 @@ export class FroggerScene implements Scene {
         break;
 
       case 'playing':
-        this.renderGame(renderer);
+        this.renderGame(renderer, alpha);
         if (this.showHelp) renderHelpOverlay(renderer);
         if (this.showDebug) renderDebugPanel(renderer, this.getDebugData());
         break;
     }
   }
 
-  private renderGame(renderer: Renderer): void {
+  private renderGame(renderer: Renderer, alpha: number): void {
     // Render lanes (background)
     this.renderLanes(renderer);
 
     // Render obstacles
-    this.renderObstacles(renderer);
+    this.renderObstacles(renderer, alpha);
 
     // Render prizes
     this.renderPrizes(renderer);
@@ -599,7 +550,7 @@ export class FroggerScene implements Scene {
     this.renderTongue(renderer);
 
     // Render local frog
-    this.renderFrog(renderer);
+    this.renderFrog(renderer, alpha);
 
     // Render HUD
     renderHUD(renderer, this.gameData.score);
@@ -643,30 +594,20 @@ export class FroggerScene implements Scene {
     }
   }
 
-  private renderObstacles(renderer: Renderer): void {
+  private renderObstacles(renderer: Renderer, alpha: number): void {
     for (const lane of this.gameData.lanes) {
       for (const obstacle of lane.obstacles) {
-        let car = obstacle.type === 'car';
+        const prevX = this.prevObstaclePositions.get(obstacle.id) ?? obstacle.position.x;
+        const drawX = prevX + (obstacle.position.x - prevX) * alpha;
+        const car = obstacle.type === 'car';
 
         if (car && obstacle.sprite) {
-          renderer.drawVehicle(
-            obstacle.position.x,
-            obstacle.position.y,
-            obstacle.size,
-            obstacle.sprite,
-          );
+          renderer.drawVehicle(drawX, obstacle.position.y, obstacle.size, obstacle.sprite);
         } else if (car) {
           // Fallback for cars without sprite data (e.g., from server)
-          renderer.drawRect(
-            Math.floor(obstacle.position.x),
-            obstacle.position.y,
-            obstacle.width,
-            1,
-            0xff0000,
-          );
+          renderer.drawRect(drawX, obstacle.position.y, obstacle.width, 1, 0xff0000);
         } else {
-          // Render log with sprites
-          renderer.drawLog(obstacle.position.x, obstacle.position.y, obstacle.width, lane.direction);
+          renderer.drawRect(drawX, obstacle.position.y, obstacle.width, 1, 0x8b4513);
         }
       }
     }
@@ -692,9 +633,10 @@ export class FroggerScene implements Scene {
     }
   }
 
-  private renderFrog(renderer: Renderer): void {
-    const { x, y } = this.gameData.frog.position;
-    renderer.drawPlayer(x, y, this.gameData.frog.color, this.gameData.frog.isInvincible);
+  private renderFrog(renderer: Renderer, alpha: number): void {
+    const drawX = this.prevFrogX + (this.gameData.frog.position.x - this.prevFrogX) * alpha;
+    const y = this.gameData.frog.position.y;
+    renderer.drawPlayer(drawX, y, this.gameData.frog.color, this.gameData.frog.isInvincible);
   }
 
   private renderTongue(renderer: Renderer): void {
@@ -755,6 +697,8 @@ export class FroggerScene implements Scene {
       const moved = this.movementSystem.moveFrog(this.gameData, direction, this.gridSize);
 
       if (moved) {
+        // Snap prevFrogX so key-press hops are instant (no lerp)
+        this.prevFrogX = this.gameData.frog.position.x;
         // Play hop sound on successful movement
         soundManager.playHop();
 

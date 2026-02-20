@@ -40,7 +40,7 @@ export interface Renderer {
 export interface Scene {
   init(context: GameContext): void;
   update(dt: number): void;
-  render(renderer: Renderer): void;
+  render(renderer: Renderer, alpha?: number): void;
   onKeyDown(key: string): void;
   onKeyUp(key: string): void;
   destroy(): void;

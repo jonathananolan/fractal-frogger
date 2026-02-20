@@ -4,10 +4,7 @@
 import type { Renderer } from '../engine/types.js';
 import { CANVAS_WIDTH } from '../../shared/constants.js';
 
-export function renderHUD(
-  renderer: Renderer,
-  score: number,
-): void {
+export function renderHUD(renderer: Renderer, score: number): void {
   // Score (top right)
   renderer.drawText(`Score: ${score}`, CANVAS_WIDTH - 10, 10, {
     fontSize: 18,
