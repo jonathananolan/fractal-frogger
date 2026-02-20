@@ -349,7 +349,7 @@ export class GameState {
 
   getLeaderboard(): Array<{ id: string; name: string; color: number; score: number }> {
     return Array.from(this.players.values())
-      .map(p => ({ id: p.id, name: p.name, color: p.color, score: p.score }))
+      .map((p) => ({ id: p.id, name: p.name, color: p.color, score: p.score }))
       .sort((a, b) => b.score - a.score);
   }
 

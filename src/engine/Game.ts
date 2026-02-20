@@ -72,7 +72,6 @@ export class Game {
       }
 
       try {
-        this.renderer.clear();
         this.scene.render(this.renderer);
       } catch (e) {
         this.errorMessage = e instanceof Error ? e.message : String(e);

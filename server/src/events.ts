@@ -91,10 +91,8 @@ export function setupEventHandlers(
         playerId: socket.id,
       });
     });
-    // Deprecated: server now owns frog position/lifecycle. Kept as no-ops so old clients don't error.
+    // Deprecated: server now owns frog position/lifecycle. Kept as no-op so old clients don't error.
     socket.on('move', () => {});
-    socket.on('death', () => {});
-    socket.on('victory', () => {});
 
     // Handle disconnect
     socket.on('disconnect', () => {
