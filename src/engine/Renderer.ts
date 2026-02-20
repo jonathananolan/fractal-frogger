@@ -1,4 +1,3 @@
-import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
 import { Input } from '@pixi/ui';
 import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle, BlurFilter } from 'pixi.js';
 import type { Renderer as IRenderer } from './types.js';
