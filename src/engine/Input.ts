@@ -12,6 +12,7 @@ const GAME_KEYS = new Set([
   'Space',
   'KeyH',
   'KeyP',
+  'KeyG',
 ]);
 
 type SwipeDir = 'up' | 'down' | 'left' | 'right';

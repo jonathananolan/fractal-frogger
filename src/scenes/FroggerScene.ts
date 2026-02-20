@@ -372,7 +372,9 @@ export class FroggerScene implements Scene {
     switch (collision.type) {
       case 'car':
       case 'water':
-        this.handleDeath(collision.type);
+        if (!this.collisionSystem.isGodMode()) {
+          this.handleDeath(collision.type);
+        }
         break;
       case 'log':
         this.gameData.frog.isOnLog = true;
@@ -616,6 +618,14 @@ export class FroggerScene implements Scene {
     // P: Toggle debug
     if (key === 'KeyP') {
       this.showDebug = !this.showDebug;
+      return;
+    }
+
+    // G: Toggle god mode
+    if (key === 'KeyG') {
+      const newState = !this.collisionSystem.isGodMode();
+      this.collisionSystem.setGodMode(newState);
+      console.log('God mode:', newState ? 'ON' : 'OFF');
       return;
     }
 
