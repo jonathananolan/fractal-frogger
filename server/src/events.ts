@@ -1,4 +1,5 @@
 // Socket event handlers for multiplayer Frogger
+// Server is a pure relay — client owns all player physics
 
 import type { Server, Socket } from 'socket.io';
 import { GameState } from './GameState.js';
@@ -24,15 +25,14 @@ export function setupEventHandlers(
   io.on('connection', (socket: Socket<ClientToServerEvents, ServerToClientEvents>) => {
     console.log(`Client connected: ${socket.id}`);
 
-    // Handle join event
     socket.on('join', ({ name }) => {
       const playerName = name || `Player ${socket.id.slice(0, 4)}`;
       const color = getNextColor();
-      const player = gameState.addPlayer(socket.id, playerName, color);
+      gameState.addPlayer(socket.id, playerName, color);
 
       console.log(`Player joined: ${playerName} (${socket.id})`);
 
-      // Send welcome to joining player with current state
+      // Send welcome with current state
       socket.emit('welcome', {
         playerId: socket.id,
         color,
@@ -47,66 +47,44 @@ export function setupEventHandlers(
         name: playerName,
       });
 
-      // Broadcast updated leaderboard
       io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
 
-    // Handle input event — server now owns frog movement
-    socket.on('input', ({ direction }) => {
-      gameState.queueInput(socket.id, direction);
+    // Client moved — store and rebroadcast
+    socket.on('move', ({ x, y }) => {
+      gameState.updatePlayerPosition(socket.id, { x, y });
+      socket.broadcast.emit('playerMoved', {
+        playerId: socket.id,
+        x,
+        y,
+      });
     });
 
-    // Handle death event
+    // Client died — store and rebroadcast
     socket.on('death', ({ cause }) => {
       console.log(`Player died: ${socket.id} (${cause})`);
       gameState.setPlayerAlive(socket.id, false);
-
-      // Broadcast to all other players
-      socket.broadcast.emit('playerDied', {
-        playerId: socket.id,
-      });
-
-      // Reset player position after brief delay
-      setTimeout(() => {
-        const player = gameState.getPlayer(socket.id);
-        if (player) {
-          player.isAlive = true;
-          player.position = { x: 10, y: 19 };
-        }
-      }, 1000);
+      socket.broadcast.emit('playerDied', { playerId: socket.id });
     });
 
-    // Handle score update
+    // Client won — rebroadcast
+    socket.on('victory', () => {
+      console.log(`Player won: ${socket.id}`);
+      gameState.setPlayerAlive(socket.id, true);
+      io.emit('playerWon', { playerId: socket.id });
+    });
+
+    // Client score update — store and rebroadcast leaderboard
     socket.on('scoreUpdate', ({ score }) => {
       gameState.updatePlayerScore(socket.id, score);
       io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
 
-    // Handle victory event
-    socket.on('victory', () => {
-      console.log(`Player won: ${socket.id}`);
-
-      // Broadcast to all players
-      io.emit('playerWon', {
-        playerId: socket.id,
-      });
-    });
-    // Deprecated: server now owns frog position/lifecycle. Kept as no-ops so old clients don't error.
-    socket.on('move', () => {});
-    socket.on('death', () => {});
-    socket.on('victory', () => {});
-
-    // Handle disconnect
     socket.on('disconnect', () => {
       console.log(`Client disconnected: ${socket.id}`);
       gameState.removePlayer(socket.id);
 
-      // Broadcast to remaining players
-      socket.broadcast.emit('playerLeft', {
-        playerId: socket.id,
-      });
-
-      // Broadcast updated leaderboard
+      socket.broadcast.emit('playerLeft', { playerId: socket.id });
       io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
   });

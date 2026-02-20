@@ -1,6 +1,15 @@
 import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
 import { Input } from '@pixi/ui';
-import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle, BlurFilter } from 'pixi.js';
+import {
+  Application,
+  Assets,
+  Container,
+  Graphics,
+  Sprite,
+  Text,
+  TextStyle,
+  BlurFilter,
+} from 'pixi.js';
 import type { Renderer as IRenderer } from './types.js';
 import { CELL_SIZE, SPRITE_BASE_PX, CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
 import { PrizeType, SpriteData, VehicleSize, Tongue } from '../../shared/types.js';
@@ -128,12 +137,7 @@ export class Renderer implements IRenderer {
 
     // Draw tongue body (pink/red)
     const g = new Graphics();
-    g.rect(
-      startX * CELL_SIZE,
-      tipY * CELL_SIZE,
-      tongueWidth * CELL_SIZE,
-      tongueLength * CELL_SIZE,
-    );
+    g.rect(startX * CELL_SIZE, tipY * CELL_SIZE, tongueWidth * CELL_SIZE, tongueLength * CELL_SIZE);
     g.fill(0xff6688);
     this.drawContainer.addChild(g);
 
