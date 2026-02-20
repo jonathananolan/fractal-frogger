@@ -261,7 +261,7 @@ export class FroggerScene implements Scene {
       speed: 0,
     });
 
-    // Water lanes (rows 7-11)
+    // Water lanes (rows 8-11)
     lanes.push({
       y: 11,
       type: 'water',
@@ -294,26 +294,78 @@ export class FroggerScene implements Scene {
       direction: 1,
       speed: 0.35,
     });
+
+    // Safe middle (row 7)
     lanes.push({
       y: 7,
-      type: 'water',
+      type: 'safe',
+      obstacles: [],
+      spawnRate: 0,
+      direction: 1,
+      speed: 0,
+    });
+
+    // Safe zone (row 6) - buffer between water and upper road
+    lanes.push({
+      y: 6,
+      type: 'safe',
+      obstacles: [],
+      spawnRate: 0,
+      direction: 1,
+      speed: 0,
+    });
+
+    // Second road lanes (rows 1-5) - 5 lanes
+    lanes.push({
+      y: 5,
+      type: 'road',
       obstacles: [],
       spawnRate: 28,
+      direction: -1,
+      speed: 0.35,
+    });
+    lanes.push({
+      y: 4,
+      type: 'road',
+      obstacles: [],
+      spawnRate: 20,
+      direction: 1,
+      speed: 0.5,
+    });
+    lanes.push({
+      y: 3,
+      type: 'road',
+      obstacles: [],
+      spawnRate: 25,
+      direction: -1,
+      speed: 0.4,
+    });
+    lanes.push({
+      y: 2,
+      type: 'road',
+      obstacles: [],
+      spawnRate: 18,
+      direction: 1,
+      speed: 0.55,
+    });
+    lanes.push({
+      y: 1,
+      type: 'road',
+      obstacles: [],
+      spawnRate: 30,
       direction: -1,
       speed: 0.3,
     });
 
-    // Goal zone (rows 0-6)
-    for (let y = 0; y <= 6; y++) {
-      lanes.push({
-        y,
-        type: 'goal',
-        obstacles: [],
-        spawnRate: 0,
-        direction: 1,
-        speed: 0,
-      });
-    }
+    // Goal zone (row 0)
+    lanes.push({
+      y: 0,
+      type: 'goal',
+      obstacles: [],
+      spawnRate: 0,
+      direction: 1,
+      speed: 0,
+    });
 
     return lanes;
   }
