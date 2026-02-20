@@ -50,18 +50,20 @@ export class MovementSystem {
    * Update all obstacle positions based on their velocities.
    * Also moves frog if riding a log.
    */
-  update(gameData: GameData, dt: number, gridSize: number): void {
-    // Move all obstacles
-    for (const lane of gameData.lanes) {
-      for (const obstacle of lane.obstacles) {
-        obstacle.position.x += obstacle.velocity * dt;
+  update(gameData: GameData, dt: number, gridSize: number, skipObstacles = false): void {
+    if (!skipObstacles) {
+      // Move all obstacles (only when server is NOT authoritative)
+      for (const lane of gameData.lanes) {
+        for (const obstacle of lane.obstacles) {
+          obstacle.position.x += obstacle.velocity;
 
-        // Wrap around when obstacle goes off screen
-        const width = obstacle.width;
-        if (obstacle.velocity > 0 && obstacle.position.x > gridSize) {
-          obstacle.position.x = -width;
-        } else if (obstacle.velocity < 0 && obstacle.position.x + width < 0) {
-          obstacle.position.x = gridSize;
+          // Wrap around when obstacle goes off screen
+          const width = obstacle.width;
+          if (obstacle.velocity > 0 && obstacle.position.x > gridSize) {
+            obstacle.position.x = -width;
+          } else if (obstacle.velocity < 0 && obstacle.position.x + width < 0) {
+            obstacle.position.x = gridSize;
+          }
         }
       }
     }
@@ -75,7 +77,7 @@ export class MovementSystem {
       // update frog's position
       //const frogVelocity = log.direction * log.speed
       if (log) {
-        gameData.frog.position.x += log.velocity * dt;
+        gameData.frog.position.x += log.velocity;
       } else {
         throw new Error('no log found');
       }
