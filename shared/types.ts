@@ -3,6 +3,8 @@ export interface Point {
   y: number;
 }
 
+export type Direction = 'up' | 'down' | 'left' | 'right';
+
 export interface Player {
   id: string;
   name: string;
@@ -11,6 +13,10 @@ export interface Player {
   height: number;
   width: number;
   isAlive: boolean;
+  pendingInput?: Direction;
+  ridingObstacleId?: string | null;
+  score: number;
+  respawnTimer: number;
 }
 
 export type ObstacleType = 'car' | 'log' | 'turtle';
@@ -97,12 +103,18 @@ export interface GameData {
   level: number;
 }
 
+export interface ServerGameState {
+  players: Player[];
+  lanes: Lane[];
+}
+
 // Client -> Server events
 export interface ClientToServerEvents {
   join: (payload: { name?: string }) => void;
   move: (payload: { x: number; y: number }) => void;
   death: (payload: { cause: string }) => void;
   victory: () => void;
+  input: (payload: { direction: Direction }) => void;
 }
 
 // Server -> Client events
@@ -114,6 +126,7 @@ export interface ServerToClientEvents {
   playerDied: (payload: { playerId: string }) => void;
   playerWon: (payload: { playerId: string }) => void;
   obstacles: (payload: { lanes: Lane[] }) => void;
+  gameState: (payload: ServerGameState) => void;
 }
 
 // Color palette for players

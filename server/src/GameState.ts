@@ -2,6 +2,9 @@
 // Server owns obstacle spawning and movement
 
 import type {
+  ClientToServerEvents,
+  Direction,
+  ServerGameState,
   Lane,
   Obstacle,
   Player,
@@ -14,6 +17,9 @@ import type { Server } from 'socket.io';
 import { VEHICLES_BY_SIZE, SIZE_TO_WIDTH } from './sprites.js';
 import { GRID_SIZE, SPRITE_BASE_PX, TICK_RATE_MS } from '../../shared/constants.js';
 
+const RESPAWN_TICKS = 20; // 1 second at 50ms tick rate
+const START_POSITION: Point = { x: 10, y: 19 };
+
 export class GameState {
   private lanes: Lane[] = [];
   private players: Map<string, Player> = new Map();
@@ -23,6 +29,138 @@ export class GameState {
 
   constructor() {
     this.lanes = this.createLanes();
+  }
+
+  queueInput(id: string, direction: Direction): void {
+    const player = this.players.get(id);
+    if (player && player.isAlive) {
+      player.pendingInput = direction;
+    }
+  }
+
+  private getLaneAtY(y: number): Lane | undefined {
+    return this.lanes.find((lane) => lane.y === y);
+  }
+
+  private processInputs(): void {
+    for (const player of this.players.values()) {
+      // being dead or having no input means player doesn't move
+      if (!player.isAlive || !player.pendingInput) continue;
+
+      // consume player input: get direction and set player input to nothing
+      const dir = player.pendingInput;
+      player.pendingInput = undefined;
+
+      // determine x/y change
+      let dx = 0;
+      let dy = 0;
+      if (dir === 'up') {
+        dy = -1;
+      } else if (dir === 'down') {
+        dy = 1;
+      } else if (dir === 'left') {
+        dx = -1;
+      } else {
+        // dir === 'right'
+        dx = 1;
+      }
+
+      // don't let frog go through walls
+      const newX = Math.max(0, Math.min(GRID_SIZE - 1, player.position.x + dx));
+      const newY = Math.max(0, Math.min(GRID_SIZE - 1, player.position.y + dy));
+
+      /**
+       * EASTER EGG: THE BOLD AND EXPLORATORY CAN FARM SCORE BY MOVING BACK AND FORTH
+       *
+       * TODO: remove this line if people hate it
+       * but right now I think it's kinda funny
+       */
+      if (dy === -1) player.score += 10; // moved up
+
+      // apply x/y change
+      player.position = { x: newX, y: newY };
+    }
+  }
+
+  private updateFrogsOnLogs(): void {
+    for (const player of this.players.values()) {
+      if (!player.isAlive) continue;
+
+      const lane = this.getLaneAtY(player.position.y);
+      if (!lane || lane.type !== 'water') {
+        player.ridingObstacleId = null;
+        continue;
+      }
+
+      // Find a log overlapping this player's x position
+      const log = lane.obstacles.find(
+        (obs) =>
+          obs.type === 'log' &&
+          obs.position.x <= player.position.x &&
+          obs.position.x + obs.width > player.position.x,
+      );
+
+      if (log) {
+        player.ridingObstacleId = log.id;
+        // Carry player with the log (same velocity applied this tick)
+        const newX = player.position.x + log.velocity;
+        // If log carries player off screen, drown them
+        if (newX < 0 || newX >= 20) {
+          this.killPlayer(player);
+        } else {
+          player.position.x = newX;
+        }
+      } else {
+        // In water, not on a log → drown
+        player.ridingObstacleId = null;
+        this.killPlayer(player);
+      }
+    }
+  }
+
+  private detectCollisions(): void {
+    for (const player of this.players.values()) {
+      if (!player.isAlive) continue;
+
+      const lane = this.getLaneAtY(player.position.y);
+      if (!lane) continue;
+
+      if (lane.type === 'road') {
+        // AABB: player occupies [x, x+1). Car occupies [car.x, car.x + car.width).
+        const hit = lane.obstacles.some(
+          (obs) =>
+            obs.position.x < player.position.x + 1 &&
+            obs.position.x + obs.width > player.position.x,
+        );
+        if (hit) {
+          this.killPlayer(player);
+        }
+      }
+
+      if (lane.type === 'goal') {
+        // Player reached the goal zone — victory
+        player.score += 100;
+        player.position = { ...START_POSITION };
+        // player stays alive, just resets to start
+      }
+    }
+  }
+
+  private killPlayer(player: Player): void {
+    player.isAlive = false;
+    player.respawnTimer = RESPAWN_TICKS;
+    player.ridingObstacleId = null;
+  }
+
+  private tickRespawns(): void {
+    for (const player of this.players.values()) {
+      if (player.isAlive || player.respawnTimer <= 0) continue;
+      player.respawnTimer -= 1;
+      if (player.respawnTimer === 0) {
+        player.isAlive = true;
+        player.position = { ...START_POSITION };
+      }
+    }
   }
 
   private createLanes(): Lane[] {
@@ -172,10 +310,13 @@ export class GameState {
       id,
       name,
       color,
-      position: { x: Math.floor(GRID_SIZE / 2), y: GRID_SIZE - 1 },
+      position: { ...START_POSITION },
       width: 1,
       height: 1,
       isAlive: true,
+      score: 0,
+      respawnTimer: 0,
+      ridingObstacleId: null,
     };
     this.players.set(id, player);
     return player;
@@ -202,13 +343,18 @@ export class GameState {
   /**
    * Start the game tick loop
    */
-  startTickLoop(io: Server<any, ServerToClientEvents>): void {
+  startTickLoop(io: Server<ClientToServerEvents, ServerToClientEvents>): void {
     if (this.tickInterval) return;
 
     this.tickInterval = setInterval(() => {
       this.tick();
-      // Broadcast obstacle positions to all clients
-      io.emit('obstacles', { lanes: this.lanes });
+      // New: full game state broadcast (for PR2 clients)
+      io.sockets.emit('gameState', {
+        players: this.getPlayers(),
+        lanes: this.lanes,
+      });
+      // Kept: backward-compat obstacle broadcast (for current clients)
+      io.sockets.emit('obstacles', { lanes: this.lanes });
     }, TICK_RATE_MS);
 
     console.log('Game tick loop started');
@@ -222,9 +368,13 @@ export class GameState {
   }
 
   /**
-   * Single game tick - spawn and move obstacles
+   * Single game tick - inputs, obstacles, physics, collisions, respawns
    */
   private tick(): void {
+    // 1. Apply pending player inputs
+    this.processInputs();
+
+    // 2. Spawn and move obstacles
     for (const lane of this.lanes) {
       if (lane.type === 'safe' || lane.type === 'goal') continue;
 
@@ -256,6 +406,15 @@ export class GameState {
         }
       });
     }
+
+    // 3. Carry frogs riding logs
+    this.updateFrogsOnLogs();
+
+    // 4. Detect car collisions and victories
+    this.detectCollisions();
+
+    // 5. Tick respawn timers
+    this.tickRespawns();
   }
 
   /**

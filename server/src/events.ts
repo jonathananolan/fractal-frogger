@@ -48,47 +48,15 @@ export function setupEventHandlers(
       });
     });
 
-    // Handle move event
-    socket.on('move', ({ x, y }) => {
-      gameState.updatePlayerPosition(socket.id, { x, y });
-
-      // Broadcast to all other players
-      socket.broadcast.emit('playerMoved', {
-        playerId: socket.id,
-        x,
-        y,
-      });
+    // Handle input event — server now owns frog movement
+    socket.on('input', ({ direction }) => {
+      gameState.queueInput(socket.id, direction);
     });
 
-    // Handle death event
-    socket.on('death', ({ cause }) => {
-      console.log(`Player died: ${socket.id} (${cause})`);
-      gameState.setPlayerAlive(socket.id, false);
-
-      // Broadcast to all other players
-      socket.broadcast.emit('playerDied', {
-        playerId: socket.id,
-      });
-
-      // Reset player position after brief delay
-      setTimeout(() => {
-        const player = gameState.getPlayer(socket.id);
-        if (player) {
-          player.isAlive = true;
-          player.position = { x: 10, y: 19 };
-        }
-      }, 1000);
-    });
-
-    // Handle victory event
-    socket.on('victory', () => {
-      console.log(`Player won: ${socket.id}`);
-
-      // Broadcast to all players
-      io.emit('playerWon', {
-        playerId: socket.id,
-      });
-    });
+    // Deprecated: server now owns frog position/lifecycle. Kept as no-ops so old clients don't error.
+    socket.on('move', () => {});
+    socket.on('death', () => {});
+    socket.on('victory', () => {});
 
     // Handle disconnect
     socket.on('disconnect', () => {
