@@ -3,6 +3,8 @@ export interface Point {
   y: number;
 }
 
+export type Direction = 'up' | 'down' | 'left' | 'right';
+
 export interface Player {
   id: string;
   name: string;
@@ -96,6 +98,11 @@ export interface GameData {
   score: number;
   timeRemaining: number;
   level: number;
+}
+
+export interface ServerGameState {
+  players: Player[];
+  lanes: Lane[];
 }
 
 // Client -> Server events

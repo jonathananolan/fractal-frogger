@@ -141,110 +141,63 @@ describe('Event Handlers', () => {
     });
   });
 
-  describe('Move Event', () => {
-    it('updates player position in game state', () => {
+  describe('Input Event', () => {
+    it('queues pending input on the player', () => {
       const socket = createMockSocket('socket-1');
       mockIo._simulateConnection(socket);
       socket._trigger('join', { name: 'TestPlayer' });
 
-      socket._trigger('move', { x: 5, y: 15 });
+      socket._trigger('input', { direction: 'up' });
 
-      const player = gameState.getPlayer('socket-1');
-      expect(player!.position).toEqual({ x: 5, y: 15 });
+      expect(gameState.getPlayer('socket-1')!.pendingInput).toBe('up');
     });
 
-    it('broadcasts playerMoved to other players', () => {
+    it('ignores input for dead players', () => {
       const socket = createMockSocket('socket-1');
       mockIo._simulateConnection(socket);
       socket._trigger('join', { name: 'TestPlayer' });
 
-      socket._trigger('move', { x: 5, y: 15 });
+      gameState.getPlayer('socket-1')!.isAlive = false;
+      socket._trigger('input', { direction: 'up' });
 
-      expect(socket.broadcast.emit).toHaveBeenCalledWith('playerMoved', {
-        playerId: 'socket-1',
-        x: 5,
-        y: 15,
-      });
+      expect(gameState.getPlayer('socket-1')!.pendingInput).toBeUndefined();
     });
   });
 
-  describe('Death Event', () => {
-    it('sets player as not alive', () => {
+  describe('Move Event (deprecated — no-op)', () => {
+    it('does not update player position', () => {
       const socket = createMockSocket('socket-1');
       mockIo._simulateConnection(socket);
       socket._trigger('join', { name: 'TestPlayer' });
 
-      socket._trigger('death', { cause: 'car' });
+      const before = { ...gameState.getPlayer('socket-1')!.position };
+      socket._trigger('move', { x: 5, y: 15 });
 
-      const player = gameState.getPlayer('socket-1');
-      expect(player!.isAlive).toBe(false);
-    });
-
-    it('broadcasts playerDied to other players', () => {
-      const socket = createMockSocket('socket-1');
-      mockIo._simulateConnection(socket);
-      socket._trigger('join', { name: 'TestPlayer' });
-
-      socket._trigger('death', { cause: 'car' });
-
-      expect(socket.broadcast.emit).toHaveBeenCalledWith('playerDied', {
-        playerId: 'socket-1',
-      });
-    });
-
-    it('resets player position after 1 second delay', () => {
-      vi.useFakeTimers();
-      const socket = createMockSocket('socket-1');
-      mockIo._simulateConnection(socket);
-      socket._trigger('join', { name: 'TestPlayer' });
-
-      // Move player away from spawn
-      gameState.updatePlayerPosition('socket-1', { x: 5, y: 10 });
-
-      socket._trigger('death', { cause: 'car' });
-
-      // Before delay
-      let player = gameState.getPlayer('socket-1');
-      expect(player!.position).toEqual({ x: 5, y: 10 });
-      expect(player!.isAlive).toBe(false);
-
-      // After delay
-      vi.advanceTimersByTime(1000);
-
-      player = gameState.getPlayer('socket-1');
-      expect(player!.position).toEqual({ x: 10, y: 19 });
-      expect(player!.isAlive).toBe(true);
-    });
-
-    it('handles death when player has disconnected', () => {
-      vi.useFakeTimers();
-      const socket = createMockSocket('socket-1');
-      mockIo._simulateConnection(socket);
-      socket._trigger('join', { name: 'TestPlayer' });
-
-      socket._trigger('death', { cause: 'car' });
-
-      // Remove player before timeout fires
-      gameState.removePlayer('socket-1');
-
-      // Should not throw
-      expect(() => {
-        vi.advanceTimersByTime(1000);
-      }).not.toThrow();
+      expect(gameState.getPlayer('socket-1')!.position).toEqual(before);
     });
   });
 
-  describe('Victory Event', () => {
-    it('broadcasts playerWon to all players', () => {
+  describe('Death Event (deprecated — no-op)', () => {
+    it('does not kill the player', () => {
+      const socket = createMockSocket('socket-1');
+      mockIo._simulateConnection(socket);
+      socket._trigger('join', { name: 'TestPlayer' });
+
+      socket._trigger('death', { cause: 'car' });
+
+      expect(gameState.getPlayer('socket-1')!.isAlive).toBe(true);
+    });
+  });
+
+  describe('Victory Event (deprecated — no-op)', () => {
+    it('does not emit playerWon', () => {
       const socket = createMockSocket('socket-1');
       mockIo._simulateConnection(socket);
       socket._trigger('join', { name: 'TestPlayer' });
 
       socket._trigger('victory');
 
-      expect(mockIo.emit).toHaveBeenCalledWith('playerWon', {
-        playerId: 'socket-1',
-      });
+      expect(mockIo.emit).not.toHaveBeenCalledWith('playerWon', expect.anything());
     });
   });
 
@@ -294,7 +247,7 @@ describe('Event Handlers', () => {
       expect(welcomeCall[1].players).toHaveLength(2);
     });
 
-    it('broadcasts moves between players', () => {
+    it('queues input for the correct player only', () => {
       const socket1 = createMockSocket('socket-1');
       const socket2 = createMockSocket('socket-2');
 
@@ -304,13 +257,10 @@ describe('Event Handlers', () => {
       socket1._trigger('join', { name: 'Player1' });
       socket2._trigger('join', { name: 'Player2' });
 
-      socket1._trigger('move', { x: 3, y: 18 });
+      socket1._trigger('input', { direction: 'up' });
 
-      expect(socket1.broadcast.emit).toHaveBeenCalledWith('playerMoved', {
-        playerId: 'socket-1',
-        x: 3,
-        y: 18,
-      });
+      expect(gameState.getPlayer('socket-1')!.pendingInput).toBe('up');
+      expect(gameState.getPlayer('socket-2')!.pendingInput).toBeUndefined();
     });
   });
 });

@@ -51,16 +51,9 @@ export function setupEventHandlers(
       io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
 
-    // Handle move event
-    socket.on('move', ({ x, y }) => {
-      gameState.updatePlayerPosition(socket.id, { x, y });
-
-      // Broadcast to all other players
-      socket.broadcast.emit('playerMoved', {
-        playerId: socket.id,
-        x,
-        y,
-      });
+    // Handle input event — server now owns frog movement
+    socket.on('input', ({ direction }) => {
+      gameState.queueInput(socket.id, direction);
     });
 
     // Handle death event
@@ -98,6 +91,10 @@ export function setupEventHandlers(
         playerId: socket.id,
       });
     });
+    // Deprecated: server now owns frog position/lifecycle. Kept as no-ops so old clients don't error.
+    socket.on('move', () => {});
+    socket.on('death', () => {});
+    socket.on('victory', () => {});
 
     // Handle disconnect
     socket.on('disconnect', () => {
