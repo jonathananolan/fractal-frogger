@@ -73,6 +73,20 @@ export interface Frog {
   isOnLog: boolean;
   currentLogId?: string;
   color: number;
+  // Invincibility state (from catching butterfly/crystal)
+  isInvincible: boolean;
+  invincibilityEndTick: number;
+}
+
+// Tongue state for catching prizes
+export interface Tongue {
+  active: boolean;
+  startY: number; // Starting Y position (frog position)
+  currentY: number; // Current Y position of tongue tip
+  targetY: number; // Target Y position (2 cells up from frog)
+  x: number; // X position (same as frog)
+  extending: boolean; // true = shooting out, false = retracting
+  caughtPrize: string | null; // Prize ID if caught something
 }
 
 export interface GameData {
