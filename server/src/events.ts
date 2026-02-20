@@ -46,6 +46,9 @@ export function setupEventHandlers(
         color,
         name: playerName,
       });
+
+      // Broadcast updated leaderboard
+      io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
 
     // Handle input event — server now owns frog movement
@@ -53,6 +56,41 @@ export function setupEventHandlers(
       gameState.queueInput(socket.id, direction);
     });
 
+    // Handle death event
+    socket.on('death', ({ cause }) => {
+      console.log(`Player died: ${socket.id} (${cause})`);
+      gameState.setPlayerAlive(socket.id, false);
+
+      // Broadcast to all other players
+      socket.broadcast.emit('playerDied', {
+        playerId: socket.id,
+      });
+
+      // Reset player position after brief delay
+      setTimeout(() => {
+        const player = gameState.getPlayer(socket.id);
+        if (player) {
+          player.isAlive = true;
+          player.position = { x: 10, y: 19 };
+        }
+      }, 1000);
+    });
+
+    // Handle score update
+    socket.on('scoreUpdate', ({ score }) => {
+      gameState.updatePlayerScore(socket.id, score);
+      io.emit('leaderboard', { players: gameState.getLeaderboard() });
+    });
+
+    // Handle victory event
+    socket.on('victory', () => {
+      console.log(`Player won: ${socket.id}`);
+
+      // Broadcast to all players
+      io.emit('playerWon', {
+        playerId: socket.id,
+      });
+    });
     // Deprecated: server now owns frog position/lifecycle. Kept as no-ops so old clients don't error.
     socket.on('move', () => {});
     socket.on('death', () => {});
@@ -67,6 +105,9 @@ export function setupEventHandlers(
       socket.broadcast.emit('playerLeft', {
         playerId: socket.id,
       });
+
+      // Broadcast updated leaderboard
+      io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
   });
 }

@@ -178,14 +178,16 @@ export class Renderer implements IRenderer {
         .fill(0x1a3a1a)
         .stroke({ color: 0x7ce97c, width: border });
 
+      const inputStyle = new TextStyle({
+        fill: 0xffffff,
+        fontSize: 22,
+        fontFamily: 'SuperFrog',
+      });
+
       this.nameInput = new Input({
         bg,
-        placeholder: 'Enter your name',
-        textStyle: {
-          fill: 0xffffff,
-          fontSize: 22,
-          fontFamily: 'SuperFrog',
-        },
+        placeholder: 'ENTER YOUR NAME',
+        textStyle: inputStyle,
         align: 'center' as const,
         maxLength: 12,
         padding: {
