@@ -176,6 +176,7 @@ export class GameState {
       width: 1,
       height: 1,
       isAlive: true,
+      score: 0,
     };
     this.players.set(id, player);
     return player;
@@ -197,6 +198,19 @@ export class GameState {
     if (player) {
       player.isAlive = isAlive;
     }
+  }
+
+  updatePlayerScore(id: string, score: number): void {
+    const player = this.players.get(id);
+    if (player) {
+      player.score = score;
+    }
+  }
+
+  getLeaderboard(): Array<{ id: string; name: string; color: number; score: number }> {
+    return Array.from(this.players.values())
+      .map(p => ({ id: p.id, name: p.name, color: p.color, score: p.score }))
+      .sort((a, b) => b.score - a.score);
   }
 
   /**

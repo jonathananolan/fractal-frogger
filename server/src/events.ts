@@ -46,6 +46,9 @@ export function setupEventHandlers(
         color,
         name: playerName,
       });
+
+      // Broadcast updated leaderboard
+      io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
 
     // Handle move event
@@ -80,6 +83,12 @@ export function setupEventHandlers(
       }, 1000);
     });
 
+    // Handle score update
+    socket.on('scoreUpdate', ({ score }) => {
+      gameState.updatePlayerScore(socket.id, score);
+      io.emit('leaderboard', { players: gameState.getLeaderboard() });
+    });
+
     // Handle victory event
     socket.on('victory', () => {
       console.log(`Player won: ${socket.id}`);
@@ -99,6 +108,9 @@ export function setupEventHandlers(
       socket.broadcast.emit('playerLeft', {
         playerId: socket.id,
       });
+
+      // Broadcast updated leaderboard
+      io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
   });
 }

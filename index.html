@@ -21,14 +21,81 @@
         min-height: 100vh;
         background-size: 450px 450px;
       }
+      #game-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 16px;
+      }
       #app {
         width: 600px;
         height: 600px;
+        flex-shrink: 0;
+      }
+      #leaderboard {
+        width: 200px;
+        background: rgba(0, 0, 0, 0.85);
+        border: 2px solid #7ce97c;
+        border-radius: 10px;
+        padding: 16px;
+        color: #fff;
+        font-family: 'SuperFrog', monospace;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+      #leaderboard h2 {
+        text-align: center;
+        color: #7ce97c;
+        font-size: 18px;
+        margin: 0 0 12px 0;
+        letter-spacing: 2px;
+      }
+      #leaderboard-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .leaderboard-entry {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 4px;
+        border-bottom: 1px solid rgba(124, 233, 124, 0.2);
+        font-size: 14px;
+      }
+      .leaderboard-rank {
+        color: #7ce97c;
+        min-width: 20px;
+        text-align: right;
+      }
+      .leaderboard-color-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .leaderboard-name {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .leaderboard-score {
+        color: #ffff44;
+        font-weight: bold;
+        min-width: 40px;
+        text-align: right;
       }
     </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="game-wrapper">
+      <div id="leaderboard">
+        <h2>LEADERBOARD</h2>
+        <ol id="leaderboard-list"></ol>
+      </div>
+      <div id="app"></div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

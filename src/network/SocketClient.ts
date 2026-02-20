@@ -1,7 +1,7 @@
 // SocketClient - handles WebSocket connection to multiplayer server
 
 import { io, Socket } from 'socket.io-client';
-import { Lane } from '../../shared/types';
+import { Lane, LeaderboardEntry } from '../../shared/types';
 
 // Remote player representation
 export interface RemotePlayer {
@@ -10,6 +10,7 @@ export interface RemotePlayer {
   color: number;
   position: { x: number; y: number };
   isAlive: boolean;
+  score: number;
 }
 
 // Event callbacks interface
@@ -21,6 +22,7 @@ export interface SocketCallbacks {
   onPlayerDied: (playerId: string) => void;
   onPlayerWon: (playerId: string) => void;
   onObstacles: (lanes: Lane[]) => void;
+  onLeaderboard: (players: LeaderboardEntry[]) => void;
 }
 
 export class SocketClient {
@@ -103,6 +105,10 @@ export class SocketClient {
     this.socket.on('obstacles', (data) => {
       this.callbacks?.onObstacles(data.lanes);
     });
+
+    this.socket.on('leaderboard', (data) => {
+      this.callbacks?.onLeaderboard(data.players);
+    });
   }
 
   /**
@@ -131,6 +137,13 @@ export class SocketClient {
    */
   sendVictory(): void {
     this.socket?.emit('victory');
+  }
+
+  /**
+   * Send score update to server
+   */
+  sendScoreUpdate(score: number): void {
+    this.socket?.emit('scoreUpdate', { score });
   }
 
   /**

@@ -11,6 +11,7 @@ export interface Player {
   height: number;
   width: number;
   isAlive: boolean;
+  score: number;
 }
 
 export type ObstacleType = 'car' | 'log' | 'turtle';
@@ -103,6 +104,15 @@ export interface ClientToServerEvents {
   move: (payload: { x: number; y: number }) => void;
   death: (payload: { cause: string }) => void;
   victory: () => void;
+  scoreUpdate: (payload: { score: number }) => void;
+}
+
+// Leaderboard entry sent from server to clients
+export interface LeaderboardEntry {
+  id: string;
+  name: string;
+  color: number;
+  score: number;
 }
 
 // Server -> Client events
@@ -114,6 +124,7 @@ export interface ServerToClientEvents {
   playerDied: (payload: { playerId: string }) => void;
   playerWon: (payload: { playerId: string }) => void;
   obstacles: (payload: { lanes: Lane[] }) => void;
+  leaderboard: (payload: { players: LeaderboardEntry[] }) => void;
 }
 
 // Color palette for players

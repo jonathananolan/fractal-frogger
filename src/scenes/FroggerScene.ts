@@ -19,16 +19,15 @@ import { soundManager } from '../audio/SoundManager.js';
 
 // UI
 import { renderStartScreen } from '../ui/StartScreen.js';
-import { renderGameOverScreen } from '../ui/GameOverScreen.js';
-import { renderVictoryScreen } from '../ui/VictoryScreen.js';
 import { renderHUD } from '../ui/HUD.js';
 import { renderHelpOverlay } from '../ui/HelpOverlay.js';
 import { renderDebugPanel } from '../ui/DebugPanel.js';
+import { updateLeaderboard } from '../ui/Leaderboard.js';
 
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { GameData, Lane, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
+import { GameData, Lane, LeaderboardEntry, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
 import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
@@ -73,6 +72,7 @@ export class FroggerScene implements Scene {
   private multiplayerEnabled: boolean = true;
   private remotePlayers: Map<string, RemotePlayer> = new Map();
   private localPlayerColor: number = 0x44ff44;
+  private leaderboardData: LeaderboardEntry[] = [];
 
   //renderer.
   private renderer: Renderer | null = null;
@@ -106,6 +106,7 @@ export class FroggerScene implements Scene {
           color,
           position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
           isAlive: true,
+          score: 0,
         });
         // Play sound when another player joins
         soundManager.playPlayerJoined();
@@ -140,6 +141,10 @@ export class FroggerScene implements Scene {
       },
       onObstacles: (lanes) => {
         this.syncLanesFromServer(lanes);
+      },
+      onLeaderboard: (players) => {
+        this.leaderboardData = players;
+        updateLeaderboard(players, socketClient.playerId);
       },
     });
   }
@@ -452,43 +457,52 @@ export class FroggerScene implements Scene {
       socketClient.sendDeath(cause);
     }
 
-    this.gameData.frog.lives--;
+    // Respawn frog at start
+    this.gameData.frog.position = {
+      x: Math.floor(this.gridSize / 2),
+      y: this.gridSize - 1,
+    };
+    this.gameData.frog.isOnLog = false;
 
-    if (this.gameData.frog.lives <= 0) {
-      this.state = 'gameOver';
-      soundManager.stopMusic();
-    } else {
-      // Respawn frog at start
-      this.gameData.frog.position = {
-        x: Math.floor(this.gridSize / 2),
-        y: this.gridSize - 1,
-      };
-      this.gameData.frog.isOnLog = false;
-
-      // Send respawn position to server
-      if (socketClient.isConnected) {
-        socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
-      }
+    // Send respawn position to server
+    if (socketClient.isConnected) {
+      socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
     }
   }
 
   private handleVictory(): void {
     this.gameData.score += 100;
-    this.state = 'victory';
 
-    // Play victory sound and stop music
+    // Play victory sound
     soundManager.playVictory();
-    soundManager.stopMusic();
 
     // Notify server of victory
     if (socketClient.isConnected) {
       socketClient.sendVictory();
+      socketClient.sendScoreUpdate(this.gameData.score);
+    }
+
+    // Respawn frog at start
+    this.gameData.frog.position = {
+      x: Math.floor(this.gridSize / 2),
+      y: this.gridSize - 1,
+    };
+    this.gameData.frog.isOnLog = false;
+
+    // Send respawn position to server
+    if (socketClient.isConnected) {
+      socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
     }
   }
 
   private handlePrizeCollected(prize: import('../../shared/types.js').Prize): void {
     console.log(`Collected ${prize.type}! +${prize.value} points`);
     this.gameData.score += prize.value;
+
+    // Send score update to server
+    if (socketClient.isConnected) {
+      socketClient.sendScoreUpdate(this.gameData.score);
+    }
 
     // Butterfly and crystal grant invincibility
     if (prize.type === 'butterfly' || prize.type === 'crystal') {
@@ -513,16 +527,6 @@ export class FroggerScene implements Scene {
         if (this.showHelp) renderHelpOverlay(renderer);
         if (this.showDebug) renderDebugPanel(renderer, this.getDebugData());
         break;
-
-      case 'gameOver':
-        this.renderGame(renderer);
-        renderGameOverScreen(renderer, this.gameData.score);
-        break;
-
-      case 'victory':
-        this.renderGame(renderer);
-        renderVictoryScreen(renderer, this.gameData.score);
-        break;
     }
   }
 
@@ -546,7 +550,7 @@ export class FroggerScene implements Scene {
     this.renderFrog(renderer);
 
     // Render HUD
-    renderHUD(renderer, this.gameData.frog.lives, this.gameData.score);
+    renderHUD(renderer, this.gameData.score);
   }
 
   private renderLanes(renderer: Renderer): void {
@@ -676,10 +680,6 @@ export class FroggerScene implements Scene {
         soundManager.unlock(); // Ensure audio context is unlocked
         soundManager.playGameStart();
         soundManager.startMusic();
-      } else if (this.state === 'gameOver' || this.state === 'victory') {
-        this.resetGame();
-        this.state = 'start';
-        soundManager.playRestart();
       } else if (this.state === 'playing') {
         // Shoot tongue during gameplay
         this.tongueSystem.shoot(this.gameData.frog.position);
