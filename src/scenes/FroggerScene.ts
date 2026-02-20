@@ -7,6 +7,9 @@ import type { Scene, GameContext, Renderer, GameState, DebugData } from '../engi
 import { MovementSystem } from '../systems/MovementSystem.js';
 import { CollisionSystem } from '../systems/CollisionSystem.js';
 import { SpawnSystem } from '../systems/SpawnSystem.js';
+import { PrizeSystem } from '../prizes/PrizeSystem.js';
+import { TongueSystem } from '../systems/TongueSystem.js';
+import { loadPrizeSprites } from '../prizes/PrizeRegistry.js';
 
 // Network
 import { socketClient, RemotePlayer } from '../network/SocketClient.js';
@@ -26,12 +29,12 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
 import { GameData, Lane, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
-import { loadSprites, loadBackground, loadVehicleSprites } from '../sprites.js';
+import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
 loadSprites();
 loadBackground();
-loadSprites();
+loadPrizeSprites();
 
 // Direction mapping
 const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
@@ -56,6 +59,11 @@ export class FroggerScene implements Scene {
   private movementSystem = new MovementSystem();
   private collisionSystem = new CollisionSystem();
   private spawnSystem = new SpawnSystem();
+  private prizeSystem!: PrizeSystem;
+  private tongueSystem = new TongueSystem();
+
+  // Invincibility duration in ticks (~5 seconds at 20 ticks/sec)
+  private static readonly INVINCIBILITY_DURATION = 100;
 
   // UI toggles
   private showHelp: boolean = false;
@@ -71,6 +79,7 @@ export class FroggerScene implements Scene {
 
   init(context: GameContext): void {
     this.gridSize = context.gridSize;
+    this.prizeSystem = new PrizeSystem(this.gridSize);
     this.resetGame();
     this.connectToServer();
   }
@@ -160,6 +169,8 @@ export class FroggerScene implements Scene {
         isAlive: true,
         isOnLog: false,
         color: this.localPlayerColor,
+        isInvincible: false,
+        invincibilityEndTick: 0,
       },
       lanes: this.createLanes(),
       score: 0,
@@ -167,6 +178,8 @@ export class FroggerScene implements Scene {
       level: 1,
     };
     this.tickCount = 0;
+    this.prizeSystem?.reset();
+    this.tongueSystem?.reset();
 
     // TEST: Add a car to see it render (remove later)
     const roadLane = this.gameData.lanes.find((l) => l.y === 17);
@@ -383,13 +396,43 @@ export class FroggerScene implements Scene {
       this.movementSystem.update(this.gameData, dt, this.gridSize);
     }
 
+    // Update prize system (spawn/expire prizes)
+    this.prizeSystem.update(this.gridSize);
+
+    // Update tongue system
+    this.tongueSystem.update();
+
+    // Check for tongue catching prizes
+    const tongueCatch = this.tongueSystem.checkPrizeCollision(this.prizeSystem.getActivePrizes());
+    if (tongueCatch) {
+      this.handlePrizeCollected(tongueCatch);
+    }
+
+    // Check for frog walking over prizes
+    const prizeCollision = this.prizeSystem.checkCollision(
+      this.gameData.frog.position.x,
+      this.gameData.frog.position.y,
+    );
+    if (prizeCollision) {
+      this.handlePrizeCollected(prizeCollision.prize);
+    }
+
+    // Check invincibility expiration
+    if (this.gameData.frog.isInvincible && this.tickCount >= this.gameData.frog.invincibilityEndTick) {
+      this.gameData.frog.isInvincible = false;
+      console.log('Invincibility expired!');
+    }
+
     const collision = this.collisionSystem.update(this.gameData);
 
     // Handle collision results
     switch (collision.type) {
       case 'car':
       case 'water':
-        this.handleDeath(collision.type);
+        // Skip death if invincible
+        if (!this.gameData.frog.isInvincible) {
+          this.handleDeath(collision.type);
+        }
         break;
       case 'log':
         this.gameData.frog.isOnLog = true;
@@ -448,6 +491,18 @@ export class FroggerScene implements Scene {
     }
   }
 
+  private handlePrizeCollected(prize: import('../../shared/types.js').Prize): void {
+    console.log(`Collected ${prize.type}! +${prize.value} points`);
+    this.gameData.score += prize.value;
+
+    // Butterfly and crystal grant invincibility
+    if (prize.type === 'butterfly' || prize.type === 'crystal') {
+      this.gameData.frog.isInvincible = true;
+      this.gameData.frog.invincibilityEndTick = this.tickCount + FroggerScene.INVINCIBILITY_DURATION;
+      console.log(`Invincibility activated! Ends at tick ${this.gameData.frog.invincibilityEndTick}`);
+    }
+  }
+
   render(renderer: Renderer): void {
     this.renderer = renderer;
     renderer.clear();
@@ -483,8 +538,14 @@ export class FroggerScene implements Scene {
     // Render obstacles
     this.renderObstacles(renderer);
 
+    // Render prizes
+    this.renderPrizes(renderer);
+
     // Render remote players
     this.renderRemotePlayers(renderer);
+
+    // Render tongue (before frog so it appears to come from mouth)
+    this.renderTongue(renderer);
 
     // Render local frog
     this.renderFrog(renderer);
@@ -565,6 +626,16 @@ export class FroggerScene implements Scene {
     }
   }
 
+  private renderPrizes(renderer: Renderer): void {
+    for (const prize of this.prizeSystem.getActivePrizes()) {
+      // Hover animation - bob up and down using sine wave
+      // Use prize spawn time to offset phase so prizes don't all move in sync
+      const hoverPhase = (this.tickCount + prize.spawnTime) * 0.15;
+      const hoverOffset = Math.sin(hoverPhase) * 0.15; // 0.15 cells amplitude
+      renderer.drawPrize(prize.position.x, prize.position.y + hoverOffset, prize.type);
+    }
+  }
+
   private renderRemotePlayers(renderer: Renderer): void {
     for (const player of this.remotePlayers.values()) {
       if (player.isAlive) {
@@ -577,7 +648,14 @@ export class FroggerScene implements Scene {
 
   private renderFrog(renderer: Renderer): void {
     const { x, y } = this.gameData.frog.position;
-    renderer.drawPlayer(x, y, this.gameData.frog.color);
+    renderer.drawPlayer(x, y, this.gameData.frog.color, this.gameData.frog.isInvincible);
+  }
+
+  private renderTongue(renderer: Renderer): void {
+    const tongue = this.tongueSystem.getTongue();
+    if (tongue.active) {
+      renderer.drawTongue(tongue, this.gameData.frog.color);
+    }
   }
 
   private getDebugData(): DebugData {
@@ -593,7 +671,7 @@ export class FroggerScene implements Scene {
   }
 
   onKeyDown(key: string): void {
-    // SPACE: Start / Restart
+    // SPACE: Start / Restart / Shoot tongue
     if (key === 'Space') {
       console.log('space hit');
       if (this.state === 'start' && this.renderer?.getNameValue() !== '') {
@@ -606,6 +684,9 @@ export class FroggerScene implements Scene {
         this.resetGame();
         this.state = 'start';
         soundManager.playRestart();
+      } else if (this.state === 'playing') {
+        // Shoot tongue during gameplay
+        this.tongueSystem.shoot(this.gameData.frog.position);
       }
       return;
     }
