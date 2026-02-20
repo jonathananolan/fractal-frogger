@@ -7,6 +7,8 @@ import { GameData } from '../../shared/types';
 //import { SIZE_TO_WIDTH } from '../entities/types.js';
 
 export class MovementSystem {
+  // Track the last known log position to calculate delta movement
+  private lastLogX: number | null = null;
   /**
    * Move the frog one cell in the given direction.
    * Returns true if move was valid, false if blocked (edge of grid).
@@ -66,19 +68,26 @@ export class MovementSystem {
       }
     }
 
-    // if frog on log, move frog
+    // if frog on log, move frog by tracking log's actual position change
     if (gameData.frog.isOnLog) {
-      // get frog's log
       const logId = gameData.frog.currentLogId as string;
       const log = gameData.lanes.flatMap((l) => l.obstacles).find((o) => o.id === logId);
 
-      // update frog's position
-      //const frogVelocity = log.direction * log.speed
       if (log) {
-        gameData.frog.position.x += log.velocity * dt;
+        // If we have a previous log position, move frog by the same delta
+        if (this.lastLogX !== null) {
+          const logDelta = log.position.x - this.lastLogX;
+          gameData.frog.position.x += logDelta;
+        }
+        // Remember current log position for next frame
+        this.lastLogX = log.position.x;
       } else {
-        throw new Error('no log found');
+        // Log disappeared (went off screen), reset tracking
+        this.lastLogX = null;
       }
+    } else {
+      // Frog not on log, reset tracking
+      this.lastLogX = null;
     }
   }
 }

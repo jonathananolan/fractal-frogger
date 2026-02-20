@@ -236,7 +236,7 @@ export class GameState {
       speed: 0,
     });
 
-    // Water lanes (rows 7-11)
+    // Water lanes (rows 8-11)
     lanes.push({
       y: 11,
       type: 'water',
@@ -269,26 +269,78 @@ export class GameState {
       direction: 1,
       speed: 0.35,
     });
+
+    // Safe middle (row 7)
     lanes.push({
       y: 7,
-      type: 'water',
+      type: 'safe',
+      obstacles: [],
+      spawnRate: 0,
+      direction: 1,
+      speed: 0,
+    });
+
+    // Safe zone (row 6) - buffer between water and upper road
+    lanes.push({
+      y: 6,
+      type: 'safe',
+      obstacles: [],
+      spawnRate: 0,
+      direction: 1,
+      speed: 0,
+    });
+
+    // Second road lanes (rows 1-5) - 5 lanes
+    lanes.push({
+      y: 5,
+      type: 'road',
       obstacles: [],
       spawnRate: 28,
+      direction: -1,
+      speed: 0.35,
+    });
+    lanes.push({
+      y: 4,
+      type: 'road',
+      obstacles: [],
+      spawnRate: 20,
+      direction: 1,
+      speed: 0.5,
+    });
+    lanes.push({
+      y: 3,
+      type: 'road',
+      obstacles: [],
+      spawnRate: 25,
+      direction: -1,
+      speed: 0.4,
+    });
+    lanes.push({
+      y: 2,
+      type: 'road',
+      obstacles: [],
+      spawnRate: 18,
+      direction: 1,
+      speed: 0.55,
+    });
+    lanes.push({
+      y: 1,
+      type: 'road',
+      obstacles: [],
+      spawnRate: 30,
       direction: -1,
       speed: 0.3,
     });
 
-    // Goal zone (rows 0-6)
-    for (let y = 0; y <= 6; y++) {
-      lanes.push({
-        y,
-        type: 'goal',
-        obstacles: [],
-        spawnRate: 0,
-        direction: 1,
-        speed: 0,
-      });
-    }
+    // Goal zone (row 0)
+    lanes.push({
+      y: 0,
+      type: 'goal',
+      obstacles: [],
+      spawnRate: 0,
+      direction: 1,
+      speed: 0,
+    });
 
     return lanes;
   }
@@ -437,9 +489,9 @@ export class GameState {
     const id = `obstacle-${this.obstacleIdCounter++}`;
     const isRoad = lane.type === 'road';
 
-    // Pick a random vehicle size (logs default to "m" for now)
+    // Pick a random size for both vehicles and logs
     const sizes: VehicleSize[] = ['s', 'm', 'l', 'xl'];
-    const size: VehicleSize = isRoad ? sizes[Math.floor(Math.random() * sizes.length)] : 'm';
+    const size: VehicleSize = sizes[Math.floor(Math.random() * sizes.length)];
 
     // Pick a random sprite for road obstacles
     let sprite: SpriteData | undefined;
@@ -448,14 +500,14 @@ export class GameState {
       sprite = candidates[Math.floor(Math.random() * candidates.length)];
     }
 
-    const width = SIZE_TO_WIDTH[size];
+    const width = sprite ? sprite.length / SPRITE_BASE_PX : SIZE_TO_WIDTH[size];
     const x = lane.direction === 1 ? -width : GRID_SIZE;
 
     return {
       id,
       position: { x, y: lane.y },
       height: 1,
-      width: sprite ? sprite.length / SPRITE_BASE_PX : SIZE_TO_WIDTH[size],
+      width,
       size,
       velocity: lane.speed * lane.direction,
       type: isRoad ? 'car' : 'log',

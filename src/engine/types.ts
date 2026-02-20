@@ -24,6 +24,7 @@ export interface Renderer {
   ): void;
   drawKeyCap(label: string, x: number, y: number, width: number, height: number): void;
   drawVehicle(gridX: number, gridY: number, size: VehicleSize, sprite: SpriteData): void;
+  drawLog(gridX: number, gridY: number, widthCells: number): void;
   drawPlayer(gridX: number, gridY: number, color: number, isInvincible?: boolean): void;
   drawPrize(gridX: number, gridY: number, prizeType: PrizeType): void;
   drawTongue(tongue: Tongue, frogColor: number): void;

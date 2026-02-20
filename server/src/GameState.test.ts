@@ -27,13 +27,11 @@ describe('GameState', () => {
       });
     });
 
-    it('creates road lanes (y=13-17)', () => {
+    it('creates road lanes (y=1-6 and y=13-17)', () => {
       const lanes = gameState.getLanes();
       const roadLanes = lanes.filter((l) => l.type === 'road');
-      expect(roadLanes).toHaveLength(5);
+      expect(roadLanes).toHaveLength(11); // 5 lower + 6 upper
       roadLanes.forEach((lane) => {
-        expect(lane.y).toBeGreaterThanOrEqual(13);
-        expect(lane.y).toBeLessThanOrEqual(17);
         expect(lane.spawnRate).toBeGreaterThan(0);
         expect(lane.speed).toBeGreaterThan(0);
       });
@@ -46,27 +44,24 @@ describe('GameState', () => {
       expect(middleSafe!.type).toBe('safe');
     });
 
-    it('creates water lanes (y=7-11)', () => {
+    it('creates water lanes (y=8-11)', () => {
       const lanes = gameState.getLanes();
       const waterLanes = lanes.filter((l) => l.type === 'water');
-      expect(waterLanes).toHaveLength(5);
+      expect(waterLanes).toHaveLength(4);
       waterLanes.forEach((lane) => {
-        expect(lane.y).toBeGreaterThanOrEqual(7);
+        expect(lane.y).toBeGreaterThanOrEqual(8);
         expect(lane.y).toBeLessThanOrEqual(11);
         expect(lane.spawnRate).toBeGreaterThan(0);
         expect(lane.speed).toBeGreaterThan(0);
       });
     });
 
-    it('creates goal zone (y=0-6)', () => {
+    it('creates goal zone (y=0)', () => {
       const lanes = gameState.getLanes();
       const goalLanes = lanes.filter((l) => l.type === 'goal');
-      expect(goalLanes).toHaveLength(7);
-      goalLanes.forEach((lane) => {
-        expect(lane.y).toBeGreaterThanOrEqual(0);
-        expect(lane.y).toBeLessThanOrEqual(6);
-        expect(lane.spawnRate).toBe(0);
-      });
+      expect(goalLanes).toHaveLength(1);
+      expect(goalLanes[0].y).toBe(0);
+      expect(goalLanes[0].spawnRate).toBe(0);
     });
 
     it('alternates lane directions', () => {

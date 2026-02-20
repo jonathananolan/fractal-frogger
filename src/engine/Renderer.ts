@@ -3,7 +3,7 @@ import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle, Blur
 import type { Renderer as IRenderer } from './types.js';
 import { CELL_SIZE, SPRITE_BASE_PX, CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
 import { PrizeType, SpriteData, VehicleSize, Tongue } from '../../shared/types.js';
-import { SPRITE_PATH, BACKGROUND_PATH } from '../sprites.js';
+import { SPRITE_PATH, BACKGROUND_PATH, LOG_SPRITES } from '../sprites.js';
 import { getPrizeSpritePath } from '../prizes/PrizeRegistry.js';
 export class Renderer implements IRenderer {
   private app: Application;
@@ -84,6 +84,42 @@ export class Renderer implements IRenderer {
 
     // render sprite
     this.drawContainer.addChild(pixiSprite);
+  }
+
+  drawLog(gridX: number, gridY: number, widthCells: number): void {
+    const leftTexture = Assets.get(SPRITE_PATH + LOG_SPRITES.left);
+    const middleTexture = Assets.get(SPRITE_PATH + LOG_SPRITES.middle);
+    const rightTexture = Assets.get(SPRITE_PATH + LOG_SPRITES.right);
+
+    // End caps are 1 cell wide each, middle fills the rest
+    const endCapWidth = CELL_SIZE;
+    const middleWidth = Math.max(0, widthCells * CELL_SIZE - 2 * endCapWidth);
+
+    // Draw left end
+    const leftSprite = new Sprite(leftTexture);
+    leftSprite.x = gridX * CELL_SIZE;
+    leftSprite.y = gridY * CELL_SIZE;
+    leftSprite.width = endCapWidth;
+    leftSprite.height = CELL_SIZE;
+    this.drawContainer.addChild(leftSprite);
+
+    // Draw middle (stretched)
+    if (middleWidth > 0) {
+      const middleSprite = new Sprite(middleTexture);
+      middleSprite.x = gridX * CELL_SIZE + endCapWidth;
+      middleSprite.y = gridY * CELL_SIZE;
+      middleSprite.width = middleWidth;
+      middleSprite.height = CELL_SIZE;
+      this.drawContainer.addChild(middleSprite);
+    }
+
+    // Draw right end
+    const rightSprite = new Sprite(rightTexture);
+    rightSprite.x = gridX * CELL_SIZE + endCapWidth + middleWidth;
+    rightSprite.y = gridY * CELL_SIZE;
+    rightSprite.width = endCapWidth;
+    rightSprite.height = CELL_SIZE;
+    this.drawContainer.addChild(rightSprite);
   }
 
   drawPlayer(gridX: number, gridY: number, color: number, isInvincible?: boolean): void {
