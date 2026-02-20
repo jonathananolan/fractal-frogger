@@ -666,7 +666,7 @@ export class FroggerScene implements Scene {
           );
         } else {
           // Render log with sprites
-          renderer.drawLog(obstacle.position.x, obstacle.position.y, obstacle.width);
+          renderer.drawLog(obstacle.position.x, obstacle.position.y, obstacle.width, lane.direction);
         }
       }
     }

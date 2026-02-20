@@ -86,7 +86,7 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(pixiSprite);
   }
 
-  drawLog(gridX: number, gridY: number, widthCells: number): void {
+  drawLog(gridX: number, gridY: number, widthCells: number, direction: 1 | -1 = -1): void {
     const leftTexture = Assets.get(SPRITE_PATH + LOG_SPRITES.left);
     const middleTexture = Assets.get(SPRITE_PATH + LOG_SPRITES.middle);
     const rightTexture = Assets.get(SPRITE_PATH + LOG_SPRITES.right);
@@ -95,30 +95,51 @@ export class Renderer implements IRenderer {
     const endCapWidth = CELL_SIZE;
     const middleWidth = Math.max(0, widthCells * CELL_SIZE - 2 * endCapWidth);
 
-    // Draw left end
-    const leftSprite = new Sprite(leftTexture);
+    // For right-moving logs (direction 1), flip order and rotate each sprite 180 degrees
+    const movingRight = direction === 1;
+
+    // Draw left end (or right end flipped if moving right)
+    const leftSprite = new Sprite(movingRight ? rightTexture : leftTexture);
     leftSprite.x = gridX * CELL_SIZE;
     leftSprite.y = gridY * CELL_SIZE;
     leftSprite.width = endCapWidth;
     leftSprite.height = CELL_SIZE;
+    if (movingRight) {
+      leftSprite.anchor.set(0.5, 0.5);
+      leftSprite.rotation = Math.PI;
+      leftSprite.x += endCapWidth / 2;
+      leftSprite.y += CELL_SIZE / 2;
+    }
     this.drawContainer.addChild(leftSprite);
 
-    // Draw middle (stretched)
+    // Draw middle (stretched, rotated if moving right)
     if (middleWidth > 0) {
       const middleSprite = new Sprite(middleTexture);
       middleSprite.x = gridX * CELL_SIZE + endCapWidth;
       middleSprite.y = gridY * CELL_SIZE;
       middleSprite.width = middleWidth;
       middleSprite.height = CELL_SIZE;
+      if (movingRight) {
+        middleSprite.anchor.set(0.5, 0.5);
+        middleSprite.rotation = Math.PI;
+        middleSprite.x += middleWidth / 2;
+        middleSprite.y += CELL_SIZE / 2;
+      }
       this.drawContainer.addChild(middleSprite);
     }
 
-    // Draw right end
-    const rightSprite = new Sprite(rightTexture);
+    // Draw right end (or left end flipped if moving right)
+    const rightSprite = new Sprite(movingRight ? leftTexture : rightTexture);
     rightSprite.x = gridX * CELL_SIZE + endCapWidth + middleWidth;
     rightSprite.y = gridY * CELL_SIZE;
     rightSprite.width = endCapWidth;
     rightSprite.height = CELL_SIZE;
+    if (movingRight) {
+      rightSprite.anchor.set(0.5, 0.5);
+      rightSprite.rotation = Math.PI;
+      rightSprite.x += endCapWidth / 2;
+      rightSprite.y += CELL_SIZE / 2;
+    }
     this.drawContainer.addChild(rightSprite);
   }
 
