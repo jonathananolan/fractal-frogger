@@ -142,11 +142,6 @@ export class FroggerScene implements Scene {
         this.syncLanesFromServer(lanes);
       },
     });
-
-    // Join once connected
-    setTimeout(() => {
-      socketClient.join();
-    }, 100);
   }
 
   private syncLanesFromServer(serverLanes: Lane[]): void {
@@ -675,6 +670,7 @@ export class FroggerScene implements Scene {
     if (key === 'Space') {
       console.log('space hit');
       if (this.state === 'start' && this.renderer?.getNameValue() !== '') {
+        socketClient.join(this.renderer?.getNameValue());
         this.renderer?.hideInput();
         this.state = 'playing';
         soundManager.unlock(); // Ensure audio context is unlocked
