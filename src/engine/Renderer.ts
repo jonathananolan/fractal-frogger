@@ -1,8 +1,9 @@
 import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle } from 'pixi.js';
 import type { Renderer as IRenderer } from './types.js';
 import { CELL_SIZE, SPRITE_BASE_PX, CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
-import { SpriteData, VehicleSize } from '../../shared/types.js';
+import { PrizeType, SpriteData, VehicleSize } from '../../shared/types.js';
 import { SPRITE_PATH, BACKGROUND_PATH } from '../sprites.js';
+import { getPrizeSpritePath } from '../prizes/PrizeRegistry.js';
 export class Renderer implements IRenderer {
   private app: Application;
   private drawContainer: Container;
@@ -89,6 +90,17 @@ export class Renderer implements IRenderer {
     frogSprite.height = CELL_SIZE;
     frogSprite.tint = color;
     this.drawContainer.addChild(frogSprite);
+  }
+
+  drawPrize(gridX: number, gridY: number, prizeType: PrizeType): void {
+    const spritePath = getPrizeSpritePath(prizeType);
+    const texture = Assets.get(spritePath);
+    const prizeSprite = new Sprite(texture);
+    prizeSprite.x = gridX * CELL_SIZE;
+    prizeSprite.y = gridY * CELL_SIZE;
+    prizeSprite.width = CELL_SIZE;
+    prizeSprite.height = CELL_SIZE;
+    this.drawContainer.addChild(prizeSprite);
   }
 
   drawBackground(path?: string): void {

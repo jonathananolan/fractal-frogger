@@ -7,6 +7,8 @@ import type { Scene, GameContext, Renderer, GameState, DebugData } from '../engi
 import { MovementSystem } from '../systems/MovementSystem.js';
 import { CollisionSystem } from '../systems/CollisionSystem.js';
 import { SpawnSystem } from '../systems/SpawnSystem.js';
+import { PrizeSystem } from '../prizes/PrizeSystem.js';
+import { loadPrizeSprites, getPrizeConfig } from '../prizes/PrizeRegistry.js';
 
 // Network
 import { socketClient, RemotePlayer } from '../network/SocketClient.js';
@@ -26,12 +28,12 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
 import { GameData, Lane, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
-import { loadSprites, loadBackground, loadVehicleSprites } from '../sprites.js';
+import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
 loadSprites();
 loadBackground();
-loadSprites();
+loadPrizeSprites();
 
 // Direction mapping
 const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
@@ -56,6 +58,7 @@ export class FroggerScene implements Scene {
   private movementSystem = new MovementSystem();
   private collisionSystem = new CollisionSystem();
   private spawnSystem = new SpawnSystem();
+  private prizeSystem!: PrizeSystem;
 
   // UI toggles
   private showHelp: boolean = false;
@@ -68,6 +71,7 @@ export class FroggerScene implements Scene {
 
   init(context: GameContext): void {
     this.gridSize = context.gridSize;
+    this.prizeSystem = new PrizeSystem(this.gridSize);
     this.resetGame();
     this.connectToServer();
   }
@@ -164,6 +168,7 @@ export class FroggerScene implements Scene {
       level: 1,
     };
     this.tickCount = 0;
+    this.prizeSystem?.reset();
 
     // TEST: Add a car to see it render (remove later)
     const roadLane = this.gameData.lanes.find((l) => l.y === 17);
@@ -380,6 +385,22 @@ export class FroggerScene implements Scene {
       this.movementSystem.update(this.gameData, dt, this.gridSize);
     }
 
+    // Update prize system (spawn/expire prizes)
+    this.prizeSystem.update(this.gridSize);
+
+    // Check for prize collection
+    const prizeCollision = this.prizeSystem.checkCollision(
+      this.gameData.frog.position.x,
+      this.gameData.frog.position.y,
+    );
+    if (prizeCollision) {
+      const config = getPrizeConfig(prizeCollision.prize.type);
+      console.log(
+        `Collected ${prizeCollision.prize.type}! +${prizeCollision.prize.value} points`,
+      );
+      this.gameData.score += prizeCollision.prize.value;
+    }
+
     const collision = this.collisionSystem.update(this.gameData);
 
     // Handle collision results
@@ -478,6 +499,9 @@ export class FroggerScene implements Scene {
     // Render obstacles
     this.renderObstacles(renderer);
 
+    // Render prizes
+    this.renderPrizes(renderer);
+
     // Render remote players
     this.renderRemotePlayers(renderer);
 
@@ -557,6 +581,16 @@ export class FroggerScene implements Scene {
           );
         }
       }
+    }
+  }
+
+  private renderPrizes(renderer: Renderer): void {
+    for (const prize of this.prizeSystem.getActivePrizes()) {
+      // Hover animation - bob up and down using sine wave
+      // Use prize spawn time to offset phase so prizes don't all move in sync
+      const hoverPhase = (this.tickCount + prize.spawnTime) * 0.15;
+      const hoverOffset = Math.sin(hoverPhase) * 0.15; // 0.15 cells amplitude
+      renderer.drawPrize(prize.position.x, prize.position.y + hoverOffset, prize.type);
     }
   }
 
