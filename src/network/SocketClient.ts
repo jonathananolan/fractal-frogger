@@ -1,26 +1,14 @@
 // SocketClient - handles WebSocket connection to multiplayer server
 
 import { io, Socket } from 'socket.io-client';
-import { Lane } from '../../shared/types';
-
-// Remote player representation
-export interface RemotePlayer {
-  id: string;
-  name: string;
-  color: number;
-  position: { x: number; y: number };
-  isAlive: boolean;
-}
+import { Direction, ServerGameState } from '../../shared/types';
 
 // Event callbacks interface
 export interface SocketCallbacks {
-  onWelcome: (playerId: string, color: number, players: RemotePlayer[], lanes: Lane[]) => void;
+  onWelcome: (playerId: string, color: number) => void;
   onPlayerJoined: (playerId: string, color: number, name: string) => void;
   onPlayerLeft: (playerId: string) => void;
-  onPlayerMoved: (playerId: string, x: number, y: number) => void;
-  onPlayerDied: (playerId: string) => void;
-  onPlayerWon: (playerId: string) => void;
-  onObstacles: (lanes: Lane[]) => void;
+  onGameState: (state: ServerGameState) => void;
 }
 
 export class SocketClient {
@@ -73,7 +61,7 @@ export class SocketClient {
       this._playerId = data.playerId;
       this._playerColor = data.color;
       console.log(`Welcome! Player ID: ${data.playerId}, Color: ${data.color.toString(16)}`);
-      this.callbacks?.onWelcome(data.playerId, data.color, data.players, data.lanes);
+      this.callbacks?.onWelcome(data.playerId, data.color);
     });
 
     this.socket.on('playerJoined', (data) => {
@@ -86,22 +74,9 @@ export class SocketClient {
       this.callbacks?.onPlayerLeft(data.playerId);
     });
 
-    this.socket.on('playerMoved', (data) => {
-      this.callbacks?.onPlayerMoved(data.playerId, data.x, data.y);
-    });
-
-    this.socket.on('playerDied', (data) => {
-      console.log(`Player died: ${data.playerId}`);
-      this.callbacks?.onPlayerDied(data.playerId);
-    });
-
-    this.socket.on('playerWon', (data) => {
-      console.log(`Player won: ${data.playerId}`);
-      this.callbacks?.onPlayerWon(data.playerId);
-    });
-
-    this.socket.on('obstacles', (data) => {
-      this.callbacks?.onObstacles(data.lanes);
+    this.socket.on('gameState', (data) => {
+      console.log(`gameState data: ${data}`);
+      this.callbacks?.onGameState(data);
     });
   }
 
@@ -112,25 +87,8 @@ export class SocketClient {
     this.socket?.emit('join', { name });
   }
 
-  /**
-   * Send local player position
-   */
-  sendMove(x: number, y: number): void {
-    this.socket?.emit('move', { x, y });
-  }
-
-  /**
-   * Notify server of death
-   */
-  sendDeath(cause: string): void {
-    this.socket?.emit('death', { cause });
-  }
-
-  /**
-   * Notify server of victory
-   */
-  sendVictory(): void {
-    this.socket?.emit('victory');
+  sendInput(direction: Direction): void {
+    this.socket?.emit('input', { direction });
   }
 
   /**

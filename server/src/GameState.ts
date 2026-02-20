@@ -189,41 +189,41 @@ export class GameState {
       y: 17,
       type: 'road',
       obstacles: [],
-      spawnRate: 20,
+      spawnRate: 40,
       direction: 1,
-      speed: 0.5,
+      speed: 0.25,
     });
     lanes.push({
       y: 16,
       type: 'road',
       obstacles: [],
-      spawnRate: 25,
+      spawnRate: 48,
       direction: -1,
-      speed: 0.3,
+      speed: 0.15,
     });
     lanes.push({
       y: 15,
       type: 'road',
       obstacles: [],
-      spawnRate: 18,
+      spawnRate: 36,
       direction: 1,
-      speed: 0.4,
+      speed: 0.2,
     });
     lanes.push({
       y: 14,
       type: 'road',
       obstacles: [],
-      spawnRate: 22,
+      spawnRate: 44,
       direction: -1,
-      speed: 0.6,
+      speed: 0.5,
     });
     lanes.push({
       y: 13,
       type: 'road',
       obstacles: [],
-      spawnRate: 30,
+      spawnRate: 60,
       direction: 1,
-      speed: 0.35,
+      speed: 0.15,
     });
 
     // Safe middle (row 12)
@@ -241,41 +241,41 @@ export class GameState {
       y: 11,
       type: 'water',
       obstacles: [],
-      spawnRate: 25,
+      spawnRate: 48,
       direction: -1,
-      speed: 0.3,
+      speed: 0.15,
     });
     lanes.push({
       y: 10,
       type: 'water',
       obstacles: [],
-      spawnRate: 20,
+      spawnRate: 40,
       direction: 1,
-      speed: 0.4,
+      speed: 0.2,
     });
     lanes.push({
       y: 9,
       type: 'water',
       obstacles: [],
-      spawnRate: 30,
+      spawnRate: 60,
       direction: -1,
-      speed: 0.25,
+      speed: 0.1,
     });
     lanes.push({
       y: 8,
       type: 'water',
       obstacles: [],
-      spawnRate: 22,
+      spawnRate: 44,
       direction: 1,
-      speed: 0.35,
+      speed: 0.15,
     });
     lanes.push({
       y: 7,
       type: 'water',
       obstacles: [],
-      spawnRate: 28,
+      spawnRate: 55,
       direction: -1,
-      speed: 0.3,
+      speed: 0.15,
     });
 
     // Goal zone (rows 0-6)

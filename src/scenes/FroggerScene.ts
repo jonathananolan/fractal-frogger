@@ -3,21 +3,14 @@
 
 import type { Scene, GameContext, Renderer, GameState, DebugData } from '../engine/types.js';
 
-// Systems
-import { MovementSystem } from '../systems/MovementSystem.js';
-import { CollisionSystem } from '../systems/CollisionSystem.js';
-import { SpawnSystem } from '../systems/SpawnSystem.js';
-
 // Network
-import { socketClient, RemotePlayer } from '../network/SocketClient.js';
+import { socketClient } from '../network/SocketClient.js';
 
 // Audio
 import { soundManager } from '../audio/SoundManager.js';
 
 // UI
 import { renderStartScreen } from '../ui/StartScreen.js';
-import { renderGameOverScreen } from '../ui/GameOverScreen.js';
-import { renderVictoryScreen } from '../ui/VictoryScreen.js';
 import { renderHUD } from '../ui/HUD.js';
 import { renderHelpOverlay } from '../ui/HelpOverlay.js';
 import { renderDebugPanel } from '../ui/DebugPanel.js';
@@ -25,13 +18,12 @@ import { renderDebugPanel } from '../ui/DebugPanel.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { GameData, Lane, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
-import { loadSprites, loadBackground, loadVehicleSprites } from '../sprites.js';
+import { ServerGameState, Direction } from '../../shared/types.js';
+import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
 loadSprites();
 loadBackground();
-loadSprites();
 
 // Direction mapping
 const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
@@ -47,431 +39,74 @@ const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
 
 export class FroggerScene implements Scene {
   // Game state
-  private state: GameState = 'start';
-  private gameData!: GameData;
   private gridSize: number = GRID_SIZE;
   private tickCount: number = 0;
-
-  // Systems
-  private movementSystem = new MovementSystem();
-  private collisionSystem = new CollisionSystem();
-  private spawnSystem = new SpawnSystem();
 
   // UI toggles
   private showHelp: boolean = false;
   private showDebug: boolean = false;
 
-  // Multiplayer state
-  private multiplayerEnabled: boolean = true;
-  private remotePlayers: Map<string, RemotePlayer> = new Map();
+  private serverGameState: ServerGameState | null = null;
+  private localPlayerId: string | null = null;
   private localPlayerColor: number = 0x44ff44;
 
+  private state: 'start' | 'playing' = 'start';
+
   init(context: GameContext): void {
-    this.gridSize = context.gridSize;
     this.resetGame();
     this.connectToServer();
   }
 
   private connectToServer(): void {
-    if (!this.multiplayerEnabled) return;
-
     socketClient.connect(SERVER_URL, {
-      onWelcome: (playerId, color, players, lanes) => {
+      onWelcome: (playerId, color) => {
+        this.localPlayerId = playerId;
         this.localPlayerColor = color;
-        // Add existing players (excluding self)
-        for (const player of players) {
-          if (player.id !== playerId) {
-            this.remotePlayers.set(player.id, player);
-          }
-        }
-        // Sync lanes from server
-        this.syncLanesFromServer(lanes);
       },
-      onPlayerJoined: (playerId, color, name) => {
-        this.remotePlayers.set(playerId, {
-          id: playerId,
-          name,
-          color,
-          position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
-          isAlive: true,
-        });
-        // Play sound when another player joins
+      onPlayerJoined: (_playerId, _color, _name) => {
         soundManager.playPlayerJoined();
       },
-      onPlayerLeft: (playerId) => {
-        this.remotePlayers.delete(playerId);
+      onPlayerLeft: (_playerId) => {
+        // no-op: gameState will stop including them next tick
       },
-      onPlayerMoved: (playerId, x, y) => {
-        const player = this.remotePlayers.get(playerId);
-        if (player) {
-          player.position = { x, y };
-        }
-      },
-      onPlayerDied: (playerId) => {
-        const player = this.remotePlayers.get(playerId);
-        if (player) {
-          player.isAlive = false;
-          // Reset after brief delay
-          setTimeout(() => {
-            if (player) {
-              player.isAlive = true;
-              player.position = {
-                x: Math.floor(this.gridSize / 2),
-                y: this.gridSize - 1,
-              };
-            }
-          }, 1000);
-        }
-      },
-      onPlayerWon: (playerId) => {
-        console.log(`Player ${playerId} won!`);
-      },
-      onObstacles: (lanes) => {
-        this.syncLanesFromServer(lanes);
+      onGameState: (state) => {
+        this.serverGameState = state;
       },
     });
 
-    // Join once connected
     setTimeout(() => {
       socketClient.join();
     }, 100);
   }
 
-  private syncLanesFromServer(serverLanes: Lane[]): void {
-    // Update obstacle positions from server
-    for (const serverLane of serverLanes) {
-      const localLane = this.gameData.lanes.find((l) => l.y === serverLane.y);
-      if (localLane) {
-        localLane.obstacles = serverLane.obstacles;
-      }
-    }
-  }
-
   private resetGame(): void {
-    this.gameData = {
-      frog: {
-        position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
-        height: 1,
-        width: 1,
-        lives: 3,
-        isAlive: true,
-        isOnLog: false,
-        color: this.localPlayerColor,
-      },
-      lanes: this.createLanes(),
-      score: 0,
-      timeRemaining: 30,
-      level: 1,
-    };
+    this.serverGameState = null;
+    this.localPlayerId = null;
     this.tickCount = 0;
-
-    // TEST: Add a car to see it render (remove later)
-    const roadLane = this.gameData.lanes.find((l) => l.y === 17);
-    if (roadLane) {
-      roadLane.obstacles.push({
-        id: 'test-car-1',
-        position: { x: 5, y: 17 },
-        height: 1,
-        width: 1,
-        size: 'm',
-        velocity: 5,
-        type: 'car',
-        sprite: { file: 'Vehicle_Dementia.png', length: 48 },
-      });
-    }
-
-    // TEST: Add a log to see it render (remove later)
-    const waterLane = this.gameData.lanes.find((l) => l.y === 11);
-    if (waterLane) {
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 11 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 9 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 10 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 8 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-
-      waterLane.obstacles.push({
-        id: 'test-log-1',
-        position: { x: 8, y: 7 },
-        height: 1,
-        width: SIZE_TO_WIDTH['m'],
-        size: 'm',
-        velocity: 0.3,
-        type: 'log',
-      });
-    }
   }
 
-  private createLanes(): Lane[] {
-    const lanes: Lane[] = [];
-
-    // Safe zone (bottom 2 rows)
-    lanes.push({
-      y: 19,
-      type: 'safe',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-    lanes.push({
-      y: 18,
-      type: 'safe',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-
-    // Road lanes (rows 13-17)
-    lanes.push({
-      y: 17,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 20,
-      direction: 1,
-      speed: 0.5,
-    });
-    lanes.push({
-      y: 16,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 25,
-      direction: -1,
-      speed: 0.3,
-    });
-    lanes.push({
-      y: 15,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 18,
-      direction: 1,
-      speed: 0.4,
-    });
-    lanes.push({
-      y: 14,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 22,
-      direction: -1,
-      speed: 0.6,
-    });
-    lanes.push({
-      y: 13,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 30,
-      direction: 1,
-      speed: 0.35,
-    });
-
-    // Safe middle (row 12)
-    lanes.push({
-      y: 12,
-      type: 'safe',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-
-    // Water lanes (rows 7-11)
-    lanes.push({
-      y: 11,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 25,
-      direction: -1,
-      speed: 0.3,
-    });
-    lanes.push({
-      y: 10,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 20,
-      direction: 1,
-      speed: 0.4,
-    });
-    lanes.push({
-      y: 9,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 30,
-      direction: -1,
-      speed: 0.25,
-    });
-    lanes.push({
-      y: 8,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 22,
-      direction: 1,
-      speed: 0.35,
-    });
-    lanes.push({
-      y: 7,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 28,
-      direction: -1,
-      speed: 0.3,
-    });
-
-    // Goal zone (rows 0-6)
-    for (let y = 0; y <= 6; y++) {
-      lanes.push({
-        y,
-        type: 'goal',
-        obstacles: [],
-        spawnRate: 0,
-        direction: 1,
-        speed: 0,
-      });
-    }
-
-    return lanes;
-  }
-
-  update(dt: number): void {
+  update(_dt: number): void {
     if (this.state !== 'playing') return;
-
     this.tickCount++;
-
-    // In multiplayer mode, server handles obstacle spawning/movement
-    // Only run local spawn/movement if not connected
-    if (!socketClient.isConnected) {
-      this.spawnSystem.update(this.gameData, this.gridSize);
-      this.movementSystem.update(this.gameData, dt, this.gridSize);
-    } else {
-      // Still update frog position on logs (client-side for responsiveness)
-      this.movementSystem.update(this.gameData, dt, this.gridSize);
-    }
-
-    const collision = this.collisionSystem.update(this.gameData);
-
-    // Handle collision results
-    switch (collision.type) {
-      case 'car':
-      case 'water':
-        this.handleDeath(collision.type);
-        break;
-      case 'log':
-        this.gameData.frog.isOnLog = true;
-        this.gameData.frog.currentLogId = collision.logId;
-        break;
-      case 'goal':
-        this.handleVictory();
-        break;
-      case 'none':
-        this.gameData.frog.isOnLog = false;
-        this.gameData.frog.currentLogId = undefined;
-        break;
-    }
-  }
-
-  private handleDeath(cause: string): void {
-    // Play death sound
-    soundManager.playDeath();
-
-    // Notify server of death
-    if (socketClient.isConnected) {
-      socketClient.sendDeath(cause);
-    }
-
-    this.gameData.frog.lives--;
-
-    if (this.gameData.frog.lives <= 0) {
-      this.state = 'gameOver';
-      soundManager.stopMusic();
-    } else {
-      // Respawn frog at start
-      this.gameData.frog.position = {
-        x: Math.floor(this.gridSize / 2),
-        y: this.gridSize - 1,
-      };
-      this.gameData.frog.isOnLog = false;
-
-      // Send respawn position to server
-      if (socketClient.isConnected) {
-        socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
-      }
-    }
-  }
-
-  private handleVictory(): void {
-    this.gameData.score += 100;
-    this.state = 'victory';
-
-    // Play victory sound and stop music
-    soundManager.playVictory();
-    soundManager.stopMusic();
-
-    // Notify server of victory
-    if (socketClient.isConnected) {
-      socketClient.sendVictory();
-    }
   }
 
   render(renderer: Renderer): void {
     renderer.clear();
-
     switch (this.state) {
       case 'start':
         renderStartScreen(renderer);
         break;
-
       case 'playing':
         this.renderGame(renderer);
         if (this.showHelp) renderHelpOverlay(renderer);
         if (this.showDebug) renderDebugPanel(renderer, this.getDebugData());
         break;
-
-      case 'gameOver':
-        this.renderGame(renderer);
-        renderGameOverScreen(renderer, this.gameData.score);
-        break;
-
-      case 'victory':
-        this.renderGame(renderer);
-        renderVictoryScreen(renderer, this.gameData.score);
-        break;
     }
   }
 
   private renderGame(renderer: Renderer): void {
+    if (!this.serverGameState) return;
+
     // Render lanes (background)
     this.renderLanes(renderer);
 
@@ -479,17 +114,14 @@ export class FroggerScene implements Scene {
     this.renderObstacles(renderer);
 
     // Render remote players
-    this.renderRemotePlayers(renderer);
-
-    // Render local frog
-    this.renderFrog(renderer);
+    this.renderPlayers(renderer);
 
     // Render HUD
-    renderHUD(renderer, this.gameData.frog.lives, this.gameData.score);
+    this.renderHUD(renderer);
   }
 
   private renderLanes(renderer: Renderer): void {
-    for (const lane of this.gameData.lanes) {
+    for (const lane of this.serverGameState.lanes) {
       let color: number;
       switch (lane.type) {
         case 'safe':
@@ -527,7 +159,7 @@ export class FroggerScene implements Scene {
   }
 
   private renderObstacles(renderer: Renderer): void {
-    for (const lane of this.gameData.lanes) {
+    for (const lane of this.serverGameState.lanes) {
       for (const obstacle of lane.obstacles) {
         let car = obstacle.type === 'car';
 
@@ -560,29 +192,27 @@ export class FroggerScene implements Scene {
     }
   }
 
-  private renderRemotePlayers(renderer: Renderer): void {
-    for (const player of this.remotePlayers.values()) {
+  private renderPlayers(renderer: Renderer): void {
+    for (const player of this.serverGameState!.players) {
       if (player.isAlive) {
-        const { x, y } = player.position;
-
-        renderer.drawPlayer(x, y, player.color);
+        renderer.drawPlayer(player.position.x, player.position.y, player.color);
       }
     }
   }
 
-  private renderFrog(renderer: Renderer): void {
-    const { x, y } = this.gameData.frog.position;
-    renderer.drawPlayer(x, y, this.gameData.frog.color);
+  private renderHUD(renderer: Renderer): void {
+    const localPlayer = this.serverGameState?.players.find((p) => p.id === this.localPlayerId);
+    renderHUD(renderer, localPlayer?.score ?? 0);
   }
 
   private getDebugData(): DebugData {
-    const frogY = this.gameData.frog.position.y;
-    const currentLane = this.gameData.lanes.find((l) => l.y === frogY);
+    const localPlayer = this.serverGameState?.players.find((p) => p.id === this.localPlayerId);
+    const lane = this.serverGameState?.lanes.find((l) => l.y === localPlayer?.position.y);
 
     return {
-      frogPosition: this.gameData.frog.position,
-      currentLaneType: currentLane?.type ?? 'safe',
-      isOnLog: this.gameData.frog.isOnLog,
+      frogPosition: localPlayer?.position ?? { x: 0, y: 0 },
+      currentLaneType: lane?.type ?? 'safe',
+      isOnLog: !!localPlayer?.ridingObstacleId,
       tickCount: this.tickCount,
     };
   }
@@ -590,16 +220,11 @@ export class FroggerScene implements Scene {
   onKeyDown(key: string): void {
     // SPACE: Start / Restart
     if (key === 'Space') {
-      console.log('space hit');
       if (this.state === 'start') {
         this.state = 'playing';
-        soundManager.unlock(); // Ensure audio context is unlocked
+        soundManager.unlock();
         soundManager.playGameStart();
         soundManager.startMusic();
-      } else if (this.state === 'gameOver' || this.state === 'victory') {
-        this.resetGame();
-        this.state = 'start';
-        soundManager.playRestart();
       }
       return;
     }
@@ -622,22 +247,9 @@ export class FroggerScene implements Scene {
     // Movement
     const direction = KEY_DIRECTION[key];
     if (direction) {
-      const moved = this.movementSystem.moveFrog(this.gameData, direction, this.gridSize);
-
-      if (moved) {
-        // Play hop sound on successful movement
-        soundManager.playHop();
-
-        // Send position to server
-        if (socketClient.isConnected) {
-          socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
-        }
-      }
+      socketClient.sendInput(direction);
+      soundManager.playHop();
     }
-  }
-
-  onKeyUp(_key: string): void {
-    // No-op for Frogger
   }
 
   destroy(): void {

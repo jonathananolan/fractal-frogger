@@ -40,7 +40,7 @@ export interface Scene {
   destroy(): void;
 }
 
-export type GameState = 'start' | 'playing' | 'victory' | 'gameOver';
+export type GameState = 'start' | 'playing';
 
 // Debug data exposed by Engine Developer for debug panel
 export interface DebugData {
