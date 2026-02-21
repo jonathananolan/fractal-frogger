@@ -30,6 +30,7 @@ const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 import { GameData, Lane } from '../../shared/types.js';
 import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
+import { getStartingXFromId } from '../../shared/utils.js';
 
 loadSprites();
 loadBackground();
@@ -91,6 +92,7 @@ export class FroggerScene implements Scene {
 
     socketClient.connect(SERVER_URL, {
       onWelcome: (playerId, color, players, lanes) => {
+        this.gameData.frog.position.x = getStartingXFromId(playerId, this.gridSize);
         this.localPlayerColor = color;
         // Add existing players (excluding self)
         for (const player of players) {
@@ -106,7 +108,7 @@ export class FroggerScene implements Scene {
           id: playerId,
           name,
           color,
-          position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
+          position: { x: getStartingXFromId(playerId, this.gridSize), y: this.gridSize - 1 },
           isAlive: true,
           score: 0,
         });
@@ -131,7 +133,7 @@ export class FroggerScene implements Scene {
             if (player) {
               player.isAlive = true;
               player.position = {
-                x: Math.floor(this.gridSize / 2),
+                x: getStartingXFromId(playerId, this.gridSize),
                 y: this.gridSize - 1,
               };
             }
@@ -457,7 +459,7 @@ export class FroggerScene implements Scene {
 
     // Respawn frog at start
     this.gameData.frog.position = {
-      x: Math.floor(this.gridSize / 2),
+      x: getStartingXFromId(socketClient.playerId!, this.gridSize),
       y: this.gridSize - 1,
     };
     this.gameData.frog.isOnLog = false;
@@ -483,7 +485,7 @@ export class FroggerScene implements Scene {
 
     // Respawn frog at start
     this.gameData.frog.position = {
-      x: Math.floor(this.gridSize / 2),
+      x: getStartingXFromId(socketClient.playerId!, this.gridSize),
       y: this.gridSize - 1,
     };
     this.gameData.frog.isOnLog = false;
