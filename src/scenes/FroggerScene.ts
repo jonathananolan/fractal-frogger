@@ -47,6 +47,34 @@ const KEY_DIRECTION: Record<string, 'up' | 'down' | 'left' | 'right'> = {
   KeyD: 'right',
 };
 
+// Random frog names for mobile players
+const FROG_NAMES = [
+  'Ribbit Rick',
+  'Hoppy',
+  'Sir Croaks',
+  'Lily Pad',
+  'Bog Boss',
+  'Swamp Thing',
+  'Toad Warrior',
+  'Frogzilla',
+  'Leap Lord',
+  'Pond Prince',
+  'Marsh Mallow',
+  'Croak Master',
+  'Jumpy Jeff',
+  'Splashy',
+  'Webfoot',
+  'Green Bean',
+  'Tadpole',
+  'Frogsworth',
+  'Hopper',
+  'Slick Frog',
+];
+
+function getRandomFrogName(): string {
+  return FROG_NAMES[Math.floor(Math.random() * FROG_NAMES.length)];
+}
+
 export class FroggerScene implements Scene {
   // Game state
   private state: GameState = 'start';
@@ -79,6 +107,7 @@ export class FroggerScene implements Scene {
 
   //renderer.
   private renderer: Renderer | null = null;
+  private mobileAutoStarted: boolean = false;
 
   init(context: GameContext): void {
     this.gridSize = context.gridSize;
@@ -652,13 +681,15 @@ export class FroggerScene implements Scene {
 
     switch (this.state) {
       case 'start':
+        // On mobile, auto-start with a random frog name
+        if (this.isMobile() && !this.mobileAutoStarted) {
+          this.mobileAutoStarted = true;
+          this.startGameWithName(getRandomFrogName());
+          return;
+        }
+
         renderStartScreen(renderer);
         renderer.showNameInput();
-        // Show start button on mobile with callback
-        if (this.isMobile()) {
-          renderer.setStartCallback(() => this.startGame());
-          renderer.showStartButton();
-        }
         break;
 
       case 'playing':
@@ -674,14 +705,19 @@ export class FroggerScene implements Scene {
   }
 
   private startGame(): void {
-    if (this.state === 'start' && this.renderer?.getNameValue() !== '') {
-      socketClient.join(this.renderer?.getNameValue());
-      this.renderer?.hideInput();
-      this.state = 'playing';
-      soundManager.unlock();
-      soundManager.playGameStart();
-      soundManager.startMusic();
+    const name = this.renderer?.getNameValue() ?? '';
+    if (this.state === 'start' && name !== '') {
+      this.startGameWithName(name);
     }
+  }
+
+  private startGameWithName(name: string): void {
+    socketClient.join(name);
+    this.renderer?.hideInput();
+    this.state = 'playing';
+    soundManager.unlock();
+    soundManager.playGameStart();
+    soundManager.startMusic();
   }
 
   private renderGame(renderer: Renderer): void {
