@@ -27,7 +27,13 @@ import { updateLeaderboard } from '../ui/Leaderboard.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { GameData, Lane } from '../../shared/types.js';
+import {
+  GameData,
+  Lane,
+  LeaderboardEntry,
+  VehicleSize,
+  SIZE_TO_WIDTH,
+} from '../../shared/types.js';
 import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 

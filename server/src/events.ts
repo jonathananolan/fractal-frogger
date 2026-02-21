@@ -80,6 +80,19 @@ export function setupEventHandlers(
       io.emit('leaderboard', { players: gameState.getLeaderboard() });
     });
 
+    // Handle victory event
+    socket.on('victory', () => {
+      console.log(`Player won: ${socket.id}`);
+
+      // Broadcast to all players
+      io.emit('playerWon', {
+        playerId: socket.id,
+      });
+    });
+    // Deprecated: server now owns frog position/lifecycle. Kept as no-op so old clients don't error.
+    socket.on('move', () => {});
+
+    // Handle disconnect
     socket.on('disconnect', () => {
       console.log(`Client disconnected: ${socket.id}`);
       gameState.removePlayer(socket.id);

@@ -278,6 +278,8 @@ export class Renderer implements IRenderer {
   }
 
   clear(): void {
-    this.drawContainer.removeChildren();
+    while (this.drawContainer.children.length > 0) {
+      this.drawContainer.children[0].destroy();
+    }
   }
 }

@@ -72,8 +72,6 @@ export class Game {
       }
 
       try {
-        const alpha = this.accumulator / TICK_RATE_MS;
-        this.renderer.clear();
         this.scene.render(this.renderer, alpha);
       } catch (e) {
         this.errorMessage = e instanceof Error ? e.message : String(e);
