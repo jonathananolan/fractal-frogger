@@ -455,17 +455,17 @@ export class GameState {
 
   getLeaderboard(): Array<{ id: string; name: string; color: number; score: number }> {
     return Array.from(this.players.values())
-      .map(p => ({ id: p.id, name: p.name, color: p.color, score: p.score }))
+      .map((p) => ({ id: p.id, name: p.name, color: p.color, score: p.score }))
       .sort((a, b) => b.score - a.score);
   }
 
   // Prize methods
   getPrizes(): Prize[] {
-    return this.prizes.filter(p => !p.collected);
+    return this.prizes.filter((p) => !p.collected);
   }
 
   collectPrize(prizeId: string, playerId: string): Prize | null {
-    const prize = this.prizes.find(p => p.id === prizeId && !p.collected);
+    const prize = this.prizes.find((p) => p.id === prizeId && !p.collected);
     if (!prize) return null;
 
     prize.collected = true;
@@ -494,7 +494,9 @@ export class GameState {
     const x = Math.floor(Math.random() * GRID_SIZE);
 
     // Check for overlap with existing prizes
-    const overlaps = this.prizes.some(p => !p.collected && p.position.x === x && p.position.y === y);
+    const overlaps = this.prizes.some(
+      (p) => !p.collected && p.position.x === x && p.position.y === y,
+    );
     if (overlaps) return;
 
     const prize: Prize = {
@@ -529,7 +531,7 @@ export class GameState {
     }
 
     // Remove expired prizes
-    this.prizes = this.prizes.filter(prize => {
+    this.prizes = this.prizes.filter((prize) => {
       if (prize.collected) return false;
       const config = PRIZE_CONFIGS[prize.type];
       if (config.duration === 0) return true; // permanent

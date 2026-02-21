@@ -133,7 +133,12 @@ export interface LeaderboardEntry {
 // Server -> Client events
 export interface ServerToClientEvents {
   welcome: (payload: { playerId: string; color: number; players: Player[]; lanes: Lane[] }) => void;
-  playerJoined: (payload: { playerId: string; color: number; name: string; position: Point }) => void;
+  playerJoined: (payload: {
+    playerId: string;
+    color: number;
+    name: string;
+    position: Point;
+  }) => void;
   playerLeft: (payload: { playerId: string }) => void;
   playerMoved: (payload: { playerId: string; x: number; y: number }) => void;
   playerDied: (payload: { playerId: string }) => void;

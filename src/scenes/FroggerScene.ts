@@ -27,7 +27,15 @@ import { updateLeaderboard } from '../ui/Leaderboard.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { GameData, Lane, LeaderboardEntry, Player, Prize, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
+import {
+  GameData,
+  Lane,
+  LeaderboardEntry,
+  Player,
+  Prize,
+  VehicleSize,
+  SIZE_TO_WIDTH,
+} from '../../shared/types.js';
 import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
@@ -154,7 +162,8 @@ export class FroggerScene implements Scene {
       },
       onGameState: (players, lanes, prizes) => {
         // Check if it's time for a position sync
-        const shouldSyncPosition = this.tickCount - this.lastSyncTick >= FroggerScene.POSITION_SYNC_INTERVAL;
+        const shouldSyncPosition =
+          this.tickCount - this.lastSyncTick >= FroggerScene.POSITION_SYNC_INTERVAL;
 
         // Update player positions from server state
         for (const player of players) {
@@ -197,7 +206,7 @@ export class FroggerScene implements Scene {
       },
       onPrizeCollected: (prizeId, playerId) => {
         // Remove collected prize from local state
-        this.serverPrizes = this.serverPrizes.filter(p => p.id !== prizeId);
+        this.serverPrizes = this.serverPrizes.filter((p) => p.id !== prizeId);
         console.log(`Prize ${prizeId} collected by ${playerId}`);
       },
     });
@@ -511,7 +520,9 @@ export class FroggerScene implements Scene {
     this.tongueSystem.update();
 
     // Get active prizes (server or local depending on connection)
-    const activePrizes = socketClient.isConnected ? this.serverPrizes : this.prizeSystem.getActivePrizes();
+    const activePrizes = socketClient.isConnected
+      ? this.serverPrizes
+      : this.prizeSystem.getActivePrizes();
 
     // Check for tongue catching prizes
     const tongueCatch = this.tongueSystem.checkPrizeCollision(activePrizes);
@@ -530,7 +541,10 @@ export class FroggerScene implements Scene {
     }
 
     // Check invincibility expiration
-    if (this.gameData.frog.isInvincible && this.tickCount >= this.gameData.frog.invincibilityEndTick) {
+    if (
+      this.gameData.frog.isInvincible &&
+      this.tickCount >= this.gameData.frog.invincibilityEndTick
+    ) {
       this.gameData.frog.isInvincible = false;
       console.log('Invincibility expired!');
     }
@@ -604,7 +618,7 @@ export class FroggerScene implements Scene {
     if (socketClient.isConnected) {
       socketClient.sendPrizeCollected(prize.id);
       // Remove from local array immediately for responsiveness
-      this.serverPrizes = this.serverPrizes.filter(p => p.id !== prize.id);
+      this.serverPrizes = this.serverPrizes.filter((p) => p.id !== prize.id);
     } else {
       // Local mode - update score directly
       this.gameData.score += prize.value;
@@ -613,8 +627,11 @@ export class FroggerScene implements Scene {
     // Butterfly and crystal grant invincibility
     if (prize.type === 'butterfly' || prize.type === 'crystal') {
       this.gameData.frog.isInvincible = true;
-      this.gameData.frog.invincibilityEndTick = this.tickCount + FroggerScene.INVINCIBILITY_DURATION;
-      console.log(`Invincibility activated! Ends at tick ${this.gameData.frog.invincibilityEndTick}`);
+      this.gameData.frog.invincibilityEndTick =
+        this.tickCount + FroggerScene.INVINCIBILITY_DURATION;
+      console.log(
+        `Invincibility activated! Ends at tick ${this.gameData.frog.invincibilityEndTick}`,
+      );
     }
   }
 
@@ -720,7 +737,12 @@ export class FroggerScene implements Scene {
           );
         } else {
           // Render log with sprites
-          renderer.drawLog(obstacle.position.x, obstacle.position.y, obstacle.width, lane.direction);
+          renderer.drawLog(
+            obstacle.position.x,
+            obstacle.position.y,
+            obstacle.width,
+            lane.direction,
+          );
         }
       }
     }
@@ -728,7 +750,9 @@ export class FroggerScene implements Scene {
 
   private renderPrizes(renderer: Renderer): void {
     // Use server prizes when connected, local otherwise
-    const prizes = socketClient.isConnected ? this.serverPrizes : this.prizeSystem.getActivePrizes();
+    const prizes = socketClient.isConnected
+      ? this.serverPrizes
+      : this.prizeSystem.getActivePrizes();
     for (const prize of prizes) {
       // Hover animation - bob up and down using sine wave
       // Use prize spawn time to offset phase so prizes don't all move in sync

@@ -17,7 +17,12 @@ export interface RemotePlayer {
 // Event callbacks interface
 export interface SocketCallbacks {
   onWelcome: (playerId: string, color: number, players: RemotePlayer[], lanes: Lane[]) => void;
-  onPlayerJoined: (playerId: string, color: number, name: string, position: { x: number; y: number }) => void;
+  onPlayerJoined: (
+    playerId: string,
+    color: number,
+    name: string,
+    position: { x: number; y: number },
+  ) => void;
   onPlayerLeft: (playerId: string) => void;
   onPlayerMoved: (playerId: string, x: number, y: number) => void;
   onPlayerDied: (playerId: string) => void;

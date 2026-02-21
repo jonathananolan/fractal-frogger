@@ -97,7 +97,9 @@ export function setupEventHandlers(
     socket.on('collectPrize', ({ prizeId }) => {
       const prize = gameState.collectPrize(prizeId, socket.id);
       if (prize) {
-        console.log(`Player ${socket.id} collected prize ${prizeId} (${prize.type}, +${prize.value})`);
+        console.log(
+          `Player ${socket.id} collected prize ${prizeId} (${prize.type}, +${prize.value})`,
+        );
         // Broadcast to all players that prize was collected
         io.emit('prizeCollected', { prizeId, playerId: socket.id });
         // Update leaderboard with new score
