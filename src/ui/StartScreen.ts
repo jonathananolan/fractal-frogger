@@ -23,12 +23,7 @@ export function renderStartScreen(renderer: Renderer): void {
   });
 
   if (isMobile()) {
-    // Mobile: simple tap instruction
-    renderer.drawText('Tap to start', cx, 515, {
-      fontSize: 28,
-      color: 0xffffff,
-      anchor: 0.5,
-    });
+    // Mobile: start button is shown by FroggerScene, no static text needed here
   } else {
     // Desktop: arrow key icons in a cross layout
     const arrowY = cy + 30;

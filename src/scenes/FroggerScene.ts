@@ -134,10 +134,7 @@ export class FroggerScene implements Scene {
           setTimeout(() => {
             if (player) {
               player.isAlive = true;
-              player.position = {
-                x: Math.floor(this.gridSize / 2),
-                y: this.gridSize - 1,
-              };
+              player.position = this.findUnoccupiedSpawnPosition();
             }
           }, 1000);
         }
@@ -214,6 +211,7 @@ export class FroggerScene implements Scene {
   }
 
   private resetGame(): void {
+    // Initialize gameData first so findUnoccupiedSpawnPosition can access remotePlayers
     this.gameData = {
       frog: {
         position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
@@ -231,6 +229,8 @@ export class FroggerScene implements Scene {
       timeRemaining: 30,
       level: 1,
     };
+    // Now find an unoccupied spawn position
+    this.gameData.frog.position = this.findUnoccupiedSpawnPosition();
     this.tickCount = 0;
     this.prizeSystem?.reset();
     this.tongueSystem?.reset();
@@ -570,11 +570,42 @@ export class FroggerScene implements Scene {
     }
 
     // Respawn frog at start (local for immediate feedback)
-    this.gameData.frog.position = {
-      x: Math.floor(this.gridSize / 2),
-      y: this.gridSize - 1,
-    };
+    this.gameData.frog.position = this.findUnoccupiedSpawnPosition();
     this.gameData.frog.isOnLog = false;
+  }
+
+  private findUnoccupiedSpawnPosition(): { x: number; y: number } {
+    const spawnY = this.gridSize - 1;
+    const occupiedX = new Set<number>();
+
+    // Add remote players on spawn row
+    for (const player of this.remotePlayers.values()) {
+      if (player.position.y === spawnY) {
+        occupiedX.add(Math.floor(player.position.x));
+      }
+    }
+
+    // Add local frog if it's on spawn row (for cases like resetGame)
+    if (this.gameData?.frog?.position?.y === spawnY) {
+      occupiedX.add(Math.floor(this.gameData.frog.position.x));
+    }
+
+    // Try center first, then expand outward
+    const center = Math.floor(this.gridSize / 2);
+    for (let offset = 0; offset < this.gridSize; offset++) {
+      const leftX = center - offset;
+      const rightX = center + offset;
+
+      if (leftX >= 0 && !occupiedX.has(leftX)) {
+        return { x: leftX, y: spawnY };
+      }
+      if (rightX < this.gridSize && rightX !== leftX && !occupiedX.has(rightX)) {
+        return { x: rightX, y: spawnY };
+      }
+    }
+
+    // Fallback to center if all positions are somehow occupied
+    return { x: center, y: spawnY };
   }
 
   private handleVictory(): void {
@@ -590,10 +621,7 @@ export class FroggerScene implements Scene {
     }
 
     // Respawn frog at start (local for immediate feedback)
-    this.gameData.frog.position = {
-      x: Math.floor(this.gridSize / 2),
-      y: this.gridSize - 1,
-    };
+    this.gameData.frog.position = this.findUnoccupiedSpawnPosition();
     this.gameData.frog.isOnLog = false;
   }
 
@@ -626,6 +654,11 @@ export class FroggerScene implements Scene {
       case 'start':
         renderStartScreen(renderer);
         renderer.showNameInput();
+        // Show start button on mobile with callback
+        if (this.isMobile()) {
+          renderer.setStartCallback(() => this.startGame());
+          renderer.showStartButton();
+        }
         break;
 
       case 'playing':
@@ -633,6 +666,21 @@ export class FroggerScene implements Scene {
         if (this.showHelp) renderHelpOverlay(renderer);
         if (this.showDebug) renderDebugPanel(renderer, this.getDebugData());
         break;
+    }
+  }
+
+  private isMobile(): boolean {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  }
+
+  private startGame(): void {
+    if (this.state === 'start' && this.renderer?.getNameValue() !== '') {
+      socketClient.join(this.renderer?.getNameValue());
+      this.renderer?.hideInput();
+      this.state = 'playing';
+      soundManager.unlock();
+      soundManager.playGameStart();
+      soundManager.startMusic();
     }
   }
 
@@ -775,14 +823,7 @@ export class FroggerScene implements Scene {
   onKeyDown(key: string): void {
     // ENTER: Start game from name entry screen
     if (key === 'Enter') {
-      if (this.state === 'start' && this.renderer?.getNameValue() !== '') {
-        socketClient.join(this.renderer?.getNameValue());
-        this.renderer?.hideInput();
-        this.state = 'playing';
-        soundManager.unlock(); // Ensure audio context is unlocked
-        soundManager.playGameStart();
-        soundManager.startMusic();
-      }
+      this.startGame();
       return;
     }
 

@@ -32,6 +32,8 @@ export interface Renderer {
   showNameInput(): void;
   getNameValue(): string;
   hideInput(): void;
+  setStartCallback(callback: () => void): void;
+  showStartButton(): void;
 
   clear(): void;
   readonly stage: import('pixi.js').Container;

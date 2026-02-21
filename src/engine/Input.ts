@@ -115,8 +115,12 @@ export class Input {
       const dy = this.gesture.lastY - this.gesture.startY;
       const dist = Math.hypot(dx, dy);
 
-      // Swipe gestures for movement (tap no longer triggers Space — keyboard only)
-      if (dist >= this.SWIPE_MIN_DIST_PX && dt <= this.SWIPE_MAX_TIME_MS) {
+      // Tap gesture - small movement triggers tongue (Space)
+      if (dist < this.TAP_MAX_MOVE_PX) {
+        this.scene?.onKeyDown('Space');
+      }
+      // Swipe gestures for movement
+      else if (dist >= this.SWIPE_MIN_DIST_PX && dt <= this.SWIPE_MAX_TIME_MS) {
         const absX = Math.abs(dx);
         const absY = Math.abs(dy);
 

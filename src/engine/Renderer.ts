@@ -19,6 +19,8 @@ export class Renderer implements IRenderer {
   private drawContainer: Container;
   private drawInputs: Container; // consistent ui elements
   private nameInput: Input | null = null;
+  private startButton: Container | null = null;
+  private startCallback: (() => void) | null = null;
 
   get stage(): Container {
     return this.app.stage;
@@ -279,10 +281,63 @@ export class Renderer implements IRenderer {
     if (this.nameInput) {
       this.nameInput.visible = false;
     }
+    if (this.startButton) {
+      this.startButton.visible = false;
+    }
   }
 
   getNameValue(): string {
     return this.nameInput?.value ?? '';
+  }
+
+  setStartCallback(callback: () => void): void {
+    this.startCallback = callback;
+  }
+
+  showStartButton(): void {
+    if (!this.startButton) {
+      const width = 200;
+      const height = 50;
+      const border = 3;
+      const radius = 10;
+
+      this.startButton = new Container();
+      this.startButton.eventMode = 'static';
+      this.startButton.cursor = 'pointer';
+
+      // Button background
+      const bg = new Graphics()
+        .roundRect(0, 0, width, height, radius)
+        .fill(0x00a86b)
+        .stroke({ color: 0x7ce97c, width: border });
+      this.startButton.addChild(bg);
+
+      // Button text
+      const style = new TextStyle({
+        fill: 0xffffff,
+        fontSize: 24,
+        fontFamily: 'SuperFrog',
+      });
+      const text = new Text({ text: 'TAP TO START', style });
+      text.anchor.set(0.5);
+      text.x = width / 2;
+      text.y = height / 2;
+      this.startButton.addChild(text);
+
+      // Position centered below name input
+      this.startButton.x = (CANVAS_WIDTH - width) / 2;
+      this.startButton.y = 500;
+
+      // Handle tap/click
+      this.startButton.on('pointerdown', () => {
+        if (this.startCallback && this.getNameValue() !== '') {
+          this.startCallback();
+        }
+      });
+
+      this.drawInputs.addChild(this.startButton);
+    }
+    this.startButton.visible = true;
   }
 
   clear(): void {
