@@ -287,12 +287,13 @@ export class GameState {
     }
 
     const x = lane.direction === 1 ? -SIZE_TO_WIDTH[size] : GRID_SIZE;
+    const width = isRoad && sprite ? sprite.length / SPRITE_BASE_PX : SIZE_TO_WIDTH[size];
 
     return {
       id,
       position: { x, y: lane.y },
       height: 1,
-      width,
+      width: width,
       size,
       velocity: lane.speed * lane.direction,
       type: isRoad ? 'car' : 'log',
