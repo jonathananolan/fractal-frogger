@@ -93,6 +93,15 @@ export class FroggerScene implements Scene {
     this.prizeSystem = new PrizeSystem(this.gridSize);
     this.resetGame();
     this.connectToServer();
+
+    // Expose game state for bots / debugging
+    (window as any).__froggerState = () => ({
+      state: this.state,
+      frog: this.gameData.frog,
+      lanes: this.gameData.lanes,
+      score: this.gameData.score,
+      gridSize: this.gridSize,
+    });
   }
 
   private connectToServer(): void {
