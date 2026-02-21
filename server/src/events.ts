@@ -45,6 +45,7 @@ export function setupEventHandlers(
         playerId: socket.id,
         color,
         name: playerName,
+        position: player.position,
       });
 
       // Broadcast updated leaderboard
@@ -71,7 +72,7 @@ export function setupEventHandlers(
         const player = gameState.getPlayer(socket.id);
         if (player) {
           player.isAlive = true;
-          player.position = { x: 10, y: 19 };
+          player.position = gameState.findUnoccupiedSpawnPosition();
         }
       }, 1000);
     });
@@ -91,10 +92,21 @@ export function setupEventHandlers(
         playerId: socket.id,
       });
     });
+
+    // Handle prize collection
+    socket.on('collectPrize', ({ prizeId }) => {
+      const prize = gameState.collectPrize(prizeId, socket.id);
+      if (prize) {
+        console.log(`Player ${socket.id} collected prize ${prizeId} (${prize.type}, +${prize.value})`);
+        // Broadcast to all players that prize was collected
+        io.emit('prizeCollected', { prizeId, playerId: socket.id });
+        // Update leaderboard with new score
+        io.emit('leaderboard', { players: gameState.getLeaderboard() });
+      }
+    });
+
     // Deprecated: server now owns frog position/lifecycle. Kept as no-ops so old clients don't error.
     socket.on('move', () => {});
-    socket.on('death', () => {});
-    socket.on('victory', () => {});
 
     // Handle disconnect
     socket.on('disconnect', () => {

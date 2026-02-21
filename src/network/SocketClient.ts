@@ -1,7 +1,7 @@
 // SocketClient - handles WebSocket connection to multiplayer server
 
 import { io, Socket } from 'socket.io-client';
-import { Lane, LeaderboardEntry } from '../../shared/types';
+import { Lane, LeaderboardEntry, Player, Prize } from '../../shared/types';
 
 // Remote player representation
 export interface RemotePlayer {
@@ -11,18 +11,21 @@ export interface RemotePlayer {
   position: { x: number; y: number };
   isAlive: boolean;
   score: number;
+  isInvincible: boolean;
 }
 
 // Event callbacks interface
 export interface SocketCallbacks {
   onWelcome: (playerId: string, color: number, players: RemotePlayer[], lanes: Lane[]) => void;
-  onPlayerJoined: (playerId: string, color: number, name: string) => void;
+  onPlayerJoined: (playerId: string, color: number, name: string, position: { x: number; y: number }) => void;
   onPlayerLeft: (playerId: string) => void;
   onPlayerMoved: (playerId: string, x: number, y: number) => void;
   onPlayerDied: (playerId: string) => void;
   onPlayerWon: (playerId: string) => void;
   onObstacles: (lanes: Lane[]) => void;
   onLeaderboard: (players: LeaderboardEntry[]) => void;
+  onGameState: (players: Player[], lanes: Lane[], prizes: Prize[]) => void;
+  onPrizeCollected: (prizeId: string, playerId: string) => void;
 }
 
 export class SocketClient {
@@ -80,7 +83,7 @@ export class SocketClient {
 
     this.socket.on('playerJoined', (data) => {
       console.log(`Player joined: ${data.name}`);
-      this.callbacks?.onPlayerJoined(data.playerId, data.color, data.name);
+      this.callbacks?.onPlayerJoined(data.playerId, data.color, data.name, data.position);
     });
 
     this.socket.on('playerLeft', (data) => {
@@ -109,6 +112,14 @@ export class SocketClient {
     this.socket.on('leaderboard', (data) => {
       this.callbacks?.onLeaderboard(data.players);
     });
+
+    this.socket.on('gameState', (data) => {
+      this.callbacks?.onGameState(data.players, data.lanes, data.prizes || []);
+    });
+
+    this.socket.on('prizeCollected', (data) => {
+      this.callbacks?.onPrizeCollected(data.prizeId, data.playerId);
+    });
   }
 
   /**
@@ -119,10 +130,17 @@ export class SocketClient {
   }
 
   /**
-   * Send local player position
+   * Send local player position (deprecated - server ignores this)
    */
   sendMove(x: number, y: number): void {
     this.socket?.emit('move', { x, y });
+  }
+
+  /**
+   * Send input direction to server (server-authoritative movement)
+   */
+  sendInput(direction: 'up' | 'down' | 'left' | 'right'): void {
+    this.socket?.emit('input', { direction });
   }
 
   /**
@@ -144,6 +162,13 @@ export class SocketClient {
    */
   sendScoreUpdate(score: number): void {
     this.socket?.emit('scoreUpdate', { score });
+  }
+
+  /**
+   * Send prize collection to server
+   */
+  sendPrizeCollected(prizeId: string): void {
+    this.socket?.emit('collectPrize', { prizeId });
   }
 
   /**

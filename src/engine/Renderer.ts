@@ -1,5 +1,14 @@
 import { Input } from '@pixi/ui';
-import { Application, Assets, Container, Graphics, Sprite, Text, TextStyle, BlurFilter } from 'pixi.js';
+import {
+  Application,
+  Assets,
+  Container,
+  Graphics,
+  Sprite,
+  Text,
+  TextStyle,
+  BlurFilter,
+} from 'pixi.js';
 import type { Renderer as IRenderer } from './types.js';
 import { CELL_SIZE, SPRITE_BASE_PX, CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
 import { PrizeType, SpriteData, VehicleSize, Tongue } from '../../shared/types.js';
@@ -59,7 +68,7 @@ export class Renderer implements IRenderer {
     // Draw the rounded rectangle background
     const bg = new Graphics();
     bg.roundRect(x - width / 2, y - height / 2, width, height, 6);
-    bg.fill(0x333333);
+    bg.fill(0x00a86b);
     bg.stroke({ color: 0x666666, width: 2 });
     this.drawContainer.addChild(bg);
 
@@ -184,12 +193,7 @@ export class Renderer implements IRenderer {
 
     // Draw tongue body (pink/red)
     const g = new Graphics();
-    g.rect(
-      startX * CELL_SIZE,
-      tipY * CELL_SIZE,
-      tongueWidth * CELL_SIZE,
-      tongueLength * CELL_SIZE,
-    );
+    g.rect(startX * CELL_SIZE, tipY * CELL_SIZE, tongueWidth * CELL_SIZE, tongueLength * CELL_SIZE);
     g.fill(0xff6688);
     this.drawContainer.addChild(g);
 
@@ -261,6 +265,14 @@ export class Renderer implements IRenderer {
       this.drawInputs.addChild(this.nameInput);
     }
     this.nameInput.visible = true;
+
+    // Auto-focus the input so user can start typing immediately
+    setTimeout(() => {
+      const inputElement = document.querySelector('input') as HTMLInputElement | null;
+      if (inputElement) {
+        inputElement.focus();
+      }
+    }, 100);
   }
 
   hideInput(): void {

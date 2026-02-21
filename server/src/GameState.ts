@@ -9,16 +9,25 @@ import type {
   Obstacle,
   Player,
   Point,
+  Prize,
+  PrizeType,
   ServerToClientEvents,
   SpriteData,
   VehicleSize,
 } from '../../shared/types.js';
+import { PRIZE_CONFIGS, PRIZE_TYPES } from '../../shared/types.js';
 import type { Server } from 'socket.io';
 import { VEHICLES_BY_SIZE, SIZE_TO_WIDTH } from './sprites.js';
 import { GRID_SIZE, SPRITE_BASE_PX, TICK_RATE_MS } from '../../shared/constants.js';
 
 const RESPAWN_TICKS = 20; // 1 second at 50ms tick rate
-const START_POSITION: Point = { x: 10, y: 19 };
+const START_Y = 19;
+const INVINCIBILITY_DURATION = 100; // ~5 seconds at 20 ticks/sec
+
+// Prize configuration
+const PRIZE_SPAWN_CHANCE = 0.08; // 8% chance per tick (increased from 2%)
+const MAX_PRIZES = 12; // max prizes on screen (increased from 5)
+const VALID_PRIZE_SPAWN_Y = Array.from({ length: 19 }, (_, i) => i + 1); // rows 1-19 (all except goal zone)
 
 export class GameState {
   private lanes: Lane[] = [];
@@ -26,6 +35,11 @@ export class GameState {
   private obstacleIdCounter = 0;
   private tickCounters: Map<number, number> = new Map(); // lane y -> ticks since last spawn
   private tickInterval: NodeJS.Timeout | null = null;
+
+  // Prize state
+  private prizes: Prize[] = [];
+  private prizeIdCounter = 0;
+  private tickCount = 0;
 
   constructor() {
     this.lanes = this.createLanes();
@@ -140,13 +154,16 @@ export class GameState {
       if (lane.type === 'goal') {
         // Player reached the goal zone — victory
         player.score += 100;
-        player.position = { ...START_POSITION };
+        player.position = this.findUnoccupiedSpawnPosition();
         // player stays alive, just resets to start
       }
     }
   }
 
   private killPlayer(player: Player): void {
+    // Invincible players can't die
+    if (player.isInvincible) return;
+
     player.isAlive = false;
     player.respawnTimer = RESPAWN_TICKS;
     player.ridingObstacleId = null;
@@ -158,7 +175,15 @@ export class GameState {
       player.respawnTimer -= 1;
       if (player.respawnTimer === 0) {
         player.isAlive = true;
-        player.position = { ...START_POSITION };
+        player.position = this.findUnoccupiedSpawnPosition();
+      }
+    }
+  }
+
+  private tickInvincibility(): void {
+    for (const player of this.players.values()) {
+      if (player.isInvincible && this.tickCount >= player.invincibilityEndTick) {
+        player.isInvincible = false;
       }
     }
   }
@@ -358,20 +383,49 @@ export class GameState {
   }
 
   addPlayer(id: string, name: string, color: number): Player {
+    const position = this.findUnoccupiedSpawnPosition();
     const player: Player = {
       id,
       name,
       color,
-      position: { ...START_POSITION },
+      position,
       width: 1,
       height: 1,
       isAlive: true,
       score: 0,
       respawnTimer: 0,
       ridingObstacleId: null,
+      isInvincible: false,
+      invincibilityEndTick: 0,
     };
     this.players.set(id, player);
     return player;
+  }
+
+  findUnoccupiedSpawnPosition(): Point {
+    const occupiedX = new Set<number>();
+    for (const player of this.players.values()) {
+      if (player.position.y === START_Y) {
+        occupiedX.add(player.position.x);
+      }
+    }
+
+    // Try center first, then expand outward
+    const center = Math.floor(GRID_SIZE / 2);
+    for (let offset = 0; offset < GRID_SIZE; offset++) {
+      const leftX = center - offset;
+      const rightX = center + offset;
+
+      if (leftX >= 0 && !occupiedX.has(leftX)) {
+        return { x: leftX, y: START_Y };
+      }
+      if (rightX < GRID_SIZE && rightX !== leftX && !occupiedX.has(rightX)) {
+        return { x: rightX, y: START_Y };
+      }
+    }
+
+    // Fallback to center if all positions are somehow occupied
+    return { x: center, y: START_Y };
   }
 
   removePlayer(id: string): void {
@@ -405,6 +459,85 @@ export class GameState {
       .sort((a, b) => b.score - a.score);
   }
 
+  // Prize methods
+  getPrizes(): Prize[] {
+    return this.prizes.filter(p => !p.collected);
+  }
+
+  collectPrize(prizeId: string, playerId: string): Prize | null {
+    const prize = this.prizes.find(p => p.id === prizeId && !p.collected);
+    if (!prize) return null;
+
+    prize.collected = true;
+
+    // Update player score and handle special effects
+    const player = this.players.get(playerId);
+    if (player) {
+      player.score += prize.value;
+
+      // Crystal and butterfly grant invincibility
+      if (prize.type === 'crystal' || prize.type === 'butterfly') {
+        player.isInvincible = true;
+        player.invincibilityEndTick = this.tickCount + INVINCIBILITY_DURATION;
+      }
+    }
+
+    return prize;
+  }
+
+  private spawnPrize(): void {
+    const type = this.getRandomPrizeType();
+    const config = PRIZE_CONFIGS[type];
+
+    // Random position on valid row
+    const y = VALID_PRIZE_SPAWN_Y[Math.floor(Math.random() * VALID_PRIZE_SPAWN_Y.length)];
+    const x = Math.floor(Math.random() * GRID_SIZE);
+
+    // Check for overlap with existing prizes
+    const overlaps = this.prizes.some(p => !p.collected && p.position.x === x && p.position.y === y);
+    if (overlaps) return;
+
+    const prize: Prize = {
+      id: `prize-${this.prizeIdCounter++}`,
+      position: { x, y },
+      type,
+      value: config.value,
+      collected: false,
+      spawnTime: this.tickCount,
+    };
+
+    this.prizes.push(prize);
+  }
+
+  private getRandomPrizeType(): PrizeType {
+    // Build weighted pool - lower rarity = more entries
+    const pool: PrizeType[] = [];
+    for (const type of PRIZE_TYPES) {
+      const config = PRIZE_CONFIGS[type];
+      const weight = 11 - config.rarity; // rarity 1 gets 10 entries, rarity 10 gets 1
+      for (let i = 0; i < weight; i++) {
+        pool.push(type);
+      }
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  private updatePrizes(): void {
+    // Try to spawn a new prize
+    if (this.getPrizes().length < MAX_PRIZES && Math.random() < PRIZE_SPAWN_CHANCE) {
+      this.spawnPrize();
+    }
+
+    // Remove expired prizes
+    this.prizes = this.prizes.filter(prize => {
+      if (prize.collected) return false;
+      const config = PRIZE_CONFIGS[prize.type];
+      if (config.duration === 0) return true; // permanent
+      const age = this.tickCount - prize.spawnTime;
+      return age < config.duration;
+    });
+  }
+
   /**
    * Start the game tick loop
    */
@@ -417,6 +550,7 @@ export class GameState {
       io.sockets.emit('gameState', {
         players: this.getPlayers(),
         lanes: this.lanes,
+        prizes: this.getPrizes(),
       });
       // Kept: backward-compat obstacle broadcast (for current clients)
       io.sockets.emit('obstacles', { lanes: this.lanes });
@@ -433,11 +567,16 @@ export class GameState {
   }
 
   /**
-   * Single game tick - inputs, obstacles, physics, collisions, respawns
+   * Single game tick - inputs, obstacles, physics, collisions, respawns, prizes
    */
   private tick(): void {
+    this.tickCount++;
+
     // 1. Apply pending player inputs
     this.processInputs();
+
+    // 2. Update prizes (spawn/expire)
+    this.updatePrizes();
 
     // 2. Spawn and move obstacles
     for (const lane of this.lanes) {
@@ -480,6 +619,9 @@ export class GameState {
 
     // 5. Tick respawn timers
     this.tickRespawns();
+
+    // 6. Tick invincibility timers
+    this.tickInvincibility();
   }
 
   /**

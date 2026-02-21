@@ -16,15 +16,15 @@ export class SoundManager {
     if (!this.audioContext) {
       this.audioContext = new AudioContext();
       this.masterGain = this.audioContext.createGain();
-      this.masterGain.gain.value = 0.3;
+      this.masterGain.gain.value = 0.6;
       this.masterGain.connect(this.audioContext.destination);
 
       this.musicGain = this.audioContext.createGain();
-      this.musicGain.gain.value = 0.15;
+      this.musicGain.gain.value = 0.25;
       this.musicGain.connect(this.masterGain);
 
       this.sfxGain = this.audioContext.createGain();
-      this.sfxGain.gain.value = 0.3;
+      this.sfxGain.gain.value = 0.5;
       this.sfxGain.connect(this.masterGain);
     }
 
@@ -99,15 +99,64 @@ export class SoundManager {
   playPlayerJoined(): void {
     if (!this.sfxEnabled) return;
 
-    // Ascending arpeggio - welcoming feel
-    this.playSequence(
-      [
-        { freq: 523, dur: 0.12, delay: 0 }, // C5
-        { freq: 659, dur: 0.12, delay: 0.08 }, // E5
-        { freq: 784, dur: 0.15, delay: 0.16 }, // G5
-      ],
-      'triangle',
-    );
+    // Play ribbet sound when a player joins
+    this.playRibbet();
+  }
+
+  // Frog ribbet - classic frog croak sound
+  playRibbet(): void {
+    if (!this.sfxEnabled) return;
+
+    const ctx = this.ensureContext();
+
+    // Create a frog-like ribbet using frequency modulation
+    // Low growly croak followed by a higher "bit" sound
+    const now = ctx.currentTime;
+
+    // First part: low rumbling croak
+    const croak1 = ctx.createOscillator();
+    const croak1Env = ctx.createGain();
+    croak1.type = 'sawtooth';
+    croak1.frequency.setValueAtTime(120, now);
+    croak1.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+    croak1Env.gain.setValueAtTime(0, now);
+    croak1Env.gain.linearRampToValueAtTime(0.15, now + 0.02);
+    croak1Env.gain.linearRampToValueAtTime(0.1, now + 0.1);
+    croak1Env.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+    croak1.connect(croak1Env);
+    croak1Env.connect(this.sfxGain!);
+    croak1.start(now);
+    croak1.stop(now + 0.2);
+
+    // Second part: slightly higher "bit" sound
+    const croak2 = ctx.createOscillator();
+    const croak2Env = ctx.createGain();
+    croak2.type = 'sawtooth';
+    croak2.frequency.setValueAtTime(180, now + 0.2);
+    croak2.frequency.exponentialRampToValueAtTime(100, now + 0.35);
+    croak2Env.gain.setValueAtTime(0, now + 0.2);
+    croak2Env.gain.linearRampToValueAtTime(0.12, now + 0.22);
+    croak2Env.gain.linearRampToValueAtTime(0.08, now + 0.28);
+    croak2Env.gain.exponentialRampToValueAtTime(0.01, now + 0.38);
+    croak2.connect(croak2Env);
+    croak2Env.connect(this.sfxGain!);
+    croak2.start(now + 0.2);
+    croak2.stop(now + 0.4);
+
+    // Add some noise for texture (throat vibration)
+    const noise = ctx.createOscillator();
+    const noiseEnv = ctx.createGain();
+    noise.type = 'triangle';
+    noise.frequency.setValueAtTime(60, now);
+    noise.frequency.linearRampToValueAtTime(40, now + 0.35);
+    noiseEnv.gain.setValueAtTime(0, now);
+    noiseEnv.gain.linearRampToValueAtTime(0.05, now + 0.05);
+    noiseEnv.gain.linearRampToValueAtTime(0.03, now + 0.3);
+    noiseEnv.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    noise.connect(noiseEnv);
+    noiseEnv.connect(this.sfxGain!);
+    noise.start(now);
+    noise.stop(now + 0.42);
   }
 
   // Game start - gentle upbeat sound

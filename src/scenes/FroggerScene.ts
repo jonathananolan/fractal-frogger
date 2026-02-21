@@ -27,7 +27,7 @@ import { updateLeaderboard } from '../ui/Leaderboard.js';
 // Server URL - use localhost in dev, same origin in production
 const SERVER_URL = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
-import { GameData, Lane, LeaderboardEntry, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
+import { GameData, Lane, LeaderboardEntry, Player, Prize, VehicleSize, SIZE_TO_WIDTH } from '../../shared/types.js';
 import { loadSprites, loadBackground } from '../sprites.js';
 import { GRID_SIZE } from '../../shared/constants.js';
 
@@ -73,6 +73,9 @@ export class FroggerScene implements Scene {
   private remotePlayers: Map<string, RemotePlayer> = new Map();
   private localPlayerColor: number = 0x44ff44;
   private leaderboardData: LeaderboardEntry[] = [];
+  private serverPrizes: Prize[] = [];
+  private lastSyncTick: number = 0;
+  private static readonly POSITION_SYNC_INTERVAL = 40; // Sync every ~2 seconds at 20 ticks/sec
 
   //renderer.
   private renderer: Renderer | null = null;
@@ -90,6 +93,8 @@ export class FroggerScene implements Scene {
     socketClient.connect(SERVER_URL, {
       onWelcome: (playerId, color, players, lanes) => {
         this.localPlayerColor = color;
+        // Update the frog's color to match server-assigned color
+        this.gameData.frog.color = color;
         // Add existing players (excluding self)
         for (const player of players) {
           if (player.id !== playerId) {
@@ -99,14 +104,15 @@ export class FroggerScene implements Scene {
         // Sync lanes from server
         this.syncLanesFromServer(lanes);
       },
-      onPlayerJoined: (playerId, color, name) => {
+      onPlayerJoined: (playerId, color, name, position) => {
         this.remotePlayers.set(playerId, {
           id: playerId,
           name,
           color,
-          position: { x: Math.floor(this.gridSize / 2), y: this.gridSize - 1 },
+          position,
           isAlive: true,
           score: 0,
+          isInvincible: false,
         });
         // Play sound when another player joins
         soundManager.playPlayerJoined();
@@ -145,6 +151,54 @@ export class FroggerScene implements Scene {
       onLeaderboard: (players) => {
         this.leaderboardData = players;
         updateLeaderboard(players, socketClient.playerId);
+      },
+      onGameState: (players, lanes, prizes) => {
+        // Check if it's time for a position sync
+        const shouldSyncPosition = this.tickCount - this.lastSyncTick >= FroggerScene.POSITION_SYNC_INTERVAL;
+
+        // Update player positions from server state
+        for (const player of players) {
+          if (player.id === socketClient.playerId) {
+            // Sync local player's score from server (server handles prize scoring)
+            this.gameData.score = player.score;
+
+            // Periodically sync local player position to correct drift
+            if (shouldSyncPosition) {
+              this.gameData.frog.position = { ...player.position };
+              this.gameData.frog.isInvincible = player.isInvincible;
+              this.gameData.frog.invincibilityEndTick = player.invincibilityEndTick;
+              this.lastSyncTick = this.tickCount;
+            }
+            continue;
+          }
+
+          const existing = this.remotePlayers.get(player.id);
+          if (existing) {
+            existing.position = player.position;
+            existing.isAlive = player.isAlive;
+            existing.score = player.score;
+            existing.isInvincible = player.isInvincible;
+          } else {
+            // New player we haven't seen yet
+            this.remotePlayers.set(player.id, {
+              id: player.id,
+              name: player.name,
+              color: player.color,
+              position: player.position,
+              isAlive: player.isAlive,
+              score: player.score,
+              isInvincible: player.isInvincible,
+            });
+          }
+        }
+        // Sync lanes and prizes from server
+        this.syncLanesFromServer(lanes);
+        this.serverPrizes = prizes;
+      },
+      onPrizeCollected: (prizeId, playerId) => {
+        // Remove collected prize from local state
+        this.serverPrizes = this.serverPrizes.filter(p => p.id !== prizeId);
+        console.log(`Prize ${prizeId} collected by ${playerId}`);
       },
     });
   }
@@ -448,25 +502,31 @@ export class FroggerScene implements Scene {
       this.movementSystem.update(this.gameData, dt, this.gridSize);
     }
 
-    // Update prize system (spawn/expire prizes)
-    this.prizeSystem.update(this.gridSize);
+    // Update prize system - use server prizes when connected, local otherwise
+    if (!socketClient.isConnected) {
+      this.prizeSystem.update(this.gridSize);
+    }
 
     // Update tongue system
     this.tongueSystem.update();
 
+    // Get active prizes (server or local depending on connection)
+    const activePrizes = socketClient.isConnected ? this.serverPrizes : this.prizeSystem.getActivePrizes();
+
     // Check for tongue catching prizes
-    const tongueCatch = this.tongueSystem.checkPrizeCollision(this.prizeSystem.getActivePrizes());
+    const tongueCatch = this.tongueSystem.checkPrizeCollision(activePrizes);
     if (tongueCatch) {
       this.handlePrizeCollected(tongueCatch);
     }
 
     // Check for frog walking over prizes
-    const prizeCollision = this.prizeSystem.checkCollision(
-      this.gameData.frog.position.x,
-      this.gameData.frog.position.y,
-    );
-    if (prizeCollision) {
-      this.handlePrizeCollected(prizeCollision.prize);
+    const frogX = Math.floor(this.gameData.frog.position.x);
+    const frogY = this.gameData.frog.position.y;
+    for (const prize of activePrizes) {
+      if (Math.floor(prize.position.x) === frogX && prize.position.y === frogY) {
+        this.handlePrizeCollected(prize);
+        break;
+      }
     }
 
     // Check invincibility expiration
@@ -504,22 +564,17 @@ export class FroggerScene implements Scene {
     // Play death sound
     soundManager.playDeath();
 
-    // Notify server of death
+    // Notify server of death (server handles respawn position)
     if (socketClient.isConnected) {
       socketClient.sendDeath(cause);
     }
 
-    // Respawn frog at start
+    // Respawn frog at start (local for immediate feedback)
     this.gameData.frog.position = {
       x: Math.floor(this.gridSize / 2),
       y: this.gridSize - 1,
     };
     this.gameData.frog.isOnLog = false;
-
-    // Send respawn position to server
-    if (socketClient.isConnected) {
-      socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
-    }
   }
 
   private handleVictory(): void {
@@ -528,32 +583,31 @@ export class FroggerScene implements Scene {
     // Play victory sound
     soundManager.playVictory();
 
-    // Notify server of victory
+    // Notify server of victory (server handles respawn position)
     if (socketClient.isConnected) {
       socketClient.sendVictory();
       socketClient.sendScoreUpdate(this.gameData.score);
     }
 
-    // Respawn frog at start
+    // Respawn frog at start (local for immediate feedback)
     this.gameData.frog.position = {
       x: Math.floor(this.gridSize / 2),
       y: this.gridSize - 1,
     };
     this.gameData.frog.isOnLog = false;
-
-    // Send respawn position to server
-    if (socketClient.isConnected) {
-      socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
-    }
   }
 
   private handlePrizeCollected(prize: import('../../shared/types.js').Prize): void {
     console.log(`Collected ${prize.type}! +${prize.value} points`);
-    this.gameData.score += prize.value;
 
-    // Send score update to server
+    // Send prize collection to server (server handles score)
     if (socketClient.isConnected) {
-      socketClient.sendScoreUpdate(this.gameData.score);
+      socketClient.sendPrizeCollected(prize.id);
+      // Remove from local array immediately for responsiveness
+      this.serverPrizes = this.serverPrizes.filter(p => p.id !== prize.id);
+    } else {
+      // Local mode - update score directly
+      this.gameData.score += prize.value;
     }
 
     // Butterfly and crystal grant invincibility
@@ -673,7 +727,9 @@ export class FroggerScene implements Scene {
   }
 
   private renderPrizes(renderer: Renderer): void {
-    for (const prize of this.prizeSystem.getActivePrizes()) {
+    // Use server prizes when connected, local otherwise
+    const prizes = socketClient.isConnected ? this.serverPrizes : this.prizeSystem.getActivePrizes();
+    for (const prize of prizes) {
       // Hover animation - bob up and down using sine wave
       // Use prize spawn time to offset phase so prizes don't all move in sync
       const hoverPhase = (this.tickCount + prize.spawnTime) * 0.15;
@@ -687,7 +743,7 @@ export class FroggerScene implements Scene {
       if (player.isAlive) {
         const { x, y } = player.position;
 
-        renderer.drawPlayer(x, y, player.color);
+        renderer.drawPlayer(x, y, player.color, player.isInvincible);
       }
     }
   }
@@ -717,9 +773,8 @@ export class FroggerScene implements Scene {
   }
 
   onKeyDown(key: string): void {
-    // SPACE: Start / Restart / Shoot tongue
-    if (key === 'Space') {
-      console.log('space hit');
+    // ENTER: Start game from name entry screen
+    if (key === 'Enter') {
       if (this.state === 'start' && this.renderer?.getNameValue() !== '') {
         socketClient.join(this.renderer?.getNameValue());
         this.renderer?.hideInput();
@@ -727,8 +782,13 @@ export class FroggerScene implements Scene {
         soundManager.unlock(); // Ensure audio context is unlocked
         soundManager.playGameStart();
         soundManager.startMusic();
-      } else if (this.state === 'playing') {
-        // Shoot tongue during gameplay
+      }
+      return;
+    }
+
+    // SPACE: Shoot tongue during gameplay
+    if (key === 'Space') {
+      if (this.state === 'playing') {
         this.tongueSystem.shoot(this.gameData.frog.position);
       }
       return;
@@ -758,9 +818,9 @@ export class FroggerScene implements Scene {
         // Play hop sound on successful movement
         soundManager.playHop();
 
-        // Send position to server
+        // Send input direction to server (server-authoritative movement)
         if (socketClient.isConnected) {
-          socketClient.sendMove(this.gameData.frog.position.x, this.gameData.frog.position.y);
+          socketClient.sendInput(direction);
         }
       }
     }

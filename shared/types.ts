@@ -17,6 +17,8 @@ export interface Player {
   pendingInput?: Direction;
   respawnTimer: number;
   ridingObstacleId: string | null;
+  isInvincible: boolean;
+  invincibilityEndTick: number;
 }
 
 export type ObstacleType = 'car' | 'log' | 'turtle';
@@ -106,6 +108,7 @@ export interface GameData {
 export interface ServerGameState {
   players: Player[];
   lanes: Lane[];
+  prizes: Prize[];
 }
 
 // Client -> Server events
@@ -116,6 +119,7 @@ export interface ClientToServerEvents {
   victory: () => void;
   scoreUpdate: (payload: { score: number }) => void;
   input: (payload: { direction: Direction }) => void;
+  collectPrize: (payload: { prizeId: string }) => void;
 }
 
 // Leaderboard entry sent from server to clients
@@ -129,7 +133,7 @@ export interface LeaderboardEntry {
 // Server -> Client events
 export interface ServerToClientEvents {
   welcome: (payload: { playerId: string; color: number; players: Player[]; lanes: Lane[] }) => void;
-  playerJoined: (payload: { playerId: string; color: number; name: string }) => void;
+  playerJoined: (payload: { playerId: string; color: number; name: string; position: Point }) => void;
   playerLeft: (payload: { playerId: string }) => void;
   playerMoved: (payload: { playerId: string; x: number; y: number }) => void;
   playerDied: (payload: { playerId: string }) => void;
@@ -137,7 +141,26 @@ export interface ServerToClientEvents {
   obstacles: (payload: { lanes: Lane[] }) => void;
   leaderboard: (payload: { players: LeaderboardEntry[] }) => void;
   gameState: (payload: ServerGameState) => void;
+  prizeCollected: (payload: { prizeId: string; playerId: string }) => void;
 }
+
+// Prize configuration for server-side spawning
+export interface PrizeConfig {
+  type: PrizeType;
+  value: number;
+  rarity: number; // 1-10, higher = rarer
+  duration: number; // ticks before disappearing (0 = permanent)
+}
+
+export const PRIZE_CONFIGS: Record<PrizeType, PrizeConfig> = {
+  coin: { type: 'coin', value: 10, rarity: 1, duration: 0 },
+  orange: { type: 'orange', value: 25, rarity: 3, duration: 200 },
+  watermelon: { type: 'watermelon', value: 50, rarity: 5, duration: 150 },
+  crystal: { type: 'crystal', value: 100, rarity: 7, duration: 100 },
+  butterfly: { type: 'butterfly', value: 200, rarity: 9, duration: 80 },
+};
+
+export const PRIZE_TYPES: PrizeType[] = ['coin', 'orange', 'watermelon', 'crystal', 'butterfly'];
 
 // Color palette for players
 export const PLAYER_COLORS = [
