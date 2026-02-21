@@ -169,7 +169,7 @@ export const PRIZE_TYPES: PrizeType[] = ['coin', 'orange', 'watermelon', 'crysta
 
 // Color palette for players
 export const PLAYER_COLORS = [
-  0x44ff44, // green (default frog)
+  0x44ff44, // green
   0xff44ff, // magenta
   0x44ffff, // cyan
   0xffff44, // yellow
@@ -177,4 +177,12 @@ export const PLAYER_COLORS = [
   0x8844ff, // purple
   0x44ff88, // mint
   0xff4488, // pink
+  0xff4444, // red
+  0x4488ff, // blue
+  0xffaa44, // amber
+  0x44ffcc, // teal
+  0xff66cc, // hot pink
+  0xaaff44, // lime
+  0xcc88ff, // lavender
+  0xff8888, // salmon
 ];
