@@ -774,7 +774,7 @@ export class FroggerScene implements Scene {
 
   private renderFrog(renderer: Renderer): void {
     const { x, y } = this.gameData.frog.position;
-    renderer.drawPlayer(x, y, this.gameData.frog.color, this.gameData.frog.isInvincible);
+    renderer.drawPlayer(x, y, this.gameData.frog.color, this.gameData.frog.isInvincible, true);
   }
 
   private renderTongue(renderer: Renderer): void {

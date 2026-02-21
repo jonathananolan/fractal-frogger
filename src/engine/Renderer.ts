@@ -152,7 +152,7 @@ export class Renderer implements IRenderer {
     this.drawContainer.addChild(rightSprite);
   }
 
-  drawPlayer(gridX: number, gridY: number, color: number, isInvincible?: boolean): void {
+  drawPlayer(gridX: number, gridY: number, color: number, isInvincible?: boolean, isLocalPlayer?: boolean): void {
     const texture = Assets.get(SPRITE_PATH + 'frog.svg');
     const frogSprite = new Sprite(texture);
     frogSprite.x = gridX * CELL_SIZE;
@@ -161,12 +161,23 @@ export class Renderer implements IRenderer {
     frogSprite.height = CELL_SIZE;
     frogSprite.tint = color;
 
+    const centerX = gridX * CELL_SIZE + CELL_SIZE / 2;
+    const centerY = gridY * CELL_SIZE + CELL_SIZE / 2;
+
+    // Add white glow for local player so they can spot themselves
+    if (isLocalPlayer && !isInvincible) {
+      const glow = new Graphics();
+      const glowRadius = CELL_SIZE * 0.7;
+      glow.circle(centerX, centerY, glowRadius);
+      glow.fill({ color: 0xffffff, alpha: 0.3 });
+      glow.filters = [new BlurFilter({ strength: 6 })];
+      this.drawContainer.addChild(glow);
+    }
+
     // Add glow effect when invincible
     if (isInvincible) {
       // Draw glow behind the frog
       const glow = new Graphics();
-      const centerX = gridX * CELL_SIZE + CELL_SIZE / 2;
-      const centerY = gridY * CELL_SIZE + CELL_SIZE / 2;
       const glowRadius = CELL_SIZE * 0.8;
 
       // Pulsing glow effect
