@@ -41,6 +41,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
       'http://127.0.0.1:5173',
       'https://fractal-frogger.onrender.com',
       'https://fractal-frogger-9z75.onrender.com',
+      'https://froggers.onrender.com',
     ],
     methods: ['GET', 'POST'],
   },
