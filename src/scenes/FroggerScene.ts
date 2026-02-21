@@ -103,7 +103,7 @@ export class FroggerScene implements Scene {
   private leaderboardData: LeaderboardEntry[] = [];
   private serverPrizes: Prize[] = [];
   private lastSyncTick: number = 0;
-  private static readonly POSITION_SYNC_INTERVAL = 40; // Sync every ~2 seconds at 20 ticks/sec
+  private static readonly POSITION_SYNC_INTERVAL = 10; // Sync every ~1.5 seconds at 6.67 ticks/sec
 
   //renderer.
   private renderer: Renderer | null = null;
@@ -569,11 +569,15 @@ export class FroggerScene implements Scene {
     // Handle collision results
     switch (collision.type) {
       case 'car':
-      case 'water':
         // Skip death if invincible
         if (!this.gameData.frog.isInvincible) {
           this.handleDeath(collision.type);
         }
+        break;
+      case 'water':
+        // Water deaths are server-authoritative only - client/server log positions
+        // can desync, causing false drowning. Let the server handle water deaths
+        // and sync the position back to us via onGameState.
         break;
       case 'log':
         this.gameData.frog.isOnLog = true;
