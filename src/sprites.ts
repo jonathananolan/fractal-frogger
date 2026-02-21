@@ -85,11 +85,21 @@ export const VEHICLE_SPRITES: SpriteData[] = [
   { file: 'Vehicle_Transporter.png', length: 128 },
 ];
 
+// Log sprite files
+export const LOG_SPRITES = {
+  left: 'log-left-end.png',
+  middle: 'log-middle.png',
+  right: 'log-right-end.png',
+};
+
 /** Load all vehicle sprite textures. Call once at startup. */
 export async function loadSprites(): Promise<void> {
   await Assets.load([
     ...VEHICLE_SPRITES.map((s) => SPRITE_PATH + s.file),
     SPRITE_PATH + 'frog.svg',
+    SPRITE_PATH + LOG_SPRITES.left,
+    SPRITE_PATH + LOG_SPRITES.middle,
+    SPRITE_PATH + LOG_SPRITES.right,
   ]);
 }
 

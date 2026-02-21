@@ -141,63 +141,64 @@ describe('Event Handlers', () => {
     });
   });
 
-  describe('Input Event', () => {
-    it('queues pending input on the player', () => {
+  describe('Move Event', () => {
+    it('stores position and rebroadcasts to others', () => {
       const socket = createMockSocket('socket-1');
       mockIo._simulateConnection(socket);
       socket._trigger('join', { name: 'TestPlayer' });
 
-      socket._trigger('input', { direction: 'up' });
-
-      expect(gameState.getPlayer('socket-1')!.pendingInput).toBe('up');
-    });
-
-    it('ignores input for dead players', () => {
-      const socket = createMockSocket('socket-1');
-      mockIo._simulateConnection(socket);
-      socket._trigger('join', { name: 'TestPlayer' });
-
-      gameState.getPlayer('socket-1')!.isAlive = false;
-      socket._trigger('input', { direction: 'up' });
-
-      expect(gameState.getPlayer('socket-1')!.pendingInput).toBeUndefined();
-    });
-  });
-
-  describe('Move Event (deprecated — no-op)', () => {
-    it('does not update player position', () => {
-      const socket = createMockSocket('socket-1');
-      mockIo._simulateConnection(socket);
-      socket._trigger('join', { name: 'TestPlayer' });
-
-      const before = { ...gameState.getPlayer('socket-1')!.position };
       socket._trigger('move', { x: 5, y: 15 });
 
-      expect(gameState.getPlayer('socket-1')!.position).toEqual(before);
+      expect(gameState.getPlayer('socket-1')!.position).toEqual({ x: 5, y: 15 });
+      expect(socket.broadcast.emit).toHaveBeenCalledWith('playerMoved', {
+        playerId: 'socket-1',
+        x: 5,
+        y: 15,
+      });
     });
   });
 
-  describe('Death Event (deprecated — no-op)', () => {
-    it('does not kill the player', () => {
+  describe('Death Event', () => {
+    it('stores alive=false and rebroadcasts to others', () => {
       const socket = createMockSocket('socket-1');
       mockIo._simulateConnection(socket);
       socket._trigger('join', { name: 'TestPlayer' });
 
       socket._trigger('death', { cause: 'car' });
 
-      expect(gameState.getPlayer('socket-1')!.isAlive).toBe(true);
+      expect(gameState.getPlayer('socket-1')!.isAlive).toBe(false);
+      expect(socket.broadcast.emit).toHaveBeenCalledWith('playerDied', {
+        playerId: 'socket-1',
+      });
     });
   });
 
-  describe('Victory Event (deprecated — no-op)', () => {
-    it('does not emit playerWon', () => {
+  describe('Victory Event', () => {
+    it('rebroadcasts playerWon to all', () => {
       const socket = createMockSocket('socket-1');
       mockIo._simulateConnection(socket);
       socket._trigger('join', { name: 'TestPlayer' });
 
       socket._trigger('victory');
 
-      expect(mockIo.emit).not.toHaveBeenCalledWith('playerWon', expect.anything());
+      expect(mockIo.emit).toHaveBeenCalledWith('playerWon', {
+        playerId: 'socket-1',
+      });
+    });
+  });
+
+  describe('Score Update', () => {
+    it('stores score and broadcasts leaderboard', () => {
+      const socket = createMockSocket('socket-1');
+      mockIo._simulateConnection(socket);
+      socket._trigger('join', { name: 'TestPlayer' });
+
+      socket._trigger('scoreUpdate', { score: 500 });
+
+      expect(gameState.getPlayer('socket-1')!.score).toBe(500);
+      expect(mockIo.emit).toHaveBeenCalledWith('leaderboard', {
+        players: expect.any(Array),
+      });
     });
   });
 
@@ -245,22 +246,6 @@ describe('Event Handlers', () => {
         (call: any) => call[0] === 'welcome',
       );
       expect(welcomeCall[1].players).toHaveLength(2);
-    });
-
-    it('queues input for the correct player only', () => {
-      const socket1 = createMockSocket('socket-1');
-      const socket2 = createMockSocket('socket-2');
-
-      mockIo._simulateConnection(socket1);
-      mockIo._simulateConnection(socket2);
-
-      socket1._trigger('join', { name: 'Player1' });
-      socket2._trigger('join', { name: 'Player2' });
-
-      socket1._trigger('input', { direction: 'up' });
-
-      expect(gameState.getPlayer('socket-1')!.pendingInput).toBe('up');
-      expect(gameState.getPlayer('socket-2')!.pendingInput).toBeUndefined();
     });
   });
 });

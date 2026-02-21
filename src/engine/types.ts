@@ -24,6 +24,7 @@ export interface Renderer {
   ): void;
   drawKeyCap(label: string, x: number, y: number, width: number, height: number): void;
   drawVehicle(gridX: number, gridY: number, size: VehicleSize, sprite: SpriteData): void;
+  drawLog(gridX: number, gridY: number, widthCells: number, direction?: 1 | -1): void;
   drawPlayer(gridX: number, gridY: number, color: number, isInvincible?: boolean): void;
   drawPrize(gridX: number, gridY: number, prizeType: PrizeType): void;
   drawTongue(tongue: Tongue, frogColor: number): void;
@@ -39,7 +40,7 @@ export interface Renderer {
 export interface Scene {
   init(context: GameContext): void;
   update(dt: number): void;
-  render(renderer: Renderer): void;
+  render(renderer: Renderer, alpha?: number): void;
   onKeyDown(key: string): void;
   onKeyUp(key: string): void;
   destroy(): void;

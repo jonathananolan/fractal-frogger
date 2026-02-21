@@ -7,6 +7,8 @@ import { GameData } from '../../shared/types';
 //import { SIZE_TO_WIDTH } from '../entities/types.js';
 
 export class MovementSystem {
+  // Track the last known log position to calculate delta movement
+  private lastLogX: number | null = null;
   /**
    * Move the frog one cell in the given direction.
    * Returns true if move was valid, false if blocked (edge of grid).
@@ -50,35 +52,38 @@ export class MovementSystem {
    * Update all obstacle positions based on their velocities.
    * Also moves frog if riding a log.
    */
-  update(gameData: GameData, dt: number, gridSize: number): void {
-    // Move all obstacles
-    for (const lane of gameData.lanes) {
-      for (const obstacle of lane.obstacles) {
-        obstacle.position.x += obstacle.velocity * dt;
+  update(gameData: GameData, dt: number, gridSize: number, skipObstacles = false): void {
+    if (!skipObstacles) {
+      // Move all obstacles (only when server is NOT authoritative)
+      for (const lane of gameData.lanes) {
+        for (const obstacle of lane.obstacles) {
+          obstacle.position.x += obstacle.velocity;
 
-        // Wrap around when obstacle goes off screen
-        const width = obstacle.width;
-        if (obstacle.velocity > 0 && obstacle.position.x > gridSize) {
-          obstacle.position.x = -width;
-        } else if (obstacle.velocity < 0 && obstacle.position.x + width < 0) {
-          obstacle.position.x = gridSize;
+          // Wrap around when obstacle goes off screen
+          const width = obstacle.width;
+          if (obstacle.velocity > 0 && obstacle.position.x > gridSize) {
+            obstacle.position.x = -width;
+          } else if (obstacle.velocity < 0 && obstacle.position.x + width < 0) {
+            obstacle.position.x = gridSize;
+          }
         }
       }
     }
 
-    // if frog on log, move frog
+    // if frog on log, move frog by tracking log's actual position change
     if (gameData.frog.isOnLog) {
-      // get frog's log
       const logId = gameData.frog.currentLogId as string;
       const log = gameData.lanes.flatMap((l) => l.obstacles).find((o) => o.id === logId);
 
-      // update frog's position
-      //const frogVelocity = log.direction * log.speed
       if (log) {
-        gameData.frog.position.x += log.velocity * dt;
+        gameData.frog.position.x += log.velocity;
       } else {
-        throw new Error('no log found');
+        // Log disappeared (went off screen), reset tracking
+        this.lastLogX = null;
       }
+    } else {
+      // Frog not on log, reset tracking
+      this.lastLogX = null;
     }
   }
 }

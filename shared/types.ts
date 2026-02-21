@@ -103,11 +103,6 @@ export interface GameData {
   level: number;
 }
 
-export interface ServerGameState {
-  players: Player[];
-  lanes: Lane[];
-}
-
 // Client -> Server events
 export interface ClientToServerEvents {
   join: (payload: { name?: string }) => void;
