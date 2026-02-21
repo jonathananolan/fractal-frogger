@@ -3,10 +3,7 @@
 
 import type { Renderer } from '../engine/types.js';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../../shared/constants.js';
-
-function isMobile(): boolean {
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-}
+import { isMobile } from '../../shared/utils.js';
 
 // Draws a single keycap icon (rounded rectangle + label) onto the stage
 

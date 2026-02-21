@@ -18,11 +18,10 @@ import type {
 import { PRIZE_CONFIGS, PRIZE_TYPES } from '../../shared/types.js';
 import type { Server } from 'socket.io';
 import { VEHICLES_BY_SIZE, SIZE_TO_WIDTH } from './sprites.js';
-import { GRID_SIZE, SPRITE_BASE_PX, TICK_RATE_MS } from '../../shared/constants.js';
+import { GRID_SIZE, SPRITE_BASE_PX, TICK_RATE_MS, INVINCIBILITY_DURATION, START_Y } from '../../shared/constants.js';
+import { createDefaultLanes } from '../../shared/laneConfig.js';
 
 const RESPAWN_TICKS = 20; // 1 second at 50ms tick rate
-const START_Y = 19;
-const INVINCIBILITY_DURATION = 100; // ~5 seconds at 20 ticks/sec
 
 // Prize configuration
 const PRIZE_SPAWN_CHANCE = 0.08; // 8% chance per tick (increased from 2%)
@@ -42,7 +41,7 @@ export class GameState {
   private tickCount = 0;
 
   constructor() {
-    this.lanes = this.createLanes();
+    this.lanes = createDefaultLanes();
   }
 
   queueInput(id: string, direction: Direction): void {
@@ -186,188 +185,6 @@ export class GameState {
         player.isInvincible = false;
       }
     }
-  }
-
-  private createLanes(): Lane[] {
-    const lanes: Lane[] = [];
-
-    // Safe zone (bottom 2 rows)
-    lanes.push({
-      y: 19,
-      type: 'safe',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-    lanes.push({
-      y: 18,
-      type: 'safe',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-
-    // Road lanes (rows 13-17)
-    lanes.push({
-      y: 17,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 20,
-      direction: 1,
-      speed: 0.5,
-    });
-    lanes.push({
-      y: 16,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 25,
-      direction: -1,
-      speed: 0.3,
-    });
-    lanes.push({
-      y: 15,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 18,
-      direction: 1,
-      speed: 0.4,
-    });
-    lanes.push({
-      y: 14,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 22,
-      direction: -1,
-      speed: 0.6,
-    });
-    lanes.push({
-      y: 13,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 30,
-      direction: 1,
-      speed: 0.35,
-    });
-
-    // Safe middle (row 12)
-    lanes.push({
-      y: 12,
-      type: 'safe',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-
-    // Water lanes (rows 8-11)
-    lanes.push({
-      y: 11,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 25,
-      direction: -1,
-      speed: 0.3,
-    });
-    lanes.push({
-      y: 10,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 20,
-      direction: 1,
-      speed: 0.4,
-    });
-    lanes.push({
-      y: 9,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 30,
-      direction: -1,
-      speed: 0.25,
-    });
-    lanes.push({
-      y: 8,
-      type: 'water',
-      obstacles: [],
-      spawnRate: 22,
-      direction: 1,
-      speed: 0.35,
-    });
-
-    // Safe middle (row 7)
-    lanes.push({
-      y: 7,
-      type: 'safe',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-
-    // Safe zone (row 6) - buffer between water and upper road
-    lanes.push({
-      y: 6,
-      type: 'safe',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-
-    // Second road lanes (rows 1-5) - 5 lanes
-    lanes.push({
-      y: 5,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 28,
-      direction: -1,
-      speed: 0.35,
-    });
-    lanes.push({
-      y: 4,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 20,
-      direction: 1,
-      speed: 0.5,
-    });
-    lanes.push({
-      y: 3,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 25,
-      direction: -1,
-      speed: 0.4,
-    });
-    lanes.push({
-      y: 2,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 18,
-      direction: 1,
-      speed: 0.55,
-    });
-    lanes.push({
-      y: 1,
-      type: 'road',
-      obstacles: [],
-      spawnRate: 30,
-      direction: -1,
-      speed: 0.3,
-    });
-
-    // Goal zone (row 0)
-    lanes.push({
-      y: 0,
-      type: 'goal',
-      obstacles: [],
-      spawnRate: 0,
-      direction: 1,
-      speed: 0,
-    });
-
-    return lanes;
   }
 
   getLanes(): Lane[] {
